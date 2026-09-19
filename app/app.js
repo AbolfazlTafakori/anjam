@@ -7,6 +7,7 @@
   // ============================================================
   const I18N = {
     fa: {
+      searchSettings: 'جستجوی تنظیمات', spAccount: 'حساب', spAccountSub: 'پروفایل، ورود و همگام‌سازی', spPrefs: 'ترجیحات', spPrefsSub: 'ظاهر و رفتار انجام را انتخاب کنید', spGeneral: 'عمومی', spGeneralSub: 'فضاهای کاری شما و تنظیمات آن‌ها', spPeople: 'اعضا', spPeopleSub: 'اعضای فضاهای کاری مشترک و نقش‌هایشان', spData: 'داده و پشتیبان', spDataSub: 'خروجی بگیرید یا از پشتیبان بازیابی کنید', spApp: 'برنامه', spAbout: 'درباره', aboutSub: 'انجام — کارها، ساده و دقیق', spProfile: 'پروفایل', spSync: 'همگام‌سازی', spSyncState: 'وضعیت', spSession: 'نشست', signOutHint: 'از حساب روی این دستگاه خارج می‌شوید؛ داده‌های محلی می‌ماند.', serverHint: 'نشانی سروری که حساب شما روی آن است.', themeHint: 'پوستهٔ برنامه روی این دستگاه', spLangTime: 'زبان و زمان', langHint: 'زبان رابط کاربری و اعداد', showDone: 'نمایش انجام‌شده‌ها', showDoneHint: 'کارهای انجام‌شده در نماها هم دیده شوند', notifySub: 'تعیین کنید کی و چطور خبردار شوید', spInApp: 'اعلان‌های دستگاه', expPdfHint: 'گزارش چاپی از وضعیت کارها', expCsvHint: 'برای اکسل و گوگل‌شیت', expMdHint: 'فهرست متنی کارها', spBackup: 'پشتیبان', expJsonHint: 'همهٔ کارها، لیست‌ها و تنظیمات', impJsonHint: 'داده‌های فعلی با فایل پشتیبان جایگزین می‌شود', export: 'خروجی', updatesSub: 'نسخهٔ برنامه و دریافت نسخهٔ تازه', spVersion: 'نسخه', shortcutsSub: 'با صفحه‌کلید سریع‌تر کار کنید', spDownloads: 'دانلود نسخه‌ها', spWsName: 'نام فضای کاری', spWsPersonal: 'فضای شخصی شما؛ فقط خودتان می‌بینید.', spWsShared: '{n} لیست · نقش شما: {r}', spManage: 'مدیریت', spNoWs: 'هنوز فضای مشترکی ندارید.', spNoSignIn: 'برای فضاهای مشترک باید وارد حساب شوید.', spMembersOf: 'اعضای {w}',
       home: 'خانه', calendarView: 'تقویم', searchAsk: 'جستجو', upcomingSide: 'پیش‌رو', recents: 'اخیر', sharedSec: 'مشترک', privateSec: 'شخصی', startCollab: 'شروع همکاری', noShared: 'هنوز لیست مشترکی ندارید', accountMenu: 'حساب و فضای کاری',
       gMorning: 'صبح بخیر', gAfternoon: 'ظهر بخیر', gEvening: 'عصر بخیر', gNight: 'شب بخیر', subHome: '{a} کار برای امروز · {b} کار این هفته', subCalendar: '{n} کار با تاریخ', emptyHome: 'این هفته کاری نمانده', emptyCalendar: 'کاری با تاریخ ندارید', yourLists: 'لیست‌ها', tasksOpen: '{n} باز',
       mRename: 'تغییر نام', mDuplicate: 'کپی لیست', mMove: 'انتقال به فضای کاری', mDeleteList: 'حذف لیست', mInvite: 'دعوت اعضا', mLogout: 'خروج از حساب', mSignIn: 'ورود / ثبت‌نام', mNewWorkspace: 'فضای کاری جدید', mWorkspaces: 'فضاهای کاری', mCopyOk: 'کپی شد', mAccount: 'حساب',
@@ -60,6 +61,7 @@
       repeatShort: { daily: 'روزانه', weekdays: 'روزهای کاری', weekly: 'هفتگی', monthly: 'ماهانه', yearly: 'سالانه' },
     },
     en: {
+      searchSettings: 'Search settings', spAccount: 'Account', spAccountSub: 'Profile, sign-in and sync', spPrefs: 'Preferences', spPrefsSub: 'Choose how Anjam looks and behaves', spGeneral: 'General', spGeneralSub: 'Your workspaces and their settings', spPeople: 'People', spPeopleSub: 'Members of your shared workspaces and their roles', spData: 'Data & backup', spDataSub: 'Export, or restore from a backup', spApp: 'App', spAbout: 'About', aboutSub: 'Anjam — tasks, simple and precise', spProfile: 'Profile', spSync: 'Sync', spSyncState: 'Status', spSession: 'Session', signOutHint: 'Signs out on this device; local data stays.', serverHint: 'The server your account lives on.', themeHint: 'Theme for Anjam on this device', spLangTime: 'Language & time', langHint: 'Interface language and digits', showDone: 'Show completed', showDoneHint: 'Completed tasks stay visible in views', notifySub: 'Decide when and how you want to be notified', spInApp: 'Device notifications', expPdfHint: 'A printable status report', expCsvHint: 'For Excel and Google Sheets', expMdHint: 'A plain-text task list', spBackup: 'Backup', expJsonHint: 'All tasks, lists and settings', impJsonHint: 'Replaces current data with the backup file', export: 'Export', updatesSub: 'App version and getting the latest one', spVersion: 'Version', shortcutsSub: 'Work faster with the keyboard', spDownloads: 'Downloads', spWsName: 'Workspace name', spWsPersonal: 'Your personal space; only you see it.', spWsShared: '{n} lists · your role: {r}', spManage: 'Manage', spNoWs: 'No shared workspaces yet.', spNoSignIn: 'Sign in to use shared workspaces.', spMembersOf: 'Members of {w}',
       home: 'Home', calendarView: 'Calendar', searchAsk: 'Search', upcomingSide: 'Upcoming', recents: 'Recents', sharedSec: 'Shared', privateSec: 'Private', startCollab: 'Start collaborating', noShared: 'No shared lists yet', accountMenu: 'Account & workspace',
       gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', gNight: 'Good night', subHome: '{a} tasks today · {b} this week', subCalendar: '{n} dated tasks', emptyHome: 'Nothing left this week', emptyCalendar: 'No dated tasks yet', yourLists: 'Lists', tasksOpen: '{n} open',
       mRename: 'Rename', mDuplicate: 'Duplicate list', mMove: 'Move to workspace', mDeleteList: 'Delete list', mInvite: 'Invite members', mLogout: 'Log out', mSignIn: 'Sign in / Sign up', mNewWorkspace: 'New workspace', mWorkspaces: 'Workspaces', mCopyOk: 'Copied', mAccount: 'Account',
@@ -1538,6 +1540,57 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     const opts = [['due', 'calendar', 'sortDue'], ['priority', 'flag', 'sortPriority'], ['title', 'notes', 'sortTitle'], ['created', 'clock', 'sortCreated']];
     openMenu(a, opts.map(([k, ic, lb]) => ({ label: t(lb), icon: ic, on: s.sort === k, run: () => { s.sort = k; save(); render(); } })), { title: t('sort') });
   }
+  // Settings window (Notion's form): nav on the start side, one pane at a time
+  function showPane(name) {
+    $$('.stw-item').forEach((b) => b.classList.toggle('active', b.dataset.pane === name));
+    $$('.stw-pane').forEach((p) => { p.hidden = p.dataset.pane !== name; });
+    $('.stw-body').scrollTop = 0;
+    if (name === 'general') renderSpWorkspaces();
+    if (name === 'people') renderSpPeople();
+    if (name === 'about') { $('#sp-about-version').textContent = $('#app-version').textContent || ''; $('#sp-about-server').textContent = state.data.sync.server || DEFAULT_SERVER || '—'; const dl = $('#sp-about-dl'); const srv = state.data.sync.server || DEFAULT_SERVER; dl.hidden = !srv; if (srv) dl.href = srv.replace(/\/$/, '') + '/download'; }
+  }
+  function openSettings(pane = 'account') {
+    $('#settings').hidden = false;
+    $('#sp-name').textContent = signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName');
+    $('#sp-avatar').textContent = (signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName')).trim().charAt(0).toUpperCase();
+    $('#set-showdone').checked = !!state.data.settings.showDone;
+    $('#sp-q').value = ''; $$('.stw-item').forEach((b) => { b.hidden = false; });
+    showPane(pane);
+  }
+  function renderSpWorkspaces() {
+    const w = $('#sp-workspaces'); w.innerHTML = '';
+    if (!signedIn()) { w.innerHTML = `<p class="stw-empty">${esc(t('spNoSignIn'))}</p>`; return; }
+    state.data.workspaces.forEach((ws) => {
+      const n = state.data.lists.filter((l) => workspaceOfList(l) === ws.id).length;
+      const row = document.createElement('div'); row.className = 'stw-row';
+      row.innerHTML = `<div class="stw-k"><b dir="auto">${esc(ws.personal ? t('personalWS') : ws.name)}</b><p>${esc(ws.personal ? t('spWsPersonal') : fmt('spWsShared', { n: num(n), r: t('role_' + (ws.role || 'editor')) }))}</p></div><div class="stw-v">${ws.personal ? '' : `<button class="btn">${esc(t('spManage'))}</button>`}</div>`;
+      const b = row.querySelector('button'); if (b) b.onclick = () => openShareDialog(ws.id);
+      w.appendChild(row);
+    });
+    const add = document.createElement('div'); add.className = 'stw-row';
+    add.innerHTML = `<div class="stw-k"><b>${esc(t('mNewWorkspace'))}</b><p>${esc(t('startCollab'))}</p></div><div class="stw-v"><button class="btn primary">${icon('plus')}<span>${esc(t('mNewWorkspace'))}</span></button></div>`;
+    add.querySelector('button').onclick = startCollab; w.appendChild(add);
+  }
+  async function renderSpPeople() {
+    const w = $('#sp-people'); w.innerHTML = '';
+    if (!signedIn()) { w.innerHTML = `<p class="stw-empty">${esc(t('spNoSignIn'))}</p>`; return; }
+    const shared = state.data.workspaces.filter((x) => !x.personal);
+    if (!shared.length) { w.innerHTML = `<p class="stw-empty">${esc(t('spNoWs'))}</p>`; return; }
+    for (const ws of shared) {
+      const h = document.createElement('h2'); h.className = 'stw-h'; h.textContent = fmt('spMembersOf', { w: ws.name }); w.appendChild(h);
+      let members = [];
+      try { const r = await api(state.data.sync.server, '/api/workspaces/' + ws.id + '/members', null, state.data.sync.token); members = r.members || []; } catch {}
+      members.forEach((m) => {
+        const row = document.createElement('div'); row.className = 'stw-row';
+        row.innerHTML = `<div class="stw-k stw-member"><span class="avatar xs">${esc((m.name || m.email || '?').trim().charAt(0).toUpperCase())}</span><div><b dir="auto">${esc(m.name || m.email)}</b><p dir="ltr">${esc(m.email || '')}</p></div></div><div class="stw-v"><span class="chip gray">${esc(t('role_' + (m.role || 'editor')))}</span></div>`;
+        w.appendChild(row);
+      });
+      const row = document.createElement('div'); row.className = 'stw-row';
+      row.innerHTML = `<div class="stw-k"><b>${esc(t('mInvite'))}</b><p>${esc(t('shareHint'))}</p></div><div class="stw-v"><button class="btn">${esc(t('spManage'))}</button></div>`;
+      row.querySelector('button').onclick = () => openShareDialog(ws.id); w.appendChild(row);
+    }
+  }
+
   function moreMenu(a) {
     const l = state.view === 'list' && !state.query ? getList(state.listId) : null;
     const listItems = l && canWriteWS(workspaceOfList(l)) ? [
@@ -1560,7 +1613,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       { label: t('impJson'), icon: 'upload', run: importJson },
       '-',
       { label: t('report'), icon: 'chart', hint: 'Ctrl E', run: () => setView('report') },
-      { label: t('aSettings'), icon: 'settings', run: () => { $('#settings').hidden = false; } },
+      { label: t('aSettings'), icon: 'settings', run: () => openSettings() },
     ]);
   }
   function setQuery(q) {
@@ -1584,9 +1637,9 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#rail-toggle').onclick = () => (isPhone() ? toggleDrawer() : toggleRail()); $('#rail-open').onclick = () => (isPhone() ? toggleDrawer() : toggleRail());
     $('#nav-search').onclick = openPalette;
     $('#ws-btn').onclick = (e) => openMenu(e.currentTarget, [
-      { label: signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName'), hint: signedIn() ? state.data.sync.email : '', icon: 'user', run: () => { if (signedIn()) $('#settings').hidden = false; else openAuth('signin'); } },
+      { label: signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName'), hint: signedIn() ? state.data.sync.email : '', icon: 'user', run: () => { if (signedIn()) openSettings('account'); else openAuth('signin'); } },
       '-',
-      { label: t('aSettings'), icon: 'settings', run: () => { $('#settings').hidden = false; } },
+      { label: t('aSettings'), icon: 'settings', run: () => openSettings() },
       { label: t('mInvite'), icon: 'users', run: startCollab },
       '-',
       ...state.data.workspaces.map((w) => ({ label: w.personal ? t('privateSec') : w.name, icon: w.personal ? 'user' : 'users', hint: w.personal ? '' : t('role_' + (w.role || 'editor')), run: () => { if (!w.personal) openShareDialog(w.id); } })),
@@ -1603,8 +1656,12 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#list-dialog-close').onclick = () => { $('#list-dialog').hidden = true; };
     $('#list-save').onclick = saveList; $('#list-delete').onclick = deleteList;
     $('#list-name').onkeydown = (e) => { if (e.key === 'Enter') saveList(); };
-    $('#settings-btn').onclick = () => { $('#settings').hidden = false; };
+    $('#settings-btn').onclick = () => openSettings();
     $('#settings-close').onclick = () => { $('#settings').hidden = true; };
+    $$('.stw-item').forEach((b) => b.onclick = () => showPane(b.dataset.pane));
+    $('#sp-q').oninput = (e) => { const q = e.target.value.trim().toLowerCase(); $$('.stw-item').forEach((b) => { b.hidden = !!q && !b.textContent.toLowerCase().includes(q); }); };
+    $('#set-showdone').onchange = (e) => { state.data.settings.showDone = e.target.checked; touchSettings(); save(); render(); };
+    $('#sp-exp-pdf').onclick = exportPdf; $('#sp-exp-csv').onclick = exportCsv; $('#sp-exp-md').onclick = exportMd; $('#sp-exp-json').onclick = exportJson; $('#sp-imp-json').onclick = importJson;
     $$('.overlay').forEach((o) => o.addEventListener('mousedown', (e) => { if (e.target === o) o.hidden = true; }));
     const touchSettings = () => { state.data.settings.settingsUpdatedAt = Date.now(); dirty.add('settings'); };
     $$('#set-lang button').forEach((b) => b.onclick = () => { state.data.settings.lang = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
@@ -1617,7 +1674,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#filter-btn').onclick = (e) => filterMenu(e.currentTarget);
     $('#sort-btn').onclick = (e) => sortMenu(e.currentTarget);
     $$('#view-tabs button').forEach((b) => b.onclick = () => setMode(b.dataset.mode));
-    $('#sync-pill').onclick = () => { if (signedIn()) syncNow(); else $('#settings').hidden = false; };
+    $('#sync-pill').onclick = () => { if (signedIn()) syncNow(); else openSettings('account'); };
     window.addEventListener('offline', renderSyncPill);
     $('#palette-q').oninput = () => { pal.index = 0; renderPalette(); };
     $('#palette-q').onkeydown = (e) => {

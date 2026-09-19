@@ -142,6 +142,7 @@ Three shadows: `shadow-sm` (buttons, cards, 1px ring + 2px drop), `shadow-md` (m
 - **Row**: checkbox · title · hover "Open" pill · property chips · hover delete. Context menu on right-click.
 - **Inline capture**: a highlighted row with the quick-add parser (date words, `!1-3`, `#tag`, `@list`, `HH:MM`) and live token pills.
 - **Peek**: close / expand / delete bar → 24px checkbox + 30px editable title → property rows (Due, Time + reminder switch, Repeat, Priority segmented, List, Tags, Created) → subtasks with a progress bar → notes.
+- **Settings window**: Notion's form — 1150×720 dialog, 240px nav on the start side (search, groups Account · Workspace · App), one pane at a time with a 24px title, subtitle, section rules and label/description rows with the control on the end side; on phones the nav becomes a horizontal strip.
 - **Menus**: 8px radius, 30px items, group titles, active dot; date picker with quick chips + month grid (Jalali starts Saturday, Fridays red; Gregorian starts Sunday).
 - **Skeleton**: shown during boot only; four shimmering rows.
 - **Toast**: bottom center, dark, with Undo.

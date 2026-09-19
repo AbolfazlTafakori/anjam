@@ -343,59 +343,107 @@
 
 <!-- Settings -->
 <div class="overlay" id="settings" hidden>
-  <div class="dialog" role="dialog" aria-label="Settings">
-    <div class="dialog-head"><h2 data-i18n="settings">تنظیمات</h2><button class="ibtn" id="settings-close"><svg><use href="#i-x"/></svg></button></div>
-    <div class="d-field">
-      <div class="d-label"><svg><use href="#i-monitor"/></svg><span data-i18n="theme">ظاهر</span></div>
-      <div class="seg" id="set-theme"><button data-v="system" data-i18n="thSystem">سیستم</button><button data-v="light" data-i18n="thLight">روشن</button><button data-v="dark" data-i18n="thDark">تیره</button></div>
-    </div>
-    <div class="d-field">
-      <div class="d-label"><svg><use href="#i-lang"/></svg><span data-i18n="language">زبان</span></div>
-      <div class="seg" id="set-lang"><button data-v="fa">فارسی</button><button data-v="en">English</button></div>
-    </div>
-    <div class="d-field">
-      <div class="d-label"><svg><use href="#i-calendar"/></svg><span data-i18n="calendar">تقویم</span></div>
-      <div class="seg" id="set-cal"><button data-v="jalali" data-i18n="jalali">شمسی</button><button data-v="gregorian" data-i18n="gregorian">میلادی</button></div>
-      <div class="d-alt" id="cal-preview"></div>
-    </div>
-    <div class="d-field">
-      <div class="d-label"><svg><use href="#i-bell"/></svg><span data-i18n="notifications">اعلان‌ها</span></div>
-      <label class="switch"><input type="checkbox" id="set-notify" /><span class="switch-track"></span><span data-i18n="notifyDesc">یادآور کارها با اعلان سیستم</span></label>
-    </div>
-    <div class="d-field" id="account">
-      <div class="d-label"><svg><use href="#i-cloud"/></svg><span data-i18n="account">حساب و همگام‌سازی</span><span class="d-progress" id="sync-status"></span></div>
-      <div id="account-out">
-        <input id="acc-server" type="url" class="field-input" dir="ltr" placeholder="https://anjam.example.com" />
-        <div class="acc-actions"><button class="btn primary" id="acc-open" data-i18n="signInUp">ورود / ثبت‌نام</button></div>
-        <div class="d-alt hint" data-i18n="accountHint">بدون حساب هم همه‌چیز روی همین دستگاه ذخیره می‌شود. با حساب، کارها بین ویندوز، وب و اندروید همگام می‌شوند.</div>
-      </div>
-      <div id="account-in" hidden>
-        <div class="acc-who"><span class="avatar" id="acc-avatar"></span><span id="acc-who"></span></div>
-        <div class="d-alt" id="acc-last"></div>
-        <div class="acc-actions">
-          <button class="btn" id="acc-sync" data-i18n="syncNow">همگام‌سازی</button>
-          <button class="btn" id="acc-profile" data-i18n="editProfile">ویرایش حساب</button>
-          <button class="btn ghost danger" id="acc-logout" data-i18n="signOut">خروج</button>
+  <div class="stw" role="dialog" aria-label="Settings">
+    <nav class="stw-nav">
+      <label class="stw-search"><svg><use href="#i-search"/></svg><input id="sp-q" type="search" data-i18n-ph="searchSettings" placeholder="جستجوی تنظیمات" /></label>
+      <div class="stw-group" data-i18n="spAccount">حساب</div>
+      <button class="stw-item" data-pane="account"><span class="avatar xs" id="sp-avatar">ا</span><span class="nav-label" id="sp-name">انجام</span></button>
+      <button class="stw-item" data-pane="prefs"><svg><use href="#i-settings"/></svg><span class="nav-label" data-i18n="spPrefs">ترجیحات</span></button>
+      <button class="stw-item" data-pane="notify"><svg><use href="#i-bell"/></svg><span class="nav-label" data-i18n="notifications">اعلان‌ها</span></button>
+      <div class="stw-group" data-i18n="workspace">فضای کاری</div>
+      <button class="stw-item" data-pane="general"><svg><use href="#i-layers"/></svg><span class="nav-label" data-i18n="spGeneral">عمومی</span></button>
+      <button class="stw-item" data-pane="people"><svg><use href="#i-users"/></svg><span class="nav-label" data-i18n="spPeople">اعضا</span></button>
+      <button class="stw-item" data-pane="data"><svg><use href="#i-download"/></svg><span class="nav-label" data-i18n="spData">داده و پشتیبان</span></button>
+      <div class="stw-group" data-i18n="spApp">برنامه</div>
+      <button class="stw-item" data-pane="updates"><svg><use href="#i-sparkle"/></svg><span class="nav-label" data-i18n="updates">به‌روزرسانی</span></button>
+      <button class="stw-item" data-pane="shortcuts"><svg><use href="#i-command"/></svg><span class="nav-label" data-i18n="shortcuts">میانبرها</span></button>
+      <button class="stw-item" data-pane="about"><svg><use href="#i-sparkle"/></svg><span class="nav-label" data-i18n="spAbout">درباره</span></button>
+    </nav>
+    <div class="stw-body">
+      <button class="ibtn stw-close" id="settings-close"><svg><use href="#i-x"/></svg></button>
+
+      <section class="stw-pane" data-pane="account">
+        <h1 data-i18n="spAccount">حساب</h1><p class="stw-sub" data-i18n="spAccountSub">پروفایل، ورود و همگام‌سازی</p>
+        <div id="account-out">
+          <h2 class="stw-h" data-i18n="signInUp">ورود / ثبت‌نام</h2>
+          <div class="stw-row"><div class="stw-k"><b data-i18n="server">سرور</b><p data-i18n="serverHint">نشانی سروری که حساب شما روی آن است.</p></div><div class="stw-v"><input id="acc-server" type="url" class="field-input" dir="ltr" placeholder="https://anjam.example.com" /></div></div>
+          <div class="stw-row"><div class="stw-k"><b data-i18n="account">حساب و همگام‌سازی</b><p data-i18n="accountHint">بدون حساب هم همه‌چیز روی همین دستگاه ذخیره می‌شود. با حساب، کارها بین ویندوز، وب و اندروید همگام می‌شوند.</p></div><div class="stw-v"><button class="btn primary" id="acc-open" data-i18n="signInUp">ورود / ثبت‌نام</button></div></div>
         </div>
-      </div>
-    </div>
-    <div class="d-field" id="update-field">
-      <div class="d-label"><svg><use href="#i-sparkle"/></svg><span data-i18n="updates">به‌روزرسانی</span><span class="d-progress" id="app-version"></span></div>
-      <div class="acc-row"><div class="d-alt" id="update-text"></div><div class="acc-actions"><button class="btn" id="update-check" data-i18n="checkUpdate">بررسی</button><button class="btn primary" id="update-install" hidden data-i18n="restartUpdate">راه‌اندازی مجدد و نصب</button></div></div>
-    </div>
-    <div class="d-field">
-      <div class="d-label"><svg><use href="#i-command"/></svg><span data-i18n="shortcuts">میانبرها</span></div>
-      <div class="shortcuts">
-        <div><kbd>Ctrl</kbd><kbd>K</kbd><span data-i18n="scPalette">فرمان‌ها</span></div>
-        <div><kbd>Ctrl</kbd><kbd>N</kbd><span data-i18n="scAdd">کار جدید</span></div>
-        <div><kbd>Ctrl</kbd><kbd>F</kbd><span data-i18n="scSearch">جستجو</span></div>
-        <div><kbd>Ctrl</kbd><kbd>E</kbd><span data-i18n="report">گزارش</span></div>
-        <div><kbd>Ctrl</kbd><kbd>\</kbd><span data-i18n="aCollapse">نوار کناری</span></div>
-        <div><kbd>↑</kbd><kbd>↓</kbd><span data-i18n="scNav">حرکت بین کارها</span></div>
-        <div><kbd>Space</kbd><span data-i18n="scToggle">انجام / برگشت</span></div>
-        <div><kbd>Enter</kbd><span data-i18n="scOpen">باز کردن</span></div>
-        <div><kbd>Del</kbd><span data-i18n="delete">حذف</span></div>
-      </div>
+        <div id="account-in" hidden>
+          <h2 class="stw-h" data-i18n="spProfile">پروفایل</h2>
+          <div class="stw-profile"><span class="avatar lg" id="acc-avatar"></span><div class="stw-profile-body"><span class="stw-lbl" data-i18n="yourNameL">نام</span><div id="acc-who" class="stw-who"></div></div><button class="btn" id="acc-profile" data-i18n="editProfile">ویرایش حساب</button></div>
+          <h2 class="stw-h" data-i18n="spSync">همگام‌سازی</h2>
+          <div class="stw-row"><div class="stw-k"><b data-i18n="spSyncState">وضعیت</b><p id="acc-last"></p></div><div class="stw-v"><span class="d-progress" id="sync-status"></span><button class="btn" id="acc-sync" data-i18n="syncNow">همگام‌سازی</button></div></div>
+          <h2 class="stw-h" data-i18n="spSession">نشست</h2>
+          <div class="stw-row"><div class="stw-k"><b data-i18n="signOut">خروج</b><p data-i18n="signOutHint">از حساب روی این دستگاه خارج می‌شوید؛ داده‌های محلی می‌ماند.</p></div><div class="stw-v"><button class="btn ghost danger" id="acc-logout" data-i18n="signOut">خروج</button></div></div>
+        </div>
+      </section>
+
+      <section class="stw-pane" data-pane="prefs" hidden>
+        <h1 data-i18n="spPrefs">ترجیحات</h1><p class="stw-sub" data-i18n="spPrefsSub">ظاهر و رفتار انجام را انتخاب کنید</p>
+        <h2 class="stw-h" data-i18n="theme">ظاهر</h2>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="theme">ظاهر</b><p data-i18n="themeHint">پوستهٔ برنامه روی این دستگاه</p></div><div class="stw-v"><div class="seg" id="set-theme"><button data-v="system" data-i18n="thSystem">سیستم</button><button data-v="light" data-i18n="thLight">روشن</button><button data-v="dark" data-i18n="thDark">تیره</button></div></div></div>
+        <h2 class="stw-h" data-i18n="spLangTime">زبان و زمان</h2>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="language">زبان</b><p data-i18n="langHint">زبان رابط کاربری و اعداد</p></div><div class="stw-v"><div class="seg" id="set-lang"><button data-v="fa">فارسی</button><button data-v="en">English</button></div></div></div>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="calendar">تقویم</b><p id="cal-preview"></p></div><div class="stw-v"><div class="seg" id="set-cal"><button data-v="jalali" data-i18n="jalali">شمسی</button><button data-v="gregorian" data-i18n="gregorian">میلادی</button></div></div></div>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="showDone">نمایش انجام‌شده‌ها</b><p data-i18n="showDoneHint">کارهای انجام‌شده در نماها هم دیده شوند</p></div><div class="stw-v"><label class="switch"><input type="checkbox" id="set-showdone" /><span class="switch-track"></span></label></div></div>
+      </section>
+
+      <section class="stw-pane" data-pane="notify" hidden>
+        <h1 data-i18n="notifications">اعلان‌ها</h1><p class="stw-sub" data-i18n="notifySub">تعیین کنید کی و چطور خبردار شوید</p>
+        <h2 class="stw-h" data-i18n="spInApp">اعلان‌های دستگاه</h2>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="reminderTitle">یادآور</b><p data-i18n="notifyDesc">یادآور کارها با اعلان سیستم</p></div><div class="stw-v"><label class="switch"><input type="checkbox" id="set-notify" /><span class="switch-track"></span></label></div></div>
+      </section>
+
+      <section class="stw-pane" data-pane="general" hidden>
+        <h1 data-i18n="spGeneral">عمومی</h1><p class="stw-sub" data-i18n="spGeneralSub">فضاهای کاری شما و تنظیمات آن‌ها</p>
+        <div id="sp-workspaces"></div>
+      </section>
+
+      <section class="stw-pane" data-pane="people" hidden>
+        <h1 data-i18n="spPeople">اعضا</h1><p class="stw-sub" data-i18n="spPeopleSub">اعضای فضاهای کاری مشترک و نقش‌هایشان</p>
+        <div id="sp-people"></div>
+      </section>
+
+      <section class="stw-pane" data-pane="data" hidden>
+        <h1 data-i18n="spData">داده و پشتیبان</h1><p class="stw-sub" data-i18n="spDataSub">خروجی بگیرید یا از پشتیبان بازیابی کنید</p>
+        <h2 class="stw-h" data-i18n="exportTitle">خروجی</h2>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="expPdf">گزارش PDF</b><p data-i18n="expPdfHint">گزارش چاپی از وضعیت کارها</p></div><div class="stw-v"><button class="btn" id="sp-exp-pdf" data-i18n="export">خروجی</button></div></div>
+        <div class="stw-row"><div class="stw-k"><b>CSV</b><p data-i18n="expCsvHint">برای اکسل و گوگل‌شیت</p></div><div class="stw-v"><button class="btn" id="sp-exp-csv" data-i18n="export">خروجی</button></div></div>
+        <div class="stw-row"><div class="stw-k"><b>Markdown</b><p data-i18n="expMdHint">فهرست متنی کارها</p></div><div class="stw-v"><button class="btn" id="sp-exp-md" data-i18n="export">خروجی</button></div></div>
+        <h2 class="stw-h" data-i18n="spBackup">پشتیبان</h2>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="expJson">پشتیبان JSON</b><p data-i18n="expJsonHint">همهٔ کارها، لیست‌ها و تنظیمات</p></div><div class="stw-v"><button class="btn" id="sp-exp-json" data-i18n="aBackup">پشتیبان</button></div></div>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="impJson">بازیابی</b><p data-i18n="impJsonHint">داده‌های فعلی با فایل پشتیبان جایگزین می‌شود</p></div><div class="stw-v"><button class="btn" id="sp-imp-json" data-i18n="impJson">بازیابی</button></div></div>
+      </section>
+
+      <section class="stw-pane" data-pane="updates" hidden>
+        <h1 data-i18n="updates">به‌روزرسانی</h1><p class="stw-sub" data-i18n="updatesSub">نسخهٔ برنامه و دریافت نسخهٔ تازه</p>
+        <div id="update-field">
+          <div class="stw-row"><div class="stw-k"><b data-i18n="spVersion">نسخه</b><p id="app-version"></p></div><div class="stw-v"></div></div>
+          <div class="stw-row"><div class="stw-k"><b data-i18n="checkUpdate">بررسی</b><p id="update-text"></p></div><div class="stw-v"><button class="btn" id="update-check" data-i18n="checkUpdate">بررسی</button><button class="btn primary" id="update-install" hidden data-i18n="restartUpdate">راه‌اندازی مجدد و نصب</button></div></div>
+        </div>
+      </section>
+
+      <section class="stw-pane" data-pane="shortcuts" hidden>
+        <h1 data-i18n="shortcuts">میانبرها</h1><p class="stw-sub" data-i18n="shortcutsSub">با صفحه‌کلید سریع‌تر کار کنید</p>
+        <div class="shortcuts">
+          <div><kbd>Ctrl</kbd><kbd>K</kbd><span data-i18n="scPalette">فرمان‌ها</span></div>
+          <div><kbd>Ctrl</kbd><kbd>N</kbd><span data-i18n="scAdd">کار جدید</span></div>
+          <div><kbd>Ctrl</kbd><kbd>F</kbd><span data-i18n="scSearch">جستجو</span></div>
+          <div><kbd>Ctrl</kbd><kbd>E</kbd><span data-i18n="report">گزارش</span></div>
+          <div><kbd>Ctrl</kbd><kbd>\</kbd><span data-i18n="aCollapse">نوار کناری</span></div>
+          <div><kbd>↑</kbd><kbd>↓</kbd><span data-i18n="scNav">حرکت بین کارها</span></div>
+          <div><kbd>Space</kbd><span data-i18n="scToggle">انجام / برگشت</span></div>
+          <div><kbd>Enter</kbd><span data-i18n="scOpen">باز کردن</span></div>
+          <div><kbd>Del</kbd><span data-i18n="delete">حذف</span></div>
+        </div>
+      </section>
+
+      <section class="stw-pane" data-pane="about" hidden>
+        <h1 data-i18n="spAbout">درباره</h1><p class="stw-sub" data-i18n="aboutSub">انجام — کارها، ساده و دقیق</p>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="spVersion">نسخه</b><p id="sp-about-version"></p></div><div class="stw-v"></div></div>
+        <div class="stw-row"><div class="stw-k"><b data-i18n="server">سرور</b><p id="sp-about-server" dir="ltr"></p></div><div class="stw-v"><a class="btn" id="sp-about-dl" target="_blank" rel="noopener" data-i18n="spDownloads">دانلود نسخه‌ها</a></div></div>
+      </section>
     </div>
   </div>
 </div>
