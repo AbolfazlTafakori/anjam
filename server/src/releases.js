@@ -31,7 +31,8 @@ function mapRelease(rel) {
 }
 
 async function latest() {
-  if (Date.now() - cache.at < TTL && cache.data) return cache.data;
+  const age = Date.now() - cache.at;
+  if (cache.data ? age < TTL : age < 60e3) return cache.data; // successes cached 10 min, failures retried after 1 min
   try {
     const rel = await fetchJson(`https://api.github.com/repos/${config.releasesRepo}/releases/latest`);
     cache = { at: Date.now(), data: mapRelease(rel), error: null };
