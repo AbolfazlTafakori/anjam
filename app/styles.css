@@ -578,3 +578,14 @@ select.field-input option { background: var(--lac-2); }
 .update-pill.quiet svg { color: var(--gold); }
 .app.rail-collapsed .update-pill { justify-content: center; padding: 0; }
 #update-field .acc-row { grid-template-columns: 1fr auto; align-items: center; }
+
+/* ---------- Workspaces / sharing ---------- */
+.rail-group { display: flex; align-items: center; gap: 8px; width: 100%; padding: 8px 10px 4px; margin-top: 6px; color: var(--ink-3); font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; text-align: start; border-top: 1px solid var(--rule); }
+.rail-group svg { width: 14px; height: 14px; }
+.rail-group:hover { color: var(--gold); }
+.app.rail-collapsed .rail-group { justify-content: center; padding-inline: 0; }
+.members { display: flex; flex-direction: column; }
+.member { display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--rule); font-size: 13px; }
+.member-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.member-who span { color: var(--ink-3); font-size: 11.5px; unicode-bidi: isolate; text-align: start; }
+.member-role { color: var(--gold); font-size: 12px; }

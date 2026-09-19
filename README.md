@@ -43,14 +43,14 @@ Releases are built by GitHub Actions: push a tag `vX.Y.Z` and the installers app
 Data is stored at `%APPDATA%\anjam\anjam-data.json`.
 
 ## Server, accounts and sync (Windows ↔ web/Android)
-The `server/` folder is a small Node service (built-in SQLite, one dependency) that stores accounts and syncs items with last-write-wins. It also serves the web app (`web/`, built with `npm run web`), which installs on Android as a PWA ("Add to Home screen") and works offline.
+The backend (`backend/`, Go, one static binary, SQLite) stores accounts, **workspaces shared between users** (owner / editor / viewer), databases (lists) and items, and syncs them with last-write-wins per workspace. It also serves the web app (`web/`), the admin panel and the download page, and mirrors the installers.
 
 Ubuntu / Debian, one command:
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/AbolfazlTafakori/anjam/main/install.sh)
 ```
-It asks for the domain, the administrator e-mail and password and the registration mode (`-y` takes the defaults with a generated password; every question is also a flag, e.g. `--domain --admin-email --admin-pass --registration`). It installs a private Node 22 under `/opt/anjam/node` (the host's Node is untouched), a hardened systemd service bound to `127.0.0.1`, an nginx vhost for that domain only, and a Let's Encrypt certificate. Re-running upgrades in place.
+It asks for the domain, the administrator e-mail and password and the registration mode (`-y` takes the defaults with a generated password; every question is also a flag, e.g. `--domain --admin-email --admin-pass --registration`). It downloads the release binary and web bundle into `/opt/anjam` (no runtime or packages on the host), a hardened systemd service bound to `127.0.0.1`, an nginx vhost for that domain only, and a Let's Encrypt certificate. Re-running upgrades in place; `anjam update` fetches the latest release.
 
 The installer prints the **administrator e-mail, password and the panel address** once (kept in `/etc/anjam/install-result.env`, root only). The administrator is chosen at install time and is the only account that can open the panel; the same e-mail/password also works as an ordinary app account. Nobody who signs up in the app can reach the panel. The panel lives at a random path (`/panel-…`) and lets you switch registration between *open / invite only / closed*, create invite codes, make password-reset links, disable/delete users, download a database backup and read the audit log. On the server, `anjam` opens a management menu (`anjam admin reset`, `anjam registration invite`, `anjam invite create`, `anjam backup`, `anjam update`, `anjam log` …). Password-reset e-mails are sent only if `SMTP_URL` is set; otherwise the admin hands out reset links.
 
-API (for a native Android client): `POST /api/auth/register|login` → `{token}`; `POST /api/sync {since, changes[]}` with `Authorization: Bearer` → `{changes[], cursor}`. Items are `{id, type: task|list|settings, data, updatedAt, deleted}`.
+API: `POST /api/auth/register|login` → `{token}`; `GET/POST /api/workspaces`, `/api/workspaces/{id}/members`; `POST /api/sync {cursors:{wsId:seq}, changes:[{kind: database|item, id, workspaceId, data, updatedAt, deleted}]}` with `Authorization: Bearer` → `{changes[], cursors, workspaces}`.

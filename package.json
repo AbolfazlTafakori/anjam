@@ -1,13 +1,12 @@
 {
   "name": "anjam",
-  "version": "1.2.1",
+  "version": "1.3.0",
   "description": "Anjam - a simple, bilingual (فارسی/English) to-do list for Windows",
   "main": "desktop/main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win",
     "web": "node scripts/build-web.js",
-    "server": "node server/server.js",
     "dist:linux": "electron-builder --linux",
     "release": "electron-builder --publish always"
   },

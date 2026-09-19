@@ -52,6 +52,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.5"/></symbol>
     <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.5 6.5l2 2M15.5 15.5l2 2M6.5 17.5l2-2M15.5 8.5l2-2"/></symbol>
+    <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9.5" r="2.6"/><path d="M15.5 14.2A5 5 0 0 1 21 19"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
   </defs>
 </svg>
@@ -311,10 +312,32 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="dialog-head"><h2 id="list-dialog-title" data-i18n="newList">لیست جدید</h2><button class="ibtn" id="list-dialog-close"><svg><use href="#i-x"/></svg></button></div>
     <input id="list-name" type="text" dir="auto" class="field-input" data-i18n-ph="listNamePh" placeholder="نام لیست" />
     <div class="swatches" id="list-colors"></div>
+    <div class="d-field" id="list-ws-wrap" hidden>
+      <div class="d-label"><svg><use href="#i-users"/></svg><span data-i18n="workspace">فضای کاری</span></div>
+      <div class="acc-row"><select id="list-ws" class="field-input"></select><button class="btn ghost" id="list-share" hidden><svg><use href="#i-users"/></svg><span data-i18n="share">اشتراک</span></button></div>
+    </div>
     <div class="dialog-actions">
       <button class="btn ghost danger" id="list-delete" hidden data-i18n="deleteList">حذف لیست</button>
       <button class="btn primary" id="list-save" data-i18n="save">ذخیره</button>
     </div>
+  </div>
+</div>
+
+<!-- Sharing -->
+<div class="overlay" id="share-dialog" hidden>
+  <div class="dialog" role="dialog">
+    <div class="dialog-head"><h2 id="share-title"></h2><button class="ibtn" id="share-close"><svg><use href="#i-x"/></svg></button></div>
+    <div id="share-add-wrap">
+      <p class="d-alt hint" data-i18n="shareHint">با ایمیلِ حسابی که در همین سرور ثبت‌نام کرده به اشتراک بگذارید.</p>
+      <div class="acc-row" style="grid-template-columns:1fr auto auto">
+        <input id="share-email" type="email" class="field-input" dir="ltr" placeholder="email@example.com" />
+        <select id="share-role" class="field-input" style="width:auto"><option value="editor" data-i18n="role_editor">ویرایشگر</option><option value="viewer" data-i18n="role_viewer">بیننده</option></select>
+        <button class="btn primary" id="share-add" data-i18n="addMember">افزودن</button>
+      </div>
+    </div>
+    <div class="members" id="share-members"></div>
+    <div class="auth-err" id="share-error"></div>
+    <div class="dialog-actions"><button class="btn ghost danger" id="share-delete-ws" data-i18n="deleteWS">حذف فضای مشترک</button></div>
   </div>
 </div>
 

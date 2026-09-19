@@ -1,4 +1,4 @@
-# Syntax + smoke test of the server on every push (no deploy).
+# Go backend: vet + build + smoke test on every push (no deploy).
 name: server-check
 on: [push, pull_request]
 jobs:
@@ -6,10 +6,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version: '1.27', cache-dependency-path: backend/go.sum }
+      - run: cd backend && go vet ./... && go build -o /tmp/anjam ./cmd/anjam
       - uses: actions/setup-node@v4
         with: { node-version: 22 }
-      - run: cd server && npm ci
-      - run: node --check server/server.js && for f in server/src/*.js server/src/routes/*.js server/cli.js app/app.js desktop/*.js; do node --check "$f"; done
-      - run: node scripts/build-web.js
+      - run: for f in app/app.js app/admin/admin.js desktop/*.js; do node --check "$f"; done && npm ci --ignore-scripts && node scripts/build-web.js
       - run: |
-          cd server && (PORT=8799 node server.js & sleep 2; curl -fsS http://127.0.0.1:8799/api/health; kill %1)
+          ANJAM_DATA=/tmp/d ANJAM_WEB=web PORT=8799 /tmp/anjam serve & sleep 2
+          curl -fsS http://127.0.0.1:8799/api/health && ANJAM_DATA=/tmp/d ANJAM_QUIET=1 /tmp/anjam admin reset a@b.co Passw0rd1 | tail -1

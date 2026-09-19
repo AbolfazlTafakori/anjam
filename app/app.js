@@ -24,6 +24,7 @@
       errDisabled: 'این حساب غیرفعال شده', errInvite: 'کد دعوت نامعتبر است', errName: 'نام را وارد کنید', errToken: 'لینک بازیابی نامعتبر یا منقضی است', errLastAdmin: 'تنها مدیر را نمی‌توان حذف کرد',
       editProfile: 'ویرایش حساب', currentPassword: 'رمز فعلی', newPassword: 'رمز جدید (اختیاری)', deleteAccount: 'حذف حساب', confirmDeleteAccount: 'حساب و همه‌ی داده‌های آن روی سرور حذف شود؟ (داده‌های این دستگاه می‌ماند)', profileSaved: 'حساب به‌روز شد', adminPanel: 'پنل مدیریت',
       updates: 'به‌روزرسانی', checkUpdate: 'بررسی', restartUpdate: 'راه‌اندازی مجدد و نصب', upToDate: 'آخرین نسخه را دارید', upChecking: 'در حال بررسی…', upAvailable: 'نسخه {v} پیدا شد', upDownloading: 'دانلود نسخه {v}… {p}٪', upReady: 'نسخه {v} آماده است', upError: 'بررسی ناموفق', upWeb: 'نسخه‌ی وب همیشه آخرین نسخه است',
+      personalWS: 'شخصی', newSharedWS: '+ فضای مشترک جدید (با نام این لیست)', workspace: 'فضای کاری', shareTitle: 'اشتراک‌گذاری', shareHint: 'با ایمیلِ حسابی که در همین سرور ثبت‌نام کرده به اشتراک بگذارید.', addMember: 'افزودن', role_owner: 'مالک', role_editor: 'ویرایشگر', role_viewer: 'بیننده', viewer: 'فقط دیدن', remove: 'حذف', leave: 'خروج از فضا', deleteWS: 'حذف فضای مشترک', errNoUser: 'حسابی با این ایمیل روی سرور نیست', readOnly: 'این لیست فقط خواندنی است', share: 'اشتراک',
       account: 'حساب و همگام‌سازی', password: 'رمز عبور', yourName: 'نام (برای ثبت‌نام)', signIn: 'ورود', signUp: 'ثبت‌نام', signOut: 'خروج', syncNow: 'همگام‌سازی',
       accountHint: 'بدون حساب هم همه‌چیز روی همین دستگاه ذخیره می‌شود. با حساب، کارها بین ویندوز، وب و اندروید همگام می‌شوند.',
       lastSync: 'آخرین همگام‌سازی', never: 'هنوز', syncing: 'در حال همگام‌سازی…', synced: 'همگام', syncErr: 'خطا در همگام‌سازی', offline: 'آفلاین',
@@ -73,6 +74,7 @@
       errDisabled: 'This account is disabled', errInvite: 'Invalid invite code', errName: 'Enter your name', errToken: 'Reset link is invalid or expired', errLastAdmin: 'The last admin cannot be deleted',
       editProfile: 'Edit account', currentPassword: 'Current password', newPassword: 'New password (optional)', deleteAccount: 'Delete account', confirmDeleteAccount: 'Delete the account and all its data on the server? (This device keeps its copy)', profileSaved: 'Account updated', adminPanel: 'Admin panel',
       updates: 'Updates', checkUpdate: 'Check', restartUpdate: 'Restart to update', upToDate: 'You have the latest version', upChecking: 'Checking…', upAvailable: 'Version {v} found', upDownloading: 'Downloading {v}… {p}%', upReady: 'Version {v} is ready', upError: 'Check failed', upWeb: 'The web version is always current',
+      personalWS: 'Personal', newSharedWS: '+ New shared space (named after this list)', workspace: 'Workspace', shareTitle: 'Sharing', shareHint: 'Share with the e-mail of an account registered on this server.', addMember: 'Add', role_owner: 'owner', role_editor: 'editor', role_viewer: 'viewer', viewer: 'view only', remove: 'Remove', leave: 'Leave space', deleteWS: 'Delete shared space', errNoUser: 'No account with this e-mail on the server', readOnly: 'This list is read-only', share: 'Share',
       account: 'Account & sync', password: 'Password', yourName: 'Name (for sign-up)', signIn: 'Sign in', signUp: 'Sign up', signOut: 'Sign out', syncNow: 'Sync now',
       accountHint: 'Without an account everything stays on this device. With one, tasks sync across Windows, web and Android.',
       lastSync: 'Last sync', never: 'never', syncing: 'Syncing…', synced: 'Synced', syncErr: 'Sync failed', offline: 'Offline',
@@ -195,6 +197,7 @@
   const seen = new Map(); // id -> serialized item (without updatedAt), to detect local changes
   const dirty = new Set();
   const serial = (x) => JSON.stringify({ ...x, updatedAt: 0, notifiedAt: 0 });
+  const kindOf = (id) => (getList(id) ? 'database' : 'item');
   function stampChanges() {
     const now = Date.now(); const present = new Set();
     for (const kind of ['tasks', 'lists']) for (const x of state.data[kind]) {
@@ -202,7 +205,7 @@
       const s = serial(x);
       if (seen.get(x.id) !== s) { if (seen.has(x.id) || !x.updatedAt) x.updatedAt = now; seen.set(x.id, s); dirty.add(x.id); }
     }
-    for (const id of [...seen.keys()]) if (!present.has(id)) { seen.delete(id); state.data.tombstones[id] = now; dirty.add(id); }
+    for (const id of [...seen.keys()]) if (!present.has(id)) { const ts = seen.get(id); seen.delete(id); let meta = {}; try { meta = JSON.parse(ts); } catch {} state.data.tombstones[id] = { at: now, kind: meta.color !== undefined && meta.title === undefined ? 'database' : 'item', workspaceId: meta.workspaceId || workspaceOfTask(meta) }; dirty.add(id); }
   }
   function snapshotSeen() { seen.clear(); for (const kind of ['tasks', 'lists']) for (const x of state.data[kind]) seen.set(x.id, serial(x)); }
   function save(now) {
@@ -214,17 +217,17 @@
   }
   const REPEATS = ['none', 'daily', 'weekdays', 'weekly', 'monthly', 'yearly'];
   function normalize(data) {
-    const d = { version: 3, settings: { lang: 'fa', calendar: 'jalali', notify: true, railCollapsed: false, settingsUpdatedAt: 0 }, lists: [], tasks: [], tombstones: {}, sync: { server: '', token: '', email: '', name: '', cursor: 0, lastSync: 0 } };
+    const d = { version: 4, settings: { lang: 'fa', calendar: 'jalali', notify: true, railCollapsed: false }, workspaces: [], lists: [], tasks: [], tombstones: {}, sync: { server: '', token: '', email: '', name: '', cursors: {}, lastSync: 0 } };
     if (data && typeof data === 'object') {
       const s = data.settings || {};
       if (s.lang === 'en' || s.lang === 'fa') d.settings.lang = s.lang;
       d.settings.calendar = s.calendar === 'gregorian' || s.calendar === 'jalali' ? s.calendar : (d.settings.lang === 'fa' ? 'jalali' : 'gregorian');
       if (typeof s.notify === 'boolean') d.settings.notify = s.notify;
       if (typeof s.railCollapsed === 'boolean') d.settings.railCollapsed = s.railCollapsed;
-      d.settings.settingsUpdatedAt = Number(s.settingsUpdatedAt) || 0;
-      if (data.tombstones && typeof data.tombstones === 'object') d.tombstones = { ...data.tombstones };
-      if (data.sync && typeof data.sync === 'object') d.sync = { ...d.sync, ...data.sync };
-      if (Array.isArray(data.lists)) d.lists = data.lists.filter((l) => l && typeof l.name === 'string' && l.name.trim()).map((l, i) => ({ id: String(l.id || uid()), name: l.name.trim(), color: /^#[0-9a-f]{6}$/i.test(l.color || '') ? l.color : LIST_COLORS[i % LIST_COLORS.length], order: Number.isFinite(l.order) ? l.order : i, updatedAt: Number(l.updatedAt) || 0 }));
+      if (data.tombstones && typeof data.tombstones === 'object') for (const [id, v] of Object.entries(data.tombstones)) d.tombstones[id] = typeof v === 'object' ? v : { at: Number(v) || Date.now(), kind: 'item', workspaceId: '' };
+      if (data.sync && typeof data.sync === 'object') { d.sync = { ...d.sync, ...data.sync }; if (!d.sync.cursors || typeof d.sync.cursors !== 'object') d.sync.cursors = {}; delete d.sync.cursor; }
+      if (Array.isArray(data.workspaces)) d.workspaces = data.workspaces.filter((w) => w && w.id).map((w) => ({ id: String(w.id), name: String(w.name || ''), personal: !!w.personal, role: w.role || 'owner', ownerId: w.ownerId || '' }));
+      if (Array.isArray(data.lists)) d.lists = data.lists.filter((l) => l && typeof l.name === 'string' && l.name.trim()).map((l, i) => ({ id: String(l.id || uid()), name: l.name.trim(), color: /^#[0-9a-f]{6}$/i.test(l.color || '') ? l.color : LIST_COLORS[i % LIST_COLORS.length], order: Number.isFinite(l.order) ? l.order : i, updatedAt: Number(l.updatedAt) || 0, workspaceId: typeof l.workspaceId === 'string' ? l.workspaceId : '' }));
       const listIds = new Set(d.lists.map((l) => l.id));
       if (Array.isArray(data.tasks)) d.tasks = data.tasks.filter((x) => x && typeof x.title === 'string').map((x, i) => ({
         id: String(x.id || uid()), title: x.title, notes: typeof x.notes === 'string' ? x.notes : '',
@@ -245,6 +248,13 @@
   const getTask = (id) => state.data.tasks.find((x) => x.id === id);
   const getList = (id) => state.data.lists.find((x) => x.id === id);
   const sortedLists = () => state.data.lists.slice().sort((a, b) => a.order - b.order);
+  const personalWS = () => state.data.workspaces.find((w) => w.personal) || null;
+  const getWS = (id) => state.data.workspaces.find((w) => w.id === id);
+  // Every list lives in a workspace; tasks inherit it from their list (Inbox = personal workspace).
+  const workspaceOfList = (l) => (l && l.workspaceId) || (personalWS() ? personalWS().id : '');
+  const workspaceOfTask = (x) => (x && x.listId && getList(x.listId) ? workspaceOfList(getList(x.listId)) : (personalWS() ? personalWS().id : ''));
+  const canWriteWS = (id) => { const w = getWS(id); return !w || w.role === 'owner' || w.role === 'editor'; };
+  const canWriteList = (l) => canWriteWS(workspaceOfList(l));
 
   // ============================================================
   // Task operations
@@ -259,6 +269,7 @@
       priority: p.priority, tags: p.tags.slice(), subtasks: [], done: false, createdAt: Date.now(), completedAt: null, order: minOrder - 1,
     };
     if (state.view === 'tag' && state.tag && !task.tags.includes(state.tag)) task.tags.push(state.tag);
+    if (task.listId && !canWriteList(getList(task.listId))) { showToast(t('readOnly')); return false; }
     state.data.tasks.unshift(task);
     save(); render();
     return true;
@@ -404,14 +415,21 @@
     const lw = $('#list-items'); lw.innerHTML = '';
     const lists = sortedLists();
     if (!lists.length) lw.innerHTML = `<div class="rail-empty">${t('newList')} →</div>`;
-    lists.forEach((l) => {
-      const n = open.filter((x) => x.listId === l.id).length;
-      const b = document.createElement('button');
-      b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : '');
-      b.title = l.name;
-      b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn sm rail-edit" title="${esc(t('editList'))}">${icon('more')}</span>`;
-      b.onclick = (e) => { if (e.target.closest('.rail-edit')) return openListDialog(l.id); setView('list', { listId: l.id }); };
-      lw.appendChild(b);
+    const shared = state.data.workspaces.filter((w) => !w.personal);
+    const groups = [{ id: personalWS() ? personalWS().id : '', name: '', ws: personalWS() }, ...shared.map((w) => ({ id: w.id, name: w.name, ws: w }))];
+    groups.forEach((g) => {
+      const items = lists.filter((l) => workspaceOfList(l) === g.id || (!g.id && !l.workspaceId));
+      if (!items.length && !g.name) return;
+      if (g.name) { const h = document.createElement('button'); h.className = 'rail-group'; h.innerHTML = `${icon('users')}<span class="nav-label">${esc(g.name)}</span>${g.ws.role === 'viewer' ? `<span class="count">${esc(t('viewer'))}</span>` : ''}`; h.title = t('shareTitle'); h.onclick = () => openShareDialog(g.id); lw.appendChild(h); }
+      items.forEach((l) => {
+        const n = open.filter((x) => x.listId === l.id).length;
+        const b = document.createElement('button');
+        b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : '');
+        b.title = l.name;
+        b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn sm rail-edit" title="${esc(t('editList'))}">${icon('more')}</span>`;
+        b.onclick = (e) => { if (e.target.closest('.rail-edit')) return openListDialog(l.id); setView('list', { listId: l.id }); };
+        lw.appendChild(b);
+      });
     });
     // tags
     const counts = {};
@@ -600,7 +618,9 @@
     listDlg.color = l ? l.color : LIST_COLORS[state.data.lists.length % LIST_COLORS.length];
     $('#list-dialog-title').textContent = t(l ? 'editList' : 'newList');
     $('#list-name').value = l ? l.name : '';
-    $('#list-delete').hidden = !l;
+    $('#list-delete').hidden = !l || !canWriteList(l);
+    listDlg.workspaceId = l ? workspaceOfList(l) : (state.view === 'list' && getList(state.listId) ? workspaceOfList(getList(state.listId)) : (personalWS() ? personalWS().id : ''));
+    renderListWorkspaces();
     renderSwatches();
     $('#list-dialog').hidden = false;
     setTimeout(() => $('#list-name').focus(), 30);
@@ -609,11 +629,62 @@
     $('#list-colors').innerHTML = LIST_COLORS.map((c) => `<button class="swatch${c === listDlg.color ? ' active' : ''}" style="background:${c}" data-c="${c}"></button>`).join('');
     $$('#list-colors .swatch').forEach((b) => b.onclick = () => { listDlg.color = b.dataset.c; renderSwatches(); });
   }
-  function saveList() {
+  function renderListWorkspaces() {
+    const wrap = $('#list-ws-wrap'); const sel = $('#list-ws');
+    const writable = state.data.workspaces.filter((w) => w.role !== 'viewer');
+    wrap.hidden = !signedIn() || writable.length < 1;
+    sel.innerHTML = writable.map((w) => `<option value="${w.id}">${esc(w.personal ? t('personalWS') : w.name)}</option>`).join('') + `<option value="__new">${esc(t('newSharedWS'))}</option>`;
+    sel.value = writable.some((w) => w.id === listDlg.workspaceId) ? listDlg.workspaceId : (writable[0] ? writable[0].id : '');
+    $('#list-share').hidden = !signedIn() || !listDlg.workspaceId || (getWS(listDlg.workspaceId) || {}).personal;
+  }
+  async function saveList() {
     const name = $('#list-name').value.trim(); if (!name) { $('#list-name').focus(); return; }
-    if (listDlg.id) { const l = getList(listDlg.id); l.name = name; l.color = listDlg.color; }
-    else { const id = uid(); state.data.lists.push({ id, name, color: listDlg.color, order: state.data.lists.length }); state.view = 'list'; state.listId = id; }
+    let wsId = listDlg.workspaceId;
+    if (!$('#list-ws-wrap').hidden) {
+      wsId = $('#list-ws').value;
+      if (wsId === '__new') {
+        try { const r = await api(state.data.sync.server, '/api/workspaces', { name: $('#list-name').value.trim() }, state.data.sync.token); state.data.workspaces.push({ ...r.workspace }); wsId = r.workspace.id; }
+        catch (e) { showToast(errText(e)); return; }
+      }
+    }
+    if (listDlg.id) { const l = getList(listDlg.id); l.name = name; l.color = listDlg.color; if (wsId) l.workspaceId = wsId; }
+    else { const id = uid(); state.data.lists.push({ id, name, color: listDlg.color, order: state.data.lists.length, workspaceId: wsId || '' }); state.view = 'list'; state.listId = id; }
     $('#list-dialog').hidden = true; save(); render();
+  }
+
+  // ---------- sharing (workspace members) ----------
+  const share = { wsId: '' };
+  async function openShareDialog(wsId) {
+    share.wsId = wsId; const w = getWS(wsId); if (!w) return;
+    $('#share-title').textContent = `${t('shareTitle')} · ${w.name}`;
+    $('#share-add-wrap').hidden = w.role !== 'owner';
+    $('#share-error').textContent = ''; $('#share-email').value = '';
+    $('#share-dialog').hidden = false; $('#list-dialog').hidden = true;
+    await renderMembers();
+  }
+  async function renderMembers() {
+    const w = getWS(share.wsId); const box = $('#share-members'); box.innerHTML = '…';
+    try {
+      const r = await api(state.data.sync.server, `/api/workspaces/${share.wsId}/members`, null, state.data.sync.token);
+      box.innerHTML = r.members.map((m) => `<div class="member"><span class="member-who"><b dir="auto">${esc(m.name)}</b><span dir="ltr">${esc(m.email)}</span></span><span class="member-role">${esc(t('role_' + m.role))}</span>${w.role === 'owner' && m.role !== 'owner' ? `<button class="ibtn sm danger" data-rm="${m.userId}" title="${esc(t('remove'))}">${icon('x')}</button>` : m.userId !== w.ownerId && m.email === state.data.sync.email ? `<button class="btn ghost" data-rm="${m.userId}">${esc(t('leave'))}</button>` : ''}</div>`).join('');
+      $$('#share-members [data-rm]').forEach((b) => b.onclick = async () => { try { await api(state.data.sync.server, `/api/workspaces/${share.wsId}/members/${b.dataset.rm}`, null, state.data.sync.token, 'DELETE'); if (b.dataset.rm !== w.ownerId && b.textContent.trim() === t('leave')) { $('#share-dialog').hidden = true; } await renderMembers(); scheduleSync(0); } catch (e) { $('#share-error').textContent = errText(e); } });
+    } catch (e) { box.innerHTML = `<div class="hint">${esc(errText(e))}</div>`; }
+  }
+  function bindShare() {
+    $('#share-close').onclick = () => { $('#share-dialog').hidden = true; };
+    $('#list-share').onclick = () => openShareDialog(listDlg.workspaceId);
+    $('#list-ws').onchange = () => { listDlg.workspaceId = $('#list-ws').value; $('#list-share').hidden = listDlg.workspaceId === '__new' || !getWS(listDlg.workspaceId) || getWS(listDlg.workspaceId).personal; };
+    $('#share-add').onclick = async () => {
+      $('#share-error').textContent = '';
+      try { await api(state.data.sync.server, `/api/workspaces/${share.wsId}/members`, { email: $('#share-email').value.trim(), role: $('#share-role').value }, state.data.sync.token); $('#share-email').value = ''; await renderMembers(); }
+      catch (e) { $('#share-error').textContent = e.code === 'user_not_found' ? t('errNoUser') : errText(e); }
+    };
+    $('#share-email').onkeydown = (e) => { if (e.key === 'Enter') $('#share-add').click(); };
+    $('#share-delete-ws').onclick = async () => {
+      const w = getWS(share.wsId); if (!w || w.role !== 'owner') return;
+      try { await api(state.data.sync.server, `/api/workspaces/${share.wsId}`, null, state.data.sync.token, 'DELETE'); state.data.workspaces = state.data.workspaces.filter((x) => x.id !== share.wsId); $('#share-dialog').hidden = true; scheduleSync(0); render(); }
+      catch (e) { $('#share-error').textContent = errText(e); }
+    };
   }
   function deleteList() {
     if (!listDlg.id) return;
@@ -795,8 +866,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   let syncTimer = null, syncing = false;
   const signedIn = () => !!(state.data.sync.server && state.data.sync.token);
   function scheduleSync(ms) { if (!signedIn()) return; clearTimeout(syncTimer); syncTimer = setTimeout(() => syncNow().catch(() => {}), ms); }
-  async function api(server, pathname, body, token) {
-    const r = await fetch(server.replace(/\/+$/, '') + pathname, { method: body ? 'POST' : 'GET', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: body ? JSON.stringify(body) : undefined });
+  async function api(server, pathname, body, token, method) {
+    const r = await fetch(server.replace(/\/+$/, '') + pathname, { method: method || (body ? 'POST' : 'GET'), headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: 'Bearer ' + token } : {}) }, body: body ? JSON.stringify(body) : undefined });
     let json = null; try { json = await r.json(); } catch {}
     if (!r.ok) { const e = new Error((json && json.error) || 'http_' + r.status); e.code = (json && json.error) || 'http_' + r.status; throw e; }
     return json;
@@ -807,38 +878,47 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     syncing = true; setSyncStatus('busy');
     try {
       stampChanges();
+      const pws = personalWS();
       const changes = [];
       for (const id of dirty) {
-        if (id === 'settings') { const s = state.data.settings; changes.push({ id: 'settings', type: 'settings', data: { lang: s.lang, calendar: s.calendar, notify: s.notify }, updatedAt: s.settingsUpdatedAt || Date.now() }); continue; }
+        if (id === 'settings') continue;
         const task = getTask(id); const list = getList(id);
-        if (task) changes.push({ id, type: 'task', data: task, updatedAt: task.updatedAt });
-        else if (list) changes.push({ id, type: 'list', data: list, updatedAt: list.updatedAt });
-        else if (state.data.tombstones[id]) changes.push({ id, type: 'task', data: null, updatedAt: state.data.tombstones[id], deleted: true });
+        if (list) { if (!list.workspaceId && pws) list.workspaceId = pws.id; changes.push({ kind: 'database', id, workspaceId: workspaceOfList(list), data: { name: list.name, color: list.color, order: list.order }, updatedAt: list.updatedAt }); }
+        else if (task) changes.push({ kind: 'item', id, workspaceId: workspaceOfTask(task), data: { ...task, databaseId: task.listId || '' }, updatedAt: task.updatedAt });
+        else if (state.data.tombstones[id]) { const tb = state.data.tombstones[id]; changes.push({ kind: tb.kind || 'item', id, workspaceId: tb.workspaceId || (pws ? pws.id : ''), updatedAt: tb.at, deleted: true }); }
       }
-      const res = await api(state.data.sync.server, '/api/sync', { since: state.data.sync.cursor || 0, changes }, state.data.sync.token);
+      const res = await api(state.data.sync.server, '/api/sync', { cursors: state.data.sync.cursors || {}, changes: changes.filter((c) => c.workspaceId) }, state.data.sync.token);
       dirty.clear();
       for (const c of changes) if (c.deleted) delete state.data.tombstones[c.id];
       let changed = false;
+      // workspaces (membership may have changed)
+      const wsJson = JSON.stringify(res.workspaces); if (wsJson !== JSON.stringify(state.data.workspaces)) { state.data.workspaces = res.workspaces; changed = true; }
+      const mine = new Set(res.workspaces.map((w) => w.id));
       for (const c of res.changes) {
-        if (c.type === 'settings') {
-          if (c.data && (c.updatedAt > (state.data.settings.settingsUpdatedAt || 0))) { Object.assign(state.data.settings, { lang: c.data.lang, calendar: c.data.calendar, notify: c.data.notify, settingsUpdatedAt: c.updatedAt }); changed = true; }
-          continue;
-        }
-        const kind = c.type === 'list' ? 'lists' : 'tasks';
-        const arr = state.data[kind]; const i = arr.findIndex((x) => x.id === c.id); const local = i >= 0 ? arr[i] : null;
+        const isList = c.kind === 'database';
+        const arr = isList ? state.data.lists : state.data.tasks;
+        const i = arr.findIndex((x) => x.id === c.id); const local = i >= 0 ? arr[i] : null;
         if (c.deleted) {
           if (local && local.updatedAt <= c.updatedAt) { arr.splice(i, 1); seen.delete(c.id); changed = true; }
-          else if (!local) { const j2 = (kind === 'tasks' ? state.data.lists : state.data.tasks).findIndex((x) => x.id === c.id); if (j2 >= 0 && (kind === 'tasks' ? state.data.lists : state.data.tasks)[j2].updatedAt <= c.updatedAt) { (kind === 'tasks' ? state.data.lists : state.data.tasks).splice(j2, 1); seen.delete(c.id); changed = true; } }
           continue;
         }
         if (!c.data) continue;
         if (!local || local.updatedAt < c.updatedAt) {
-          const item = { ...c.data, id: c.id, updatedAt: c.updatedAt };
+          const d = c.data;
+          const item = isList ? { id: c.id, name: d.name, color: d.color, order: d.order, workspaceId: c.workspaceId, updatedAt: c.updatedAt }
+            : { ...d, id: c.id, listId: d.databaseId || d.listId || null, updatedAt: c.updatedAt };
+          delete item.databaseId;
           if (i >= 0) arr[i] = item; else arr.push(item);
           seen.set(c.id, serial(item)); changed = true;
         }
       }
-      state.data.sync.cursor = res.cursor; state.data.sync.lastSync = Date.now();
+      // drop data of workspaces we no longer belong to
+      const before = state.data.lists.length + state.data.tasks.length;
+      state.data.lists = state.data.lists.filter((l) => !l.workspaceId || mine.has(l.workspaceId));
+      const listIds = new Set(state.data.lists.map((l) => l.id));
+      state.data.tasks = state.data.tasks.filter((x) => !x.listId || listIds.has(x.listId));
+      if (before !== state.data.lists.length + state.data.tasks.length) changed = true;
+      state.data.sync.cursors = res.cursors; state.data.sync.lastSync = Date.now();
       if (changed) { state.data = normalize(state.data); snapshotSeen(); applyLang(); }
       window.anjam.save(state.data);
       if (changed) render();
@@ -915,8 +995,12 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       if (au.mode === 'signin') res = await api(v.server, '/api/auth/login', { email: v.email, password: v.pass });
       else if (au.mode === 'signup') res = await api(v.server, '/api/auth/register', { email: v.email, password: v.pass, name: v.name, invite: v.invite.toUpperCase() });
       else res = await api(v.server, '/api/auth/reset', { token: au.resetToken, password: v.pass });
-      state.data.sync = { server: v.server, token: res.token, email: res.user.email, name: res.user.name, cursor: 0, lastSync: 0 };
-      for (const x of state.data.tasks) dirty.add(x.id); for (const x of state.data.lists) dirty.add(x.id); dirty.add('settings');
+      // Switching to a different account on this device: its local copy belongs to the previous account.
+      if (state.data.sync.email && state.data.sync.email !== res.user.email) { state.data.lists = []; state.data.tasks = []; state.data.tombstones = {}; dirty.clear(); state.selectedId = null; }
+      state.data.sync = { server: v.server, token: res.token, email: res.user.email, name: res.user.name, cursors: {}, lastSync: 0 };
+      state.data.workspaces = []; for (const l of state.data.lists) l.workspaceId = '';
+      for (const x of state.data.tasks) dirty.add(x.id); for (const x of state.data.lists) dirty.add(x.id);
+      try { const w = await api(v.server, '/api/workspaces', null, res.token); state.data.workspaces = w.workspaces; } catch {}
       window.anjam.save(state.data); renderAccount(); syncNow();
       if (au.mode === 'signin') closeAuth(); else showAuthDone(t(au.mode === 'signup' ? 'doneSignup' : 'doneReset'));
     } catch (err) {
@@ -940,7 +1024,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   }
 
   // ---------- Account (settings) ----------
-  function signOut() { state.data.sync = { ...state.data.sync, token: '', cursor: 0, lastSync: 0 }; dirty.clear(); window.anjam.save(state.data); setSyncStatus('idle'); }
+  function signOut() { state.data.sync = { ...state.data.sync, token: '', cursors: {}, lastSync: 0 }; dirty.clear(); window.anjam.save(state.data); setSyncStatus('idle'); }
   function renderAccount() {
     const on = signedIn();
     $('#account-out').hidden = on; $('#account-in').hidden = !on;
@@ -1078,7 +1162,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $$('#set-lang button').forEach((b) => b.onclick = () => { state.data.settings.lang = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
     $$('#set-cal button').forEach((b) => b.onclick = () => { state.data.settings.calendar = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
     $('#set-notify').onchange = (e) => { state.data.settings.notify = e.target.checked; touchSettings(); save(); };
-    bindAccount(); bindUpdates();
+    bindAccount(); bindUpdates(); bindShare();
     $('#palette-btn').onclick = openPalette;
     $('#palette-q').oninput = () => { pal.index = 0; renderPalette(); };
     $('#palette-q').onkeydown = (e) => {
