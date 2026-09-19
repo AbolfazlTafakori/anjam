@@ -176,7 +176,14 @@ func (m *Mirror) download(f File) {
 	}
 	out.Close()
 	_ = os.Rename(tmp, dest)
+	if strings.HasSuffix(strings.ToLower(f.Name), ".apk") && m.cfg.PublicURL != "" {
+		if err := StampAPK(dest, stampedPath(dest), m.cfg.PublicURL); err != nil {
+			log.Printf("stamp %s: %v", f.Name, err)
+		}
+	}
 }
+
+func stampedPath(p string) string { return strings.TrimSuffix(p, ".apk") + ".stamped.apk" }
 
 func (m *Mirror) mirrorAll(rel *Release) {
 	keep := map[string]bool{}
@@ -188,11 +195,13 @@ func (m *Mirror) mirrorAll(rel *Release) {
 	}
 	entries, _ := os.ReadDir(m.dir)
 	for _, e := range entries { // drop older versions
-		if !keep[e.Name()] && !strings.HasSuffix(e.Name(), ".part") {
+		if !keep[e.Name()] && !keep[strings.TrimSuffix(e.Name(), ".stamped.apk")+".apk"] && !strings.HasSuffix(e.Name(), ".part") {
 			_ = os.Remove(filepath.Join(m.dir, e.Name()))
 		}
 	}
 }
+
+func fileExists(p string) bool { _, err := os.Stat(p); return err == nil }
 
 func (m *Mirror) Status() Status {
 	m.mu.Lock()
@@ -217,8 +226,20 @@ func (m *Mirror) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				continue
 			}
 			if p, ok := m.local(f); ok {
+				name := f.Name
+				if f.Platform == "android" {
+					if sp := stampedPath(p); fileExists(sp) {
+						p = sp
+					} else if m.cfg.PublicURL != "" {
+						if err := StampAPK(p, sp, m.cfg.PublicURL); err == nil {
+							p = sp
+						}
+					}
+				} else if f.Platform == "windows" || f.Platform == "linux-appimage" {
+					name = stampedName(f.Name, m.cfg.PublicURL)
+				}
 				w.Header().Set("Content-Type", f.Type)
-				w.Header().Set("Content-Disposition", `attachment; filename="`+f.Name+`"`)
+				w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
 				w.Header().Set("Cache-Control", "public, max-age=3600")
 				http.ServeFile(w, r, p)
 				return

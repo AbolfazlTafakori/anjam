@@ -144,3 +144,11 @@ ipcMain.handle('notify', (_e, { title, body, id }) => {
 ipcMain.handle('shell:openExternal', (_e, u) => { if (/^https?:\/\//.test(u)) shell.openExternal(u); });
 ipcMain.handle('shell:showItem', (_e, p) => shell.showItemInFolder(p));
 ipcMain.handle('app:version', () => app.getVersion());
+
+// Server address stamped by the download server: Windows installer writes %APPDATA%njam\server.json
+// (see build/installer.nsh); an AppImage carries it in its own file name (Anjam-1.3.0.srv-<host>.AppImage).
+ipcMain.handle('app:defaultServer', () => {
+  try { const j = JSON.parse(fs.readFileSync(path.join(app.getPath('userData'), 'server.json'), 'utf8')); if (j && j.server) return j.server; } catch {}
+  const m = /\.srv-([^/\\]+?)\.(AppImage|exe)$/i.exec(process.env.APPIMAGE || '');
+  return m ? 'https://' + m[1] : '';
+});

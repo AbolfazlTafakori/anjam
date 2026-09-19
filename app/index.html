@@ -183,52 +183,58 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <div class="subtask-add"><svg><use href="#i-plus"/></svg><input id="d-sub-input" type="text" dir="auto" data-i18n-ph="subtaskPh" placeholder="زیرکار جدید و Enter" /></div>
     </div>
 
-    <div class="d-grid">
-      <div class="d-field">
-        <div class="d-label"><svg><use href="#i-calendar"/></svg><span data-i18n="due">سررسید</span></div>
-        <button class="field-btn" id="d-due"><span id="d-due-text"></span></button>
-        <div class="d-alt" id="d-due-alt"></div>
-        <div class="chips">
-          <button class="chip" data-due="today" data-i18n="today">امروز</button>
-          <button class="chip" data-due="tomorrow" data-i18n="tomorrow">فردا</button>
-          <button class="chip" data-due="nextweek" data-i18n="nextWeek">هفته بعد</button>
-          <button class="chip" data-due="" data-i18n="none">هیچ</button>
+    <div class="props">
+      <div class="prop">
+        <div class="prop-k"><svg><use href="#i-calendar"/></svg><span data-i18n="due">سررسید</span></div>
+        <div class="prop-v">
+          <button class="field-btn" id="d-due"><span id="d-due-text"></span></button>
+          <div class="d-alt" id="d-due-alt"></div>
+          <div class="chips">
+            <button class="chip" data-due="today" data-i18n="today">امروز</button>
+            <button class="chip" data-due="tomorrow" data-i18n="tomorrow">فردا</button>
+            <button class="chip" data-due="nextweek" data-i18n="nextWeek">هفته بعد</button>
+            <button class="chip" data-due="" data-i18n="none">هیچ</button>
+          </div>
         </div>
       </div>
-      <div class="d-field">
-        <div class="d-label"><svg><use href="#i-clock"/></svg><span data-i18n="time">ساعت</span></div>
-        <div class="time-row">
+      <div class="prop">
+        <div class="prop-k"><svg><use href="#i-clock"/></svg><span data-i18n="time">ساعت</span></div>
+        <div class="prop-v time-row">
           <input id="d-time" type="time" class="field-input" lang="fa-IR" />
           <label class="switch" id="d-reminder-wrap"><input type="checkbox" id="d-reminder" /><span class="switch-track"></span><span data-i18n="reminder">یادآور</span></label>
         </div>
       </div>
-      <div class="d-field">
-        <div class="d-label"><svg><use href="#i-repeat"/></svg><span data-i18n="repeat">تکرار</span></div>
-        <select id="d-repeat" class="field-input">
-          <option value="none" data-i18n="rNone">بدون تکرار</option>
-          <option value="daily" data-i18n="rDaily">هر روز</option>
-          <option value="weekdays" data-i18n="rWeekdays">روزهای کاری</option>
-          <option value="weekly" data-i18n="rWeekly">هر هفته</option>
-          <option value="monthly" data-i18n="rMonthly">هر ماه</option>
-          <option value="yearly" data-i18n="rYearly">هر سال</option>
-        </select>
-      </div>
-      <div class="d-field">
-        <div class="d-label"><svg><use href="#i-flag"/></svg><span data-i18n="priority">اولویت</span></div>
-        <div class="seg" id="d-prio">
-          <button data-p="0" data-i18n="none">هیچ</button>
-          <button data-p="1" data-i18n="low">کم</button>
-          <button data-p="2" data-i18n="medium">متوسط</button>
-          <button data-p="3" data-i18n="high">زیاد</button>
+      <div class="prop">
+        <div class="prop-k"><svg><use href="#i-repeat"/></svg><span data-i18n="repeat">تکرار</span></div>
+        <div class="prop-v">
+          <select id="d-repeat" class="field-input">
+            <option value="none" data-i18n="rNone">بدون تکرار</option>
+            <option value="daily" data-i18n="rDaily">هر روز</option>
+            <option value="weekdays" data-i18n="rWeekdays">روزهای کاری</option>
+            <option value="weekly" data-i18n="rWeekly">هر هفته</option>
+            <option value="monthly" data-i18n="rMonthly">هر ماه</option>
+            <option value="yearly" data-i18n="rYearly">هر سال</option>
+          </select>
         </div>
       </div>
-      <div class="d-field">
-        <div class="d-label"><svg><use href="#i-list"/></svg><span data-i18n="list">لیست</span></div>
-        <select id="d-listsel" class="field-input"></select>
+      <div class="prop">
+        <div class="prop-k"><svg><use href="#i-flag"/></svg><span data-i18n="priority">اولویت</span></div>
+        <div class="prop-v">
+          <div class="seg" id="d-prio">
+            <button data-p="0" data-i18n="none">هیچ</button>
+            <button data-p="1" data-i18n="low">کم</button>
+            <button data-p="2" data-i18n="medium">متوسط</button>
+            <button data-p="3" data-i18n="high">زیاد</button>
+          </div>
+        </div>
       </div>
-      <div class="d-field">
-        <div class="d-label"><svg><use href="#i-tag"/></svg><span data-i18n="tags">برچسب‌ها</span></div>
-        <input id="d-tags" type="text" dir="auto" class="field-input" data-i18n-ph="tagsPh" placeholder="کار خانه" />
+      <div class="prop">
+        <div class="prop-k"><svg><use href="#i-list"/></svg><span data-i18n="list">لیست</span></div>
+        <div class="prop-v"><select id="d-listsel" class="field-input"></select></div>
+      </div>
+      <div class="prop">
+        <div class="prop-k"><svg><use href="#i-tag"/></svg><span data-i18n="tags">برچسب‌ها</span></div>
+        <div class="prop-v"><input id="d-tags" type="text" dir="auto" class="field-input" data-i18n-ph="tagsPh" placeholder="کار خانه" /></div>
       </div>
     </div>
     <div class="d-meta" id="d-meta"></div>

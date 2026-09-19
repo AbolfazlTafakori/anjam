@@ -56,6 +56,8 @@
 
   window.anjam = {
     defaultServer: native ? '' : location.origin,
+    // Android: the download server stamps its address into the APK's signing block; ServerConfigPlugin reads it.
+    getDefaultServer: async () => { if (!native) return location.origin; const p = plugin('ServerConfig'); if (!p) return ''; try { const r = await p.get(); return (r && r.server) || ''; } catch { return ''; } },
     isNative: native,
     load: async () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } },
     save: async (d) => { try { localStorage.setItem(KEY, JSON.stringify(d)); return true; } catch { return false; } },

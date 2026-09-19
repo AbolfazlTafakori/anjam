@@ -589,3 +589,53 @@ select.field-input option { background: var(--lac-2); }
 .member-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .member-who span { color: var(--ink-3); font-size: 11.5px; unicode-bidi: isolate; text-align: start; }
 .member-role { color: var(--gold); font-size: 12px; }
+
+/* ============================================================
+   Polish pass — one type scale, one control height, Notion-like property rows
+   ============================================================ */
+:root { --ctl: 34px; --r-sm: 6px; --r-md: 8px; --r-lg: 12px; }
+body { font-size: 14px; line-height: 1.5; }
+.head h1 { font-size: 22px; font-weight: 700; letter-spacing: 0; }
+.head-sub { font-size: 12.5px; }
+.brand-name { font-size: 16px; font-weight: 700; }
+.nav-item { height: 32px; font-size: 13.5px; gap: 10px; }
+.nav-item svg { width: 17px; height: 17px; }
+.rail-item { height: 30px; font-size: 13.5px; }
+.rail-title { font-size: 11px; letter-spacing: .04em; }
+.rail-head { padding: 4px 10px 2px; }
+.count { font-size: 11px; }
+.group { font-size: 11.5px; letter-spacing: .02em; padding: 16px 2px 4px; }
+.row { padding: 9px 8px 9px 4px; }
+.row-title { font-size: 14px; line-height: 1.5; }
+.row-meta { font-size: 12px; margin-top: 2px; }
+.capture-line { height: 44px; }
+#qa-input { font-size: 14.5px; }
+.btn { height: 32px; font-size: 13px; padding: 0 12px; border-radius: var(--r-md); }
+.field-input, .field-btn { height: var(--ctl); font-size: 13.5px; padding: 0 10px; }
+.field-input:focus, .field-btn:focus-visible { border-color: var(--gold); box-shadow: 0 0 0 3px var(--gold-wash); outline: none; }
+.seg { padding: 2px; border-radius: var(--r-md); }
+.seg button { height: 28px; font-size: 12.5px; border-radius: 6px; }
+.chip { height: 26px; font-size: 12px; }
+.dialog { padding: 18px 22px 22px; gap: 16px; }
+.dialog-head h2, .dialog-title { font-size: 15px; font-weight: 700; }
+.d-label { font-size: 11.5px; letter-spacing: .03em; }
+.detail { gap: 14px; padding: 12px 18px 20px; }
+.d-title { font-size: 17px; font-weight: 700; }
+.d-notes { font-size: 13.5px; }
+/* property rows: label column | value column, like a Notion page */
+.props { display: flex; flex-direction: column; border-top: 1px solid var(--rule); }
+.prop { display: grid; grid-template-columns: 112px 1fr; gap: 12px; align-items: start; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.prop-k { display: flex; align-items: center; gap: 7px; color: var(--ink-3); font-size: 12.5px; height: var(--ctl); }
+.prop-k svg { width: 15px; height: 15px; }
+.prop-v { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.prop-v.time-row { flex-direction: row; align-items: center; gap: 12px; flex-wrap: wrap; }
+.prop-v .chips { margin-top: 2px; }
+.prop .d-alt { font-size: 11.5px; }
+.prop:hover { background: rgba(255,255,255,.015); }
+.d-section { padding-top: 12px; border-top: 1px solid var(--rule); }
+.subtask input[type="text"], .subtask-add input { font-size: 13.5px; }
+/* auth + settings */
+.auth-title { font-size: 19px; font-weight: 700; }
+.f > span:first-child { font-size: 12.5px; }
+.shortcuts { font-size: 12.5px; }
+@media (max-width: 760px) { .prop { grid-template-columns: 1fr; gap: 6px; } .prop-k { height: auto; } }

@@ -934,10 +934,13 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
 
   // ---------- Auth screen ----------
   const au = { mode: 'signin', resetToken: '', serverInfo: null };
-  const serverUrl = () => ($('#au-server').value || state.data.sync.server || window.anjam.defaultServer || '').trim().replace(/\/+$/, '');
+  // Server address stamped into this build by the download server (APK signing block / installer file name),
+  // else the web origin; a stamped build never asks the user for it.
+  let DEFAULT_SERVER = '';
+  const serverUrl = () => ($('#au-server').value || state.data.sync.server || DEFAULT_SERVER || '').trim().replace(/\/+$/, '');
   function openAuth(mode, opts = {}) {
     au.mode = mode; au.resetToken = opts.token || '';
-    $('#au-server').value = state.data.sync.server || window.anjam.defaultServer || $('#acc-server').value || 'https://anjam.abolfazltafakori.com';
+    $('#au-server').value = state.data.sync.server || DEFAULT_SERVER || $('#acc-server').value || '';
     $('#au-email').value = state.data.sync.email || $('#au-email').value || '';
     $('#au-pass').value = ''; $('#au-pass2').value = ''; $('#au-invite').value = '';
     $('#auth-done').hidden = true; $('#auth-form').hidden = false;
@@ -959,7 +962,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#auth-title').textContent = t({ signin: 'tSignin', signup: 'tSignup', forgot: 'tForgot', reset: 'tReset' }[m]);
     $('#auth-sub').textContent = t({ signin: 'sSignin', signup: 'sSignup', forgot: 'sForgot', reset: 'sReset' }[m]);
     $('#auth-submit').textContent = t({ signin: 'bSignin', signup: 'bSignup', forgot: 'bForgot', reset: 'bReset' }[m]);
-    $('#f-server').hidden = m === 'reset' || (!!window.anjam.defaultServer && !window.anjam.isNative && !state.data.sync.server);
+    $('#f-server').hidden = m === 'reset' || (!!DEFAULT_SERVER && !state.data.sync.server); // stamped builds: no server field
     $('#f-name').hidden = m !== 'signup';
     $('#f-email').hidden = m === 'reset';
     $('#f-pass').hidden = m === 'forgot';
@@ -1028,7 +1031,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   function renderAccount() {
     const on = signedIn();
     $('#account-out').hidden = on; $('#account-in').hidden = !on;
-    if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || window.anjam.defaultServer || 'https://anjam.abolfazltafakori.com'; }
+    if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || DEFAULT_SERVER || ''; }
     else {
       $('#acc-who').textContent = `${state.data.sync.name ? state.data.sync.name + ' · ' : ''}${state.data.sync.email}`;
       $('#acc-last').textContent = `${t('lastSync')}: ${state.data.sync.lastSync ? fmtDateTime(state.data.sync.lastSync) : t('never')}` + (syncUI.error ? ` · ${syncUI.error}` : '');
@@ -1140,6 +1143,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   // Init
   // ============================================================
   async function init() {
+    if (window.anjam.ready) { try { await window.anjam.ready; } catch {} }
+    DEFAULT_SERVER = window.anjam.getDefaultServer ? (await window.anjam.getDefaultServer()) || '' : (window.anjam.defaultServer || '');
     state.data = normalize(await window.anjam.load());
     snapshotSeen();
     applyLang();

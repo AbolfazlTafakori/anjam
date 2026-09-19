@@ -1,6 +1,7 @@
 const { contextBridge, ipcRenderer } = require('electron');
 
 contextBridge.exposeInMainWorld('anjam', {
+  getDefaultServer: () => ipcRenderer.invoke('app:defaultServer'),
   load: () => ipcRenderer.invoke('data:load'),
   save: (data) => ipcRenderer.invoke('data:save', data),
   exportFile: (opts) => ipcRenderer.invoke('export:file', opts),
