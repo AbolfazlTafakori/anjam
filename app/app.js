@@ -430,7 +430,7 @@
 
   function render() {
     $('#app').classList.toggle('rail-collapsed', state.data.settings.railCollapsed);
-    $('#rail-open').hidden = !state.data.settings.railCollapsed;
+    $('#rail-open').hidden = !state.data.settings.railCollapsed && !window.matchMedia('(max-width: 760px)').matches;
     renderRail();
     renderHead();
     const isReport = state.view === 'report' && !state.query;
@@ -1497,9 +1497,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $$('.nav-item[data-view], .tabbar button[data-view]').forEach((b) => b.onclick = () => setView(b.dataset.view));
     const toggleDrawer = () => { $('#app').classList.toggle('sidebar-open'); updateScrim(); };
     $('#tab-lists').onclick = toggleDrawer;
-    $('#menu-btn').onclick = toggleDrawer;
     $('#tab-search').onclick = () => { $('#scroller').scrollTop = 0; $('#search').focus(); };
-    $('#rail-toggle').onclick = toggleRail; $('#rail-open').onclick = toggleRail;
+    $('#rail-toggle').onclick = () => (isPhone() ? toggleDrawer() : toggleRail()); $('#rail-open').onclick = () => (isPhone() ? toggleDrawer() : toggleRail());
     $('#nav-search').onclick = openPalette;
     $('#ws-btn').onclick = (e) => openMenu(e.currentTarget, [
       { label: signedIn() ? state.data.sync.email : t('signInUp'), icon: 'user', run: () => { if (signedIn()) $('#settings').hidden = false; else openAuth('signin'); } },

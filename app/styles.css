@@ -142,7 +142,8 @@ kbd { font-family: var(--font); font-size: 11px; color: var(--text-3); }
 .ws:hover { background: var(--hover); }
 .ws-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--ruby); color: var(--on-ruby); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
 .ws-mark.lg { width: 34px; height: 34px; border-radius: 9px; font-size: 18px; }
-.ws-name { font-weight: 600; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-name { font-weight: 600; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ws-spacer { flex: 1; }
 .ws-chev { width: 14px; height: 14px; color: var(--text-3); }
 .sidebar-close { position: absolute; top: 12px; inset-inline-end: 12px; opacity: 0; }
 .sidebar:hover .sidebar-close, .sidebar-close:focus-visible { opacity: 1; }
@@ -183,6 +184,7 @@ kbd { font-family: var(--font); font-size: 11px; color: var(--text-3); }
 .main { display: flex; flex-direction: column; min-width: 0; min-height: 0; position: relative; }
 .topbar { height: var(--topbar-h); display: flex; align-items: center; padding: 0 12px; gap: 4px; flex-shrink: 0; }
 .topbar-menu { display: none; }
+/* one sidebar toggle in the top bar: visible only while the sidebar is off-screen (collapsed on desktop, drawer on phones) */
 .topbar-expand { display: none; }
 .topbar-spacer { flex: 1; }
 .crumb { display: flex; align-items: center; gap: 2px; min-width: 0; overflow: hidden; }
@@ -661,9 +663,10 @@ select.field-input { appearance: auto; }
   .app.rail-collapsed .sidebar { transform: translateX(var(--side-hide)); }
   .sidebar-close { display: none; }
   .topbar { padding: 0 8px; padding-top: var(--safe-t); height: calc(var(--topbar-h) + 4px + var(--safe-t)); }
-  .topbar-menu { display: inline-flex; width: 40px; height: 40px; }
-  .topbar-menu svg { width: 22px; height: 22px; }
-  .topbar-expand { display: none !important; }
+  .topbar-menu { display: none; }
+  .topbar-expand { display: inline-flex; width: 40px; height: 40px; }
+  .topbar-expand svg { width: 22px; height: 22px; }
+  .app.sidebar-open .topbar-expand { display: none; }
   .topbar .ibtn { width: 40px; height: 40px; }
   #share-btn { display: none !important; }
   .page { padding: 12px 20px calc(120px + var(--safe-b)); }
