@@ -60,7 +60,8 @@
       {
         "provider": "github",
         "owner": "AbolfazlTafakori",
-        "repo": "anjam"
+        "repo": "anjam",
+        "releaseType": "release"
       }
     ],
     "linux": {
