@@ -2,22 +2,19 @@
 <html lang="fa" dir="rtl">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#191415" media="(prefers-color-scheme: dark)" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;" />
   <title>Anjam · انجام</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-<!--
-THESIS: A lacquered pen box (qalamdan): a deep red-black lacquer shell holds a calm matte interior where the work happens. Refuses the category default of a flat gray sidebar with emoji and a card-per-task feed.
-OWN-WORLD: lacquer chrome #140709→#1B0C10 with hairline gold rules (rgba(226,180,90,.22)); matte interior #1F1114; ivory text; gold only for selection, today, and rules; crimson #C1121F for the one primary action and P3. One family (Vazirmatn), fixed rem scale. Drawn 1.6px stroke icons.
-STORY: open → today's few rows read at a glance → add in one line → tick; the row settles and leaves; the box stays quiet.
-FIRST VIEWPORT: lacquer rail (start) with Inbox/Today/Upcoming/All/Done, lists, tags; interior: title row, a single ruled capture line, grouped rows separated by hairline gold rules; detail slides in from the end edge.
-FORM: qalamdan lacquer box, candidate 7 of 7, seed 2b81853d.
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
--->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
     <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M4 13h4l1.5 3h5L16 13h4v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></symbol>
+    <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-6h4v6"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
     <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M4 10h16M8 3v4M16 3v4"/></symbol>
     <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 4 8 4-8 4-8-4z"/><path d="m4 12 8 4 8-4"/><path d="m4 16 8 4 8-4"/></symbol>
@@ -31,14 +28,19 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
     <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M9 7V5h6v2M7 7l1 12h8l1-12"/></symbol>
     <symbol id="i-chevron" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+    <symbol id="i-chevron-down" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></symbol>
+    <symbol id="i-chevrons" viewBox="0 0 24 24"><path d="m8 9 4-4 4 4M8 15l4 4 4-4"/></symbol>
     <symbol id="i-flag" viewBox="0 0 24 24"><path d="M6 21V4"/><path d="M6 4h11l-2.5 4L17 12H6"/></symbol>
     <symbol id="i-repeat" viewBox="0 0 24 24"><path d="M17 3l3 3-3 3"/><path d="M20 6H8a4 4 0 0 0-4 4v1"/><path d="m7 21-3-3 3-3"/><path d="M4 18h12a4 4 0 0 0 4-4v-1"/></symbol>
     <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></symbol>
     <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
     <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4.5" cy="6" r=".9"/><circle cx="4.5" cy="12" r=".9"/><circle cx="4.5" cy="18" r=".9"/></symbol>
+    <symbol id="i-table" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M3 15h18M9 5v14"/></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><rect x="3" y="4" width="5" height="16" rx="1.5"/><rect x="9.5" y="4" width="5" height="11" rx="1.5"/><rect x="16" y="4" width="5" height="8" rx="1.5"/></symbol>
     <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
     <symbol id="i-grip" viewBox="0 0 24 24"><circle cx="9" cy="6" r="1.1"/><circle cx="15" cy="6" r="1.1"/><circle cx="9" cy="12" r="1.1"/><circle cx="15" cy="12" r="1.1"/><circle cx="9" cy="18" r="1.1"/><circle cx="15" cy="18" r="1.1"/></symbol>
     <symbol id="i-panel" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M9 5v14"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-7 7M10 20H4v-6M4 20l7-7"/></symbol>
     <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 19h16"/></symbol>
     <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V4M7 9l5-5 5 5"/><path d="M4 19h16"/></symbol>
     <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
@@ -54,204 +56,264 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.5 6.5l2 2M15.5 15.5l2 2M6.5 17.5l2-2M15.5 8.5l2-2"/></symbol>
     <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9.5" r="2.6"/><path d="M15.5 14.2A5 5 0 0 1 21 19"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+    <symbol id="i-sync" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18 3v4h-4M6 21v-4h4"/></symbol>
+    <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 6h16M7 12h10M10 18h4"/></symbol>
+    <symbol id="i-sort" viewBox="0 0 24 24"><path d="M7 4v16M4 17l3 3 3-3"/><path d="M17 20V4M14 7l3-3 3 3"/></symbol>
+    <symbol id="i-moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></symbol>
+    <symbol id="i-monitor" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.3 10.8 7.4-4.6M8.3 13.2l7.4 4.6"/></symbol>
+    <symbol id="i-wifi-off" viewBox="0 0 24 24"><path d="M3 9a14 14 0 0 1 18 0M6.5 12.5a9 9 0 0 1 11 0M10 16a4 4 0 0 1 4 0"/><circle cx="12" cy="19" r="1"/><path d="m4 4 16 16"/></symbol>
   </defs>
 </svg>
 
-<div id="app" class="app">
-  <!-- Lacquer rail -->
-  <aside class="rail" id="rail">
-    <div class="rail-top">
-      <div class="brand">
-        <span class="brand-seal"><svg><use href="#i-check"/></svg></span>
-        <span class="brand-name" data-i18n="appName">انجام</span>
-      </div>
-      <button class="ibtn rail-collapse" id="rail-toggle" data-i18n-title="collapse" title="جمع‌کردن"><svg><use href="#i-panel"/></svg></button>
-    </div>
+<div id="app" class="app booting">
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar" aria-label="Navigation">
+    <button class="ws" id="ws-btn" data-i18n-title="workspace" title="فضای کاری">
+      <span class="ws-mark" id="ws-mark">ا</span>
+      <span class="ws-name" id="ws-name" data-i18n="appName">انجام</span>
+      <svg class="ws-chev"><use href="#i-chevrons"/></svg>
+    </button>
+    <button class="ibtn sidebar-close" id="rail-toggle" data-i18n-title="collapse" title="جمع‌کردن"><svg><use href="#i-panel"/></svg></button>
 
-    <nav class="nav" id="nav" aria-label="Views">
-      <button class="nav-item" data-view="inbox"><svg><use href="#i-inbox"/></svg><span class="nav-label" data-i18n="inbox">صندوق</span><span class="count" id="count-inbox"></span></button>
-      <button class="nav-item" data-view="today"><svg><use href="#i-sun"/></svg><span class="nav-label" data-i18n="today">امروز</span><span class="count" id="count-today"></span></button>
-      <button class="nav-item" data-view="upcoming"><svg><use href="#i-calendar"/></svg><span class="nav-label" data-i18n="upcoming">پیش‌رو</span><span class="count" id="count-upcoming"></span></button>
-      <button class="nav-item" data-view="all"><svg><use href="#i-layers"/></svg><span class="nav-label" data-i18n="all">همه</span><span class="count" id="count-all"></span></button>
-      <button class="nav-item" data-view="done"><svg><use href="#i-check-circle"/></svg><span class="nav-label" data-i18n="completed">انجام‌شده</span><span class="count" id="count-done"></span></button>
+    <nav class="nav" aria-label="Views">
+      <button class="nav-item" id="nav-search"><svg><use href="#i-search"/></svg><span class="nav-label" data-i18n="search">جستجو</span><kbd>Ctrl K</kbd></button>
+      <button class="nav-item" data-view="inbox"><svg><use href="#i-inbox"/></svg><span class="nav-label" data-i18n="inbox">صندوق ورودی</span><span class="count" id="count-inbox"></span></button>
     </nav>
 
-    <div class="rail-scroll">
-      <div class="rail-section">
-        <div class="rail-head"><span class="rail-title" data-i18n="lists">لیست‌ها</span><button class="ibtn sm" id="list-add" data-i18n-title="newList" title="لیست جدید"><svg><use href="#i-plus"/></svg></button></div>
-        <div class="rail-items" id="list-items"></div>
+    <div class="sidebar-scroll">
+      <div class="side-section">
+        <div class="side-head"><span data-i18n="views">نماها</span></div>
+        <nav class="nav" id="nav">
+          <button class="nav-item" data-view="today"><svg><use href="#i-sun"/></svg><span class="nav-label" data-i18n="today">امروز</span><span class="count" id="count-today"></span></button>
+          <button class="nav-item" data-view="upcoming"><svg><use href="#i-calendar"/></svg><span class="nav-label" data-i18n="upcoming">پیش‌رو</span><span class="count" id="count-upcoming"></span></button>
+          <button class="nav-item" data-view="all"><svg><use href="#i-layers"/></svg><span class="nav-label" data-i18n="all">همه کارها</span><span class="count" id="count-all"></span></button>
+          <button class="nav-item" data-view="done"><svg><use href="#i-check-circle"/></svg><span class="nav-label" data-i18n="completed">انجام‌شده</span><span class="count" id="count-done"></span></button>
+        </nav>
       </div>
-      <div class="rail-section">
-        <div class="rail-head"><span class="rail-title" data-i18n="tags">برچسب‌ها</span></div>
-        <div class="rail-items" id="tag-items"></div>
+      <div class="side-section">
+        <div class="side-head"><span data-i18n="lists">لیست‌ها</span><button class="ibtn xs" id="list-add" data-i18n-title="newList" title="لیست جدید"><svg><use href="#i-plus"/></svg></button></div>
+        <div class="nav" id="list-items"></div>
+      </div>
+      <div class="side-section">
+        <div class="side-head"><span data-i18n="tags">برچسب‌ها</span></div>
+        <div class="nav" id="tag-items"></div>
       </div>
     </div>
 
-    <div class="rail-bottom">
+    <div class="sidebar-bottom">
       <button class="update-pill" id="update-pill" hidden><svg><use href="#i-sparkle"/></svg><span class="nav-label" id="update-pill-text"></span></button>
       <button class="nav-item" data-view="report"><svg><use href="#i-chart"/></svg><span class="nav-label" data-i18n="report">گزارش</span></button>
       <button class="nav-item" id="settings-btn"><svg><use href="#i-settings"/></svg><span class="nav-label" data-i18n="settings">تنظیمات</span></button>
+      <button class="btn primary new-task" id="new-task-btn"><svg><use href="#i-plus"/></svg><span data-i18n="aNewTask">کار جدید</span></button>
     </div>
   </aside>
 
-  <!-- Interior -->
-  <main class="interior" id="interior">
-    <header class="head">
-      <button class="ibtn head-menu" id="menu-btn" data-i18n-title="lists" title="لیست‌ها"><svg><use href="#i-menu"/></svg></button>
-      <div class="head-title">
-        <h1 id="view-title">امروز</h1>
-        <p class="head-sub" id="view-sub"></p>
-      </div>
-      <div class="head-actions">
-        <label class="search" id="search-wrap">
-          <svg><use href="#i-search"/></svg>
-          <input id="search" type="search" dir="auto" data-i18n-ph="search" placeholder="جستجو" />
-          <kbd>Ctrl F</kbd>
-        </label>
-        <button class="ibtn" id="palette-btn" data-i18n-title="scPalette" title="فرمان‌ها (Ctrl+K)"><svg><use href="#i-command"/></svg></button>
-      </div>
+  <!-- Main -->
+  <main class="main" id="interior">
+    <header class="topbar">
+      <button class="ibtn topbar-menu" id="menu-btn" data-i18n-title="lists" title="منو"><svg><use href="#i-menu"/></svg></button>
+      <button class="ibtn topbar-expand" id="rail-open" data-i18n-title="expand" title="باز کردن" hidden><svg><use href="#i-panel"/></svg></button>
+      <nav class="crumb" id="crumb" aria-label="Breadcrumb"></nav>
+      <div class="topbar-spacer"></div>
+      <button class="sync-pill" id="sync-pill" hidden><svg><use href="#i-sync"/></svg><span id="sync-pill-text"></span></button>
+      <button class="tbtn" id="share-btn" hidden><span data-i18n="share">اشتراک‌گذاری</span></button>
+      <button class="ibtn" id="palette-btn" data-i18n-title="scPalette" title="فرمان‌ها (Ctrl+K)"><svg><use href="#i-command"/></svg></button>
+      <button class="ibtn" id="more-btn" data-i18n-title="more" title="بیشتر"><svg><use href="#i-more"/></svg></button>
     </header>
 
-    <section class="capture" id="capture">
-      <div class="capture-line">
-        <span class="capture-mark"><svg><use href="#i-plus"/></svg></span>
-        <input id="qa-input" type="text" dir="auto" autocomplete="off" spellcheck="false" data-i18n-ph="quickAdd" placeholder="کار جدید…  فردا !2 #کار" />
-        <button class="btn primary" id="qa-add" data-i18n="add">افزودن</button>
-      </div>
-      <div class="capture-chips" id="qa-chips"></div>
-    </section>
-
-    <section class="sheet" id="sheet">
-      <div class="rows" id="task-list" role="list"></div>
-      <div class="empty" id="empty" hidden>
-        <svg class="empty-glyph"><use href="#i-check"/></svg>
-        <p class="empty-text" data-i18n="emptyToday"></p>
-        <p class="empty-hint" data-i18n="emptyHint"></p>
-      </div>
-      <div class="sheet-actions" id="list-actions" hidden>
-        <button class="btn ghost danger" id="clear-done" data-i18n="clearCompleted">پاک‌کردن انجام‌شده‌ها</button>
-      </div>
-    </section>
-
-    <section class="report" id="report" hidden>
-      <div class="ledger">
-        <div class="ledger-row"><span class="ledger-k" data-i18n="stTotal">کل کارها</span><span class="ledger-v" id="st-total">۰</span></div>
-        <div class="ledger-row"><span class="ledger-k" data-i18n="stDone">انجام‌شده</span><span class="ledger-v" id="st-done">۰</span></div>
-        <div class="ledger-row"><span class="ledger-k" data-i18n="stRate">نرخ تکمیل</span><span class="ledger-v gold" id="st-rate">۰٪</span></div>
-        <div class="ledger-row"><span class="ledger-k" data-i18n="stOverdue">عقب‌افتاده</span><span class="ledger-v red" id="st-overdue">۰</span></div>
-      </div>
-      <div class="panel">
-        <h2 data-i18n="last7">انجام‌شده در ۷ روز اخیر</h2>
-        <div class="bars" id="bars-week"></div>
-      </div>
-      <div class="panel-grid">
-        <div class="panel"><h2 data-i18n="byList">بر اساس لیست</h2><div class="rows-meter" id="rows-list"></div></div>
-        <div class="panel"><h2 data-i18n="byPriority">بر اساس اولویت</h2><div class="rows-meter" id="rows-priority"></div></div>
-        <div class="panel"><h2 data-i18n="byTag">بر اساس برچسب</h2><div class="rows-meter" id="rows-tags"></div></div>
-      </div>
-      <div class="panel">
-        <h2 data-i18n="exportTitle">خروجی و پشتیبان</h2>
-        <div class="export-row">
-          <button class="btn primary" id="exp-pdf"><svg><use href="#i-file"/></svg><span data-i18n="expPdf">گزارش PDF</span></button>
-          <button class="btn ghost" id="exp-csv"><svg><use href="#i-download"/></svg><span>CSV</span></button>
-          <button class="btn ghost" id="exp-md"><svg><use href="#i-download"/></svg><span>Markdown</span></button>
-          <button class="btn ghost" id="exp-json"><svg><use href="#i-download"/></svg><span data-i18n="expJson">پشتیبان JSON</span></button>
-          <button class="btn ghost" id="imp-json"><svg><use href="#i-upload"/></svg><span data-i18n="impJson">بازیابی</span></button>
+    <div class="scroller" id="scroller">
+      <div class="page" id="page">
+        <div class="page-head">
+          <div class="page-icon" id="page-icon"></div>
+          <h1 class="page-title" id="view-title">امروز</h1>
+          <p class="page-sub" id="view-sub"></p>
         </div>
+
+        <div class="db" id="db">
+          <div class="db-bar">
+            <div class="db-tabs" role="tablist" id="view-tabs">
+              <button role="tab" data-mode="list"><svg><use href="#i-list"/></svg><span data-i18n="vList">فهرست</span></button>
+              <button role="tab" data-mode="table"><svg><use href="#i-table"/></svg><span data-i18n="vTable">جدول</span></button>
+              <button role="tab" data-mode="board"><svg><use href="#i-board"/></svg><span data-i18n="vBoard">برد</span></button>
+              <button role="tab" data-mode="calendar"><svg><use href="#i-calendar"/></svg><span data-i18n="vCalendar">تقویم</span></button>
+            </div>
+            <div class="db-tools">
+              <label class="search" id="search-wrap">
+                <svg><use href="#i-search"/></svg>
+                <input id="search" type="search" dir="auto" data-i18n-ph="search" placeholder="جستجو" autocomplete="off" />
+                <button class="ibtn xs search-clear" id="search-clear" hidden><svg><use href="#i-x"/></svg></button>
+              </label>
+              <button class="tbtn" id="filter-btn"><svg><use href="#i-filter"/></svg><span data-i18n="filter">فیلتر</span></button>
+              <button class="tbtn" id="sort-btn"><svg><use href="#i-sort"/></svg><span data-i18n="sort">مرتب‌سازی</span></button>
+              <span class="split">
+                <button class="btn primary sm" id="qa-open"><span data-i18n="new">جدید</span></button>
+                <button class="btn primary sm split-chev" id="qa-menu" aria-label="گزینه‌ها"><svg><use href="#i-chevron-down"/></svg></button>
+              </span>
+            </div>
+          </div>
+
+          <!-- inline "new" row (quick add with parser) -->
+          <section class="capture" id="capture" hidden>
+            <div class="capture-line">
+              <span class="cb" aria-hidden="true"></span>
+              <input id="qa-input" type="text" dir="auto" autocomplete="off" spellcheck="false" data-i18n-ph="quickAdd" placeholder="کار جدید…  فردا !2 #کار" />
+              <button class="btn primary sm" id="qa-add" data-i18n="add">افزودن</button>
+              <button class="ibtn xs" id="qa-cancel" data-i18n-title="close"><svg><use href="#i-x"/></svg></button>
+            </div>
+            <div class="capture-chips" id="qa-chips"></div>
+          </section>
+
+          <div class="skeleton" id="skeleton" aria-hidden="true">
+            <div class="sk-row"><span class="sk-box"></span><span class="sk-line w55"></span><span class="sk-line w12"></span></div>
+            <div class="sk-row"><span class="sk-box"></span><span class="sk-line w40"></span><span class="sk-line w16"></span></div>
+            <div class="sk-row"><span class="sk-box"></span><span class="sk-line w62"></span><span class="sk-line w10"></span></div>
+            <div class="sk-row"><span class="sk-box"></span><span class="sk-line w48"></span><span class="sk-line w14"></span></div>
+          </div>
+
+          <div class="rows" id="task-list" role="list"></div>
+          <div class="table-wrap" id="table" hidden></div>
+          <div class="board" id="board" hidden></div>
+          <div class="calendar" id="calendar" hidden></div>
+
+          <div class="empty-state" id="empty" hidden>
+            <svg class="empty-glyph"><use href="#i-check-circle"/></svg>
+            <p class="empty-text" data-i18n="emptyToday"></p>
+            <p class="empty-hint" data-i18n="emptyHint"></p>
+            <button class="btn primary sm" id="empty-new"><span data-i18n="aNewTask">کار جدید</span></button>
+          </div>
+          <div class="sheet-actions" id="list-actions" hidden>
+            <button class="btn ghost danger" id="clear-done" data-i18n="clearCompleted">پاک‌کردن انجام‌شده‌ها</button>
+          </div>
+        </div>
+
+        <section class="report" id="report" hidden>
+          <div class="ledger">
+            <div class="ledger-row"><span class="ledger-k" data-i18n="stTotal">کل کارها</span><span class="ledger-v" id="st-total">۰</span></div>
+            <div class="ledger-row"><span class="ledger-k" data-i18n="stDone">انجام‌شده</span><span class="ledger-v" id="st-done">۰</span></div>
+            <div class="ledger-row"><span class="ledger-k" data-i18n="stRate">نرخ تکمیل</span><span class="ledger-v accent" id="st-rate">۰٪</span></div>
+            <div class="ledger-row"><span class="ledger-k" data-i18n="stOverdue">عقب‌افتاده</span><span class="ledger-v red" id="st-overdue">۰</span></div>
+          </div>
+          <div class="panel">
+            <h2 data-i18n="last7">انجام‌شده در ۷ روز اخیر</h2>
+            <div class="bars" id="bars-week"></div>
+          </div>
+          <div class="panel-grid">
+            <div class="panel"><h2 data-i18n="byList">بر اساس لیست</h2><div class="rows-meter" id="rows-list"></div></div>
+            <div class="panel"><h2 data-i18n="byPriority">بر اساس اولویت</h2><div class="rows-meter" id="rows-priority"></div></div>
+            <div class="panel"><h2 data-i18n="byTag">بر اساس برچسب</h2><div class="rows-meter" id="rows-tags"></div></div>
+          </div>
+          <div class="panel">
+            <h2 data-i18n="exportTitle">خروجی و پشتیبان</h2>
+            <div class="export-row">
+              <button class="btn primary" id="exp-pdf"><svg><use href="#i-file"/></svg><span data-i18n="expPdf">گزارش PDF</span></button>
+              <button class="btn" id="exp-csv"><svg><use href="#i-download"/></svg><span>CSV</span></button>
+              <button class="btn" id="exp-md"><svg><use href="#i-download"/></svg><span>Markdown</span></button>
+              <button class="btn" id="exp-json"><svg><use href="#i-download"/></svg><span data-i18n="expJson">پشتیبان JSON</span></button>
+              <button class="btn" id="imp-json"><svg><use href="#i-upload"/></svg><span data-i18n="impJson">بازیابی</span></button>
+            </div>
+          </div>
+        </section>
       </div>
-    </section>
+    </div>
   </main>
 
   <div class="scrim" id="backdrop" hidden></div>
 
-  <!-- Detail -->
-  <aside class="detail" id="detail" hidden aria-label="Task">
-    <div class="detail-bar">
+  <!-- Task page (side peek) -->
+  <aside class="peek" id="detail" hidden aria-label="Task">
+    <div class="peek-bar">
       <button class="ibtn" id="detail-close" data-i18n-title="close" title="بستن"><svg><use href="#i-x"/></svg></button>
-      <span class="detail-list" id="d-list-name"></span>
+      <button class="ibtn" id="detail-expand" data-i18n-title="expand" title="تمام‌صفحه"><svg><use href="#i-expand"/></svg></button>
+      <span class="peek-crumb" id="d-list-name"></span>
+      <span class="topbar-spacer"></span>
+      <span class="peek-saved" id="d-saved"></span>
       <button class="ibtn danger" id="detail-delete" data-i18n-title="delete" title="حذف"><svg><use href="#i-trash"/></svg></button>
     </div>
-    <div class="detail-title-row">
-      <label class="tick lg"><input type="checkbox" id="d-done" /><span class="tick-box"><svg><use href="#i-check"/></svg></span></label>
-      <textarea id="d-title" class="d-title" rows="1" dir="auto" data-i18n-ph="titlePh" placeholder="عنوان کار"></textarea>
-    </div>
-    <textarea id="d-notes" class="d-notes" dir="auto" rows="3" data-i18n-ph="notesPh" placeholder="یادداشت…"></textarea>
+    <div class="peek-scroll">
+      <div class="peek-title-row">
+        <label class="cbx lg"><input type="checkbox" id="d-done" /><span class="cb"><svg><use href="#i-check"/></svg></span></label>
+        <textarea id="d-title" class="d-title" rows="1" dir="auto" data-i18n-ph="titlePh" placeholder="عنوان کار"></textarea>
+      </div>
 
-    <div class="d-section">
-      <div class="d-label"><svg><use href="#i-subtask"/></svg><span data-i18n="subtasks">زیرکارها</span><span class="d-progress" id="d-sub-progress"></span></div>
-      <div class="subtasks" id="d-subtasks"></div>
-      <div class="subtask-add"><svg><use href="#i-plus"/></svg><input id="d-sub-input" type="text" dir="auto" data-i18n-ph="subtaskPh" placeholder="زیرکار جدید و Enter" /></div>
-    </div>
-
-    <div class="props">
-      <div class="prop">
-        <div class="prop-k"><svg><use href="#i-calendar"/></svg><span data-i18n="due">سررسید</span></div>
-        <div class="prop-v">
-          <button class="field-btn" id="d-due"><span id="d-due-text"></span></button>
-          <div class="d-alt" id="d-due-alt"></div>
-          <div class="chips">
-            <button class="chip" data-due="today" data-i18n="today">امروز</button>
-            <button class="chip" data-due="tomorrow" data-i18n="tomorrow">فردا</button>
-            <button class="chip" data-due="nextweek" data-i18n="nextWeek">هفته بعد</button>
-            <button class="chip" data-due="" data-i18n="none">هیچ</button>
+      <div class="props">
+        <div class="prop">
+          <div class="prop-k"><svg><use href="#i-calendar"/></svg><span data-i18n="due">سررسید</span></div>
+          <div class="prop-v">
+            <button class="pv" id="d-due"><span id="d-due-text"></span><span class="pv-alt" id="d-due-alt"></span></button>
           </div>
         </div>
-      </div>
-      <div class="prop">
-        <div class="prop-k"><svg><use href="#i-clock"/></svg><span data-i18n="time">ساعت</span></div>
-        <div class="prop-v time-row">
-          <input id="d-time" type="time" class="field-input" lang="fa-IR" />
-          <label class="switch" id="d-reminder-wrap"><input type="checkbox" id="d-reminder" /><span class="switch-track"></span><span data-i18n="reminder">یادآور</span></label>
-        </div>
-      </div>
-      <div class="prop">
-        <div class="prop-k"><svg><use href="#i-repeat"/></svg><span data-i18n="repeat">تکرار</span></div>
-        <div class="prop-v">
-          <select id="d-repeat" class="field-input">
-            <option value="none" data-i18n="rNone">بدون تکرار</option>
-            <option value="daily" data-i18n="rDaily">هر روز</option>
-            <option value="weekdays" data-i18n="rWeekdays">روزهای کاری</option>
-            <option value="weekly" data-i18n="rWeekly">هر هفته</option>
-            <option value="monthly" data-i18n="rMonthly">هر ماه</option>
-            <option value="yearly" data-i18n="rYearly">هر سال</option>
-          </select>
-        </div>
-      </div>
-      <div class="prop">
-        <div class="prop-k"><svg><use href="#i-flag"/></svg><span data-i18n="priority">اولویت</span></div>
-        <div class="prop-v">
-          <div class="seg" id="d-prio">
-            <button data-p="0" data-i18n="none">هیچ</button>
-            <button data-p="1" data-i18n="low">کم</button>
-            <button data-p="2" data-i18n="medium">متوسط</button>
-            <button data-p="3" data-i18n="high">زیاد</button>
+        <div class="prop">
+          <div class="prop-k"><svg><use href="#i-clock"/></svg><span data-i18n="time">ساعت</span></div>
+          <div class="prop-v time-row">
+            <input id="d-time" type="time" class="pv-input" lang="fa-IR" />
+            <label class="switch" id="d-reminder-wrap"><input type="checkbox" id="d-reminder" /><span class="switch-track"></span><span data-i18n="reminder">یادآور</span></label>
           </div>
         </div>
+        <div class="prop">
+          <div class="prop-k"><svg><use href="#i-repeat"/></svg><span data-i18n="repeat">تکرار</span></div>
+          <div class="prop-v">
+            <select id="d-repeat" class="pv-input">
+              <option value="none" data-i18n="rNone">بدون تکرار</option>
+              <option value="daily" data-i18n="rDaily">هر روز</option>
+              <option value="weekdays" data-i18n="rWeekdays">روزهای کاری</option>
+              <option value="weekly" data-i18n="rWeekly">هر هفته</option>
+              <option value="monthly" data-i18n="rMonthly">هر ماه</option>
+              <option value="yearly" data-i18n="rYearly">هر سال</option>
+            </select>
+          </div>
+        </div>
+        <div class="prop">
+          <div class="prop-k"><svg><use href="#i-flag"/></svg><span data-i18n="priority">اولویت</span></div>
+          <div class="prop-v">
+            <div class="seg" id="d-prio">
+              <button data-p="0" data-i18n="none">هیچ</button>
+              <button data-p="1" data-i18n="low">کم</button>
+              <button data-p="2" data-i18n="medium">متوسط</button>
+              <button data-p="3" data-i18n="high">زیاد</button>
+            </div>
+          </div>
+        </div>
+        <div class="prop">
+          <div class="prop-k"><svg><use href="#i-list"/></svg><span data-i18n="list">لیست</span></div>
+          <div class="prop-v"><select id="d-listsel" class="pv-input"></select></div>
+        </div>
+        <div class="prop">
+          <div class="prop-k"><svg><use href="#i-tag"/></svg><span data-i18n="tags">برچسب‌ها</span></div>
+          <div class="prop-v"><input id="d-tags" type="text" dir="auto" class="pv-input" data-i18n-ph="tagsPh" placeholder="کار خانه" /></div>
+        </div>
+        <div class="prop meta">
+          <div class="prop-k"><svg><use href="#i-clock"/></svg><span data-i18n="created">ایجاد</span></div>
+          <div class="prop-v"><span class="d-meta" id="d-meta"></span></div>
+        </div>
       </div>
-      <div class="prop">
-        <div class="prop-k"><svg><use href="#i-list"/></svg><span data-i18n="list">لیست</span></div>
-        <div class="prop-v"><select id="d-listsel" class="field-input"></select></div>
+
+      <div class="d-section">
+        <div class="d-label"><span data-i18n="subtasks">زیرکارها</span><span class="d-progress" id="d-sub-progress"></span><span class="progress" id="d-sub-bar" hidden><i></i></span></div>
+        <div class="subtasks" id="d-subtasks"></div>
+        <div class="subtask-add"><svg><use href="#i-plus"/></svg><input id="d-sub-input" type="text" dir="auto" data-i18n-ph="subtaskPh" placeholder="زیرکار جدید…" /></div>
       </div>
-      <div class="prop">
-        <div class="prop-k"><svg><use href="#i-tag"/></svg><span data-i18n="tags">برچسب‌ها</span></div>
-        <div class="prop-v"><input id="d-tags" type="text" dir="auto" class="field-input" data-i18n-ph="tagsPh" placeholder="کار خانه" /></div>
-      </div>
+
+      <textarea id="d-notes" class="d-notes" dir="auto" rows="3" data-i18n-ph="notesPh" placeholder="یادداشت…"></textarea>
     </div>
-    <div class="d-meta" id="d-meta"></div>
   </aside>
 
-  <!-- Bottom tabs (narrow / mobile) -->
+  <!-- Bottom tabs (phone) -->
   <nav class="tabbar" id="tabbar" aria-label="Views">
     <button data-view="today"><svg><use href="#i-sun"/></svg><span data-i18n="today">امروز</span></button>
     <button data-view="upcoming"><svg><use href="#i-calendar"/></svg><span data-i18n="upcoming">پیش‌رو</span></button>
-    <button data-view="all"><svg><use href="#i-layers"/></svg><span data-i18n="all">همه</span></button>
-    <button id="tab-lists"><svg><use href="#i-list"/></svg><span data-i18n="lists">لیست‌ها</span></button>
-    <button id="tab-more"><svg><use href="#i-more"/></svg><span data-i18n="more">بیشتر</span></button>
+    <button id="tab-search"><svg><use href="#i-search"/></svg><span data-i18n="search">جستجو</span></button>
+    <button data-view="inbox"><svg><use href="#i-inbox"/></svg><span data-i18n="inbox">صندوق</span></button>
+    <button id="tab-lists"><svg><use href="#i-menu"/></svg><span data-i18n="more">بیشتر</span></button>
   </nav>
+  <button class="fab" id="fab" aria-label="کار جدید"><svg><use href="#i-plus"/></svg></button>
 </div>
 
+<!-- Generic popover menu -->
+<div class="menu" id="menu" hidden role="menu"></div>
+
 <!-- Command palette -->
-<div class="overlay" id="palette" hidden>
+<div class="overlay top" id="palette" hidden>
   <div class="palette" role="dialog" aria-label="Command palette">
     <div class="palette-input"><svg><use href="#i-search"/></svg><input id="palette-q" type="text" dir="auto" data-i18n-ph="palettePh" placeholder="کار یا دستور…" /><kbd>Esc</kbd></div>
     <div class="palette-list" id="palette-list"></div>
@@ -263,6 +325,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
   <div class="dialog" role="dialog" aria-label="Settings">
     <div class="dialog-head"><h2 data-i18n="settings">تنظیمات</h2><button class="ibtn" id="settings-close"><svg><use href="#i-x"/></svg></button></div>
     <div class="d-field">
+      <div class="d-label"><svg><use href="#i-monitor"/></svg><span data-i18n="theme">ظاهر</span></div>
+      <div class="seg" id="set-theme"><button data-v="system" data-i18n="thSystem">سیستم</button><button data-v="light" data-i18n="thLight">روشن</button><button data-v="dark" data-i18n="thDark">تیره</button></div>
+    </div>
+    <div class="d-field">
       <div class="d-label"><svg><use href="#i-lang"/></svg><span data-i18n="language">زبان</span></div>
       <div class="seg" id="set-lang"><button data-v="fa">فارسی</button><button data-v="en">English</button></div>
     </div>
@@ -273,7 +339,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     </div>
     <div class="d-field">
       <div class="d-label"><svg><use href="#i-bell"/></svg><span data-i18n="notifications">اعلان‌ها</span></div>
-      <label class="switch"><input type="checkbox" id="set-notify" /><span class="switch-track"></span><span data-i18n="notifyDesc">یادآور کارها با اعلان ویندوز</span></label>
+      <label class="switch"><input type="checkbox" id="set-notify" /><span class="switch-track"></span><span data-i18n="notifyDesc">یادآور کارها با اعلان سیستم</span></label>
     </div>
     <div class="d-field" id="account">
       <div class="d-label"><svg><use href="#i-cloud"/></svg><span data-i18n="account">حساب و همگام‌سازی</span><span class="d-progress" id="sync-status"></span></div>
@@ -283,18 +349,18 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <div class="d-alt hint" data-i18n="accountHint">بدون حساب هم همه‌چیز روی همین دستگاه ذخیره می‌شود. با حساب، کارها بین ویندوز، وب و اندروید همگام می‌شوند.</div>
       </div>
       <div id="account-in" hidden>
-        <div class="acc-who"><svg><use href="#i-user"/></svg><span id="acc-who"></span></div>
+        <div class="acc-who"><span class="avatar" id="acc-avatar"></span><span id="acc-who"></span></div>
         <div class="d-alt" id="acc-last"></div>
         <div class="acc-actions">
-          <button class="btn ghost" id="acc-sync" data-i18n="syncNow">همگام‌سازی</button>
-          <button class="btn ghost" id="acc-profile" data-i18n="editProfile">ویرایش حساب</button>
+          <button class="btn" id="acc-sync" data-i18n="syncNow">همگام‌سازی</button>
+          <button class="btn" id="acc-profile" data-i18n="editProfile">ویرایش حساب</button>
           <button class="btn ghost danger" id="acc-logout" data-i18n="signOut">خروج</button>
         </div>
       </div>
     </div>
     <div class="d-field" id="update-field">
       <div class="d-label"><svg><use href="#i-sparkle"/></svg><span data-i18n="updates">به‌روزرسانی</span><span class="d-progress" id="app-version"></span></div>
-      <div class="acc-row"><div class="d-alt" id="update-text"></div><div class="acc-actions"><button class="btn ghost" id="update-check" data-i18n="checkUpdate">بررسی</button><button class="btn primary" id="update-install" hidden data-i18n="restartUpdate">راه‌اندازی مجدد و نصب</button></div></div>
+      <div class="acc-row"><div class="d-alt" id="update-text"></div><div class="acc-actions"><button class="btn" id="update-check" data-i18n="checkUpdate">بررسی</button><button class="btn primary" id="update-install" hidden data-i18n="restartUpdate">راه‌اندازی مجدد و نصب</button></div></div>
     </div>
     <div class="d-field">
       <div class="d-label"><svg><use href="#i-command"/></svg><span data-i18n="shortcuts">میانبرها</span></div>
@@ -303,6 +369,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
         <div><kbd>Ctrl</kbd><kbd>N</kbd><span data-i18n="scAdd">کار جدید</span></div>
         <div><kbd>Ctrl</kbd><kbd>F</kbd><span data-i18n="scSearch">جستجو</span></div>
         <div><kbd>Ctrl</kbd><kbd>E</kbd><span data-i18n="report">گزارش</span></div>
+        <div><kbd>Ctrl</kbd><kbd>\</kbd><span data-i18n="aCollapse">نوار کناری</span></div>
         <div><kbd>↑</kbd><kbd>↓</kbd><span data-i18n="scNav">حرکت بین کارها</span></div>
         <div><kbd>Space</kbd><span data-i18n="scToggle">انجام / برگشت</span></div>
         <div><kbd>Enter</kbd><span data-i18n="scOpen">باز کردن</span></div>
@@ -320,7 +387,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="swatches" id="list-colors"></div>
     <div class="d-field" id="list-ws-wrap" hidden>
       <div class="d-label"><svg><use href="#i-users"/></svg><span data-i18n="workspace">فضای کاری</span></div>
-      <div class="acc-row"><select id="list-ws" class="field-input"></select><button class="btn ghost" id="list-share" hidden><svg><use href="#i-users"/></svg><span data-i18n="share">اشتراک</span></button></div>
+      <div class="acc-row"><select id="list-ws" class="field-input"></select><button class="btn" id="list-share" hidden><svg><use href="#i-users"/></svg><span data-i18n="share">اشتراک‌گذاری</span></button></div>
     </div>
     <div class="dialog-actions">
       <button class="btn ghost danger" id="list-delete" hidden data-i18n="deleteList">حذف لیست</button>
@@ -335,9 +402,9 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <div class="dialog-head"><h2 id="share-title"></h2><button class="ibtn" id="share-close"><svg><use href="#i-x"/></svg></button></div>
     <div id="share-add-wrap">
       <p class="d-alt hint" data-i18n="shareHint">با ایمیلِ حسابی که در همین سرور ثبت‌نام کرده به اشتراک بگذارید.</p>
-      <div class="acc-row" style="grid-template-columns:1fr auto auto">
+      <div class="acc-row three">
         <input id="share-email" type="email" class="field-input" dir="ltr" placeholder="email@example.com" />
-        <select id="share-role" class="field-input" style="width:auto"><option value="editor" data-i18n="role_editor">ویرایشگر</option><option value="viewer" data-i18n="role_viewer">بیننده</option></select>
+        <select id="share-role" class="field-input"><option value="editor" data-i18n="role_editor">ویرایشگر</option><option value="viewer" data-i18n="role_viewer">بیننده</option></select>
         <button class="btn primary" id="share-add" data-i18n="addMember">افزودن</button>
       </div>
     </div>
@@ -349,27 +416,27 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 <!-- Date picker -->
 <div class="datepicker" id="datepicker" hidden>
+  <div class="dp-quick"><button class="chip" id="dp-today" data-i18n="today">امروز</button><button class="chip" id="dp-tomorrow" data-i18n="tomorrow">فردا</button><button class="chip" id="dp-nextweek" data-i18n="nextWeek">هفته بعد</button><button class="chip" id="dp-clear" data-i18n="none">هیچ</button></div>
   <div class="dp-head">
-    <button class="ibtn sm" id="dp-prev"><svg class="flip-rtl"><use href="#i-chevron"/></svg></button>
+    <button class="ibtn xs" id="dp-prev"><svg class="flip-rtl"><use href="#i-chevron"/></svg></button>
     <div class="dp-title" id="dp-title"></div>
-    <button class="ibtn sm" id="dp-next"><svg class="flip-ltr"><use href="#i-chevron"/></svg></button>
+    <button class="ibtn xs" id="dp-next"><svg class="flip-ltr"><use href="#i-chevron"/></svg></button>
   </div>
   <div class="dp-grid" id="dp-grid"></div>
-  <div class="dp-foot"><button class="chip" id="dp-today" data-i18n="today">امروز</button><button class="chip" id="dp-clear" data-i18n="none">هیچ</button></div>
 </div>
 
 <!-- Auth -->
 <div class="auth" id="auth" hidden>
   <div class="auth-card" role="dialog" aria-label="Account">
-    <div class="auth-brand"><span class="brand-seal"><svg><use href="#i-check"/></svg></span><span class="brand-name" data-i18n="appName">انجام</span><button class="ibtn auth-close" id="auth-close"><svg><use href="#i-x"/></svg></button></div>
-    <div class="auth-tabs" id="auth-tabs"><button data-mode="signin" data-i18n="signIn">ورود</button><button data-mode="signup" data-i18n="signUp">ثبت‌نام</button></div>
+    <div class="auth-brand"><span class="ws-mark lg">ا</span><span class="brand-name" data-i18n="appName">انجام</span><button class="ibtn auth-close" id="auth-close"><svg><use href="#i-x"/></svg></button></div>
+    <div class="auth-tabs seg" id="auth-tabs"><button data-mode="signin" data-i18n="signIn">ورود</button><button data-mode="signup" data-i18n="signUp">ثبت‌نام</button></div>
     <h2 class="auth-title" id="auth-title"></h2>
     <p class="auth-sub" id="auth-sub"></p>
     <form class="auth-form" id="auth-form" novalidate>
       <label class="f" id="f-server"><span data-i18n="server">سرور</span><input id="au-server" type="url" class="field-input" dir="ltr" placeholder="https://anjam.example.com" autocomplete="url" /><em id="e-server"></em></label>
       <label class="f" id="f-name"><span data-i18n="yourNameL">نام</span><input id="au-name" type="text" class="field-input" dir="auto" autocomplete="name" /><em id="e-name"></em></label>
       <label class="f" id="f-email"><span>ایمیل / Email</span><input id="au-email" type="email" class="field-input" dir="ltr" autocomplete="username" inputmode="email" /><em id="e-email"></em></label>
-      <label class="f" id="f-pass"><span data-i18n="password">رمز عبور</span><span class="pw"><input id="au-pass" type="password" class="field-input" dir="ltr" autocomplete="current-password" /><button type="button" class="ibtn sm pw-eye" id="au-eye"><svg><use href="#i-eye"/></svg></button></span><em id="e-pass"></em><span class="strength" id="au-strength" hidden><i></i><i></i><i></i><i></i></span></label>
+      <label class="f" id="f-pass"><span data-i18n="password">رمز عبور</span><span class="pw"><input id="au-pass" type="password" class="field-input" dir="ltr" autocomplete="current-password" /><button type="button" class="ibtn xs pw-eye" id="au-eye"><svg><use href="#i-eye"/></svg></button></span><em id="e-pass"></em><span class="strength" id="au-strength" hidden><i></i><i></i><i></i><i></i></span></label>
       <label class="f" id="f-pass2"><span data-i18n="passwordAgain">تکرار رمز</span><input id="au-pass2" type="password" class="field-input" dir="ltr" autocomplete="new-password" /><em id="e-pass2"></em></label>
       <label class="f" id="f-invite"><span data-i18n="inviteCode">کد دعوت</span><input id="au-invite" type="text" class="field-input" dir="ltr" autocomplete="off" style="text-transform:uppercase" /><em id="e-invite"></em></label>
       <div class="auth-err" id="auth-err"></div>

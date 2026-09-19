@@ -1,181 +1,159 @@
 ---
 name: Anjam
-description: A lacquered pen box — deep red-black lacquer shell, matte interior, hairline gold
+description: A Notion-style workspace with one ruby accent — quiet warm neutrals, hairline rules, and cherry-red for the single action that matters.
 colors:
-  lacquer-0: "#0f0507"
-  lacquer-1: "#160a0d"
-  lacquer-2: "#1e0e12"
-  lacquer-3: "#27141a"
-  interior-0: "#1c1013"
-  interior-1: "#241518"
-  interior-2: "#2d1b1f"
-  interior-3: "#382227"
-  gold: "#e2b45a"
-  gold-rule: "rgba(226, 180, 90, 0.20)"
-  gold-rule-strong: "rgba(226, 180, 90, 0.45)"
-  gold-wash: "rgba(226, 180, 90, 0.10)"
-  crimson: "#c1121f"
-  crimson-hover: "#dc1f2e"
-  ink: "#f6eee6"
-  ink-2: "#d4c1b8"
-  ink-3: "#a08a82"
-  ink-4: "#6f5c58"
-  ok: "#58c58f"
-  danger: "#ff5c63"
-  priority-low: "#7ea4d6"
+  bg: "#ffffff"
+  bg-side: "#f7f5f4"
+  text: "#1e1a1b"
+  text-2: "rgba(30,26,27,0.62)"
+  text-3: "rgba(30,26,27,0.52)"
+  line: "rgba(30,26,27,0.10)"
+  hover: "rgba(30,26,27,0.055)"
+  ruby: "#9e1b34"
+  ruby-hover: "#861529"
+  ruby-soft: "rgba(158,27,52,0.10)"
+  danger: "#b3132f"
+  ok: "#1b7a45"
+  dark-bg: "#191415"
+  dark-bg-side: "#211b1d"
+  dark-text: "#efe8e6"
+  dark-ruby: "#e24a64"
 typography:
-  title:
-    fontFamily: "Vazirmatn, Segoe UI, system-ui, sans-serif"
-    fontSize: "24px"
+  page-title:
+    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontSize: "40px"
     fontWeight: 800
     lineHeight: 1.2
-    letterSpacing: "-0.015em"
-  panel-title:
-    fontFamily: "Vazirmatn, Segoe UI, system-ui, sans-serif"
-    fontSize: "18px"
-    fontWeight: 700
-    lineHeight: 1.4
-  row:
-    fontFamily: "Vazirmatn, Segoe UI, system-ui, sans-serif"
-    fontSize: "14.5px"
-    fontWeight: 400
-    lineHeight: 1.45
+    letterSpacing: "-0.01em"
+  task-title:
+    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontSize: "30px"
+    fontWeight: 800
+    lineHeight: 1.3
   body:
-    fontFamily: "Vazirmatn, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
   meta:
-    fontFamily: "Vazirmatn, Segoe UI, system-ui, sans-serif"
-    fontSize: "11.5px"
-    fontWeight: 400
+    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontSize: "12px"
+    fontWeight: 500
     lineHeight: 1.4
-  label:
-    fontFamily: "Vazirmatn, Segoe UI, system-ui, sans-serif"
-    fontSize: "11.5px"
-    fontWeight: 600
-    lineHeight: 1.2
-    letterSpacing: "0.04em"
+  phone-body:
+    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 400
+    lineHeight: 1.5
 rounded:
-  sm: "6px"
-  md: "10px"
-  lg: "14px"
-  pill: "999px"
+  sm: "4px"
+  md: "6px"
+  lg: "8px"
+  xl: "12px"
 spacing:
   xs: "4px"
   sm: "8px"
   md: "12px"
   lg: "16px"
-  xl: "28px"
+  xl: "24px"
 components:
   button-primary:
-    backgroundColor: "{colors.crimson}"
+    backgroundColor: "{colors.ruby}"
     textColor: "#ffffff"
     rounded: "{rounded.md}"
-    height: "34px"
-    padding: "0 14px"
-  button-primary-hover:
-    backgroundColor: "{colors.crimson-hover}"
-  button-ghost:
-    backgroundColor: "{colors.interior-1}"
-    textColor: "{colors.ink-2}"
+    height: "32px"
+    padding: "0 12px"
+  button-secondary:
+    backgroundColor: "{colors.bg}"
+    textColor: "{colors.text}"
     rounded: "{rounded.md}"
-    height: "34px"
-    padding: "0 14px"
+    height: "32px"
+    padding: "0 12px"
   nav-item:
-    textColor: "{colors.ink-2}"
+    textColor: "{colors.text-2}"
     rounded: "{rounded.md}"
-    height: "36px"
-    padding: "0 10px"
+    height: "30px"
+    padding: "0 8px"
   nav-item-active:
-    backgroundColor: "{colors.gold-wash}"
-    textColor: "{colors.ink}"
+    backgroundColor: "rgba(30,26,27,0.09)"
+    textColor: "{colors.text}"
   row:
-    textColor: "{colors.ink}"
-    padding: "10px 8px 10px 4px"
+    height: "36px"
+    padding: "0 6px"
+    rounded: "{rounded.md}"
   row-selected:
-    backgroundColor: "{colors.gold-wash}"
-  field:
-    backgroundColor: "{colors.interior-0}"
-    textColor: "{colors.ink}"
-    rounded: "{rounded.sm}"
-    height: "34px"
-    padding: "0 10px"
+    backgroundColor: "{colors.ruby-soft}"
   chip:
-    backgroundColor: "{colors.interior-1}"
-    textColor: "{colors.ink-2}"
-    rounded: "{rounded.pill}"
-    height: "26px"
-    padding: "0 11px"
+    height: "20px"
+    padding: "0 7px"
+    rounded: "{rounded.sm}"
+  checkbox:
+    size: "16px"
+    rounded: "4px"
+    backgroundColor: "{colors.ruby}"
+  peek:
+    width: "560px"
+    backgroundColor: "{colors.bg}"
   dialog:
-    backgroundColor: "{colors.lacquer-1}"
-    rounded: "{rounded.lg}"
-    padding: "18px 22px 24px"
-    width: "420px"
+    backgroundColor: "{colors.bg}"
+    rounded: "{rounded.xl}"
+    width: "460px"
 ---
 
 # Anjam design system
 
 ## Overview
 
-Anjam is a **qalamdan** — a Persian lacquered pen box. The shell (rail, dialogs, detail panel, palette) is deep red-black lacquer; the interior (the task sheet) is a slightly lighter matte surface where the work happens. Gold is used only as hairline rules, the current selection, "today", and focus. Crimson appears exactly twice: the one primary action and P3 priority. Everything else is ivory ink in four tints. The app is an Operate surface: familiarity first, brand in the details. It is fully mirrored for RTL (Persian default) and LTR (English) and every date can render in Jalali or Gregorian independently of language.
+Anjam is a **Notion-style workspace** for tasks: a quiet sidebar, a breadcrumb topbar, a page with an icon and a large title, and a database beneath it with four views (list · table · board · calendar) and a side-peek task page. The chrome is warm neutral in four tints; **ruby** (`#9e1b34`, cherry-red) is the one accent, used for the primary action, selection, checked ticks, "today", the FAB and the active phone tab. Light and dark are both first-class (system / light / dark, persisted). Persian RTL is the default; every layout rule is logical (`inset-inline`, `margin-inline`) and mirrors for English.
 
 ## Colors
 
-- **Lacquer** (`lacquer-0…3`): chrome only — rail gradient (2 → 1 → 0 top-to-bottom), dialogs, detail panel, popovers. Never for content rows.
-- **Interior** (`interior-0…3`): the work surface and its controls. `interior-0` is also the field background inside lacquer panels so inputs read as recessed.
-- **Gold**: `gold-rule` (20%) is the universal hairline: row separators, section rules, borders. `gold-rule-strong` (45%) for dialog and popover borders. `gold-wash` (10%) is the only selection fill. Solid `gold` is text/icon color for active nav, today, focus ring, switch-on. Never a gold surface larger than a switch.
-- **Crimson**: the primary button, P3 flag, the brand seal, and the capture "+" mark only while focused. Hover → `crimson-hover`. Checked ticks, selected dates, chart bars and meters are gold/ink, never crimson.
-- **Ink**: `ink` primary text, `ink-2` secondary and labels on hover, `ink-3` metadata/placeholders/icons at rest, `ink-4` disabled and hairline-level text. All four are warm-tinted; never neutral gray.
-- **Semantic**: `danger` for overdue and destructive hover only; `ok` for a fully completed subtask count; `priority-low` blue for P1. P2 is `ink-2`.
-- Contrast: `ink-3` on `interior-0` ≈ 5.1:1; `ink-4` is reserved for non-essential text.
+- **Surfaces**: `bg` for pages, peek and menus; `bg-side` for the sidebar and the auth screen backdrop; `hover` / `active` as translucent washes so they work on any surface.
+- **Text**: `text` primary, `text-2` secondary (nav, subtitles), `text-3` metadata and placeholders (≥ 4.5:1 on white), `text-4` disabled only. Warm-tinted, never neutral gray.
+- **Ruby**: primary button, checked checkbox, switch-on, selected date, today's calendar dot, the FAB, selection wash (`ruby-soft`) and the focus ring (`ruby-ring`). Hover → `ruby-hover`. Dark mode lifts it to `#e24a64` for contrast on `#191415`.
+- **Property chips**: six tinted pairs (red/amber/blue/green/gray/purple). Priority uses red (high), amber (medium), blue (low); tags use purple; done-count uses green text.
+- **Semantic**: `danger` for overdue and destructive; `ok` for a complete subtask count and "synced".
 
 ## Typography
 
-One family, **Vazirmatn** (variable, self-hosted), for Persian and Latin alike; no display face. Fixed pixel scale, never fluid: 24 title / 18 panel title / 16 empty-state / 14.5 row / 14 body / 13 buttons & meters / 12.5 sub / 11.5 meta & labels / 11 counts. Weights: 800 titles, 700 panel titles, 600 labels/buttons/active nav, 400 everything else. Section labels are 11.5px, 600, +0.04em, uppercase in Latin (uppercase has no effect on Persian, which is intended). Numbers use `tabular-nums`; they are rendered through `Intl` in the UI language (Persian digits in Persian). Do not enable Vazirmatn `ss01` (it forces Persian digits in Latin text).
+One family, **Vazirmatn** (variable, self-hosted), Persian and Latin alike. Fixed pixel scale: 40 page title / 30 task title / 16 empty-state / 15 phone body / 14 body & rows / 13 toolbar buttons / 12 metadata & chips / 11 kbd hints, tab labels and menu group labels. Weights 800 titles, 700 dialog titles, 600 labels, buttons, active nav; 500 chips, nav; 400 body. Numbers are tabular and rendered through `Intl` in the UI language. Line-height 1.5 body, 1.7 notes, 1.2 titles.
 
 ## Layout
 
-Three columns: **rail** (248px, collapsible to 62px icon rail; state persisted) · **interior** (fluid, content capped at 1040px and centered) · **detail** (372px). Gutters: 28px desktop, 20px ≤1000px, 16px ≤760px. Breakpoints are structural, not typographic:
+- **Desktop** (> 760px): sidebar 240px (collapsible, Ctrl+\) · main with a 44px topbar · page column max 960px with 96px side padding (64 ≤ 1280, 40 ≤ 1100, 24 ≤ 900); table/board/calendar widen the page to 1280px.
+- **Side peek**: 560px fixed panel from the end edge; above 1100px it pushes the page (`margin-inline-end`), below it floats over a scrim. Expand button makes it full-width.
+- **Phone** (≤ 760px): sidebar becomes a drawer; a 58px bottom tab bar (Today · Upcoming · Search · Inbox · More) plus a 56px ruby FAB; the peek becomes a full-screen sheet; rows grow to 52px with metadata stacked under the title; all controls ≥ 40px tall; safe-area insets respected.
+- **Database bar** is sticky under the title: view tabs on the start side, search / filter / sort / split "New" button on the end side.
 
-- ≤1180px: the detail panel floats over the interior with a scrim instead of squeezing it.
-- ≤760px (phone / Android target): the rail becomes a drawer opened by ☰ or the "Lists" tab; a 58px **bottom tab bar** (Today · Upcoming · All · Lists · More) replaces the rail; search goes full-width; detail becomes a full-height sheet.
-- ≤540px tall: header and rail paddings tighten.
+## Elevation
 
-The interior stacks: header (title + subtitle, search, ⌘) → one **capture line** (a ruled line, not a box) → grouped rows separated by hairline rules. Rows are not cards.
-
-## Elevation & Depth
-
-Depth is material, not shadow: lacquer is darker than interior, so panels read as the box's walls. Only floating things cast shadows: `--shadow-lg` (0 18px 44px -12px black 70% + 0 2px 6px 35%) for dialogs, palette, date picker, floating detail; `--shadow-md` for the toast. The primary button carries a 1px inner highlight and a soft crimson drop. The rail has a faint gold radial sheen at the top (7%). No glass, no glow halos.
+Three shadows: `shadow-sm` (buttons, cards, 1px ring + 2px drop), `shadow-md` (menus, date picker, popovers), `shadow-lg` (dialogs, peek, drawer). Dark mode uses deeper blacks and a faint light ring instead of a border. No colored glows; the FAB's drop shadow is black at 22%.
 
 ## Shapes
 
-Radii: 6px fields/small buttons/rows, 10px buttons/nav/segmented, 14px dialogs and popovers, pill for chips and switches. Ticks are circles (20px list, 26px detail, 16px subtask). List color dots are 9px rounded squares (3px); tag dots are 7px circles. The active nav indicator is a 2px gold bar at the rail's start edge, not a filled block.
+4px chips, checkboxes and small controls · 6px buttons, rows, nav items, inputs · 8px cards, menus, toasts · 12px dialogs, page icon · 16px FAB and the auth card · pill for the switch and quick-date chips.
 
 ## Components
 
-- **Rail**: brand seal (crimson gradient square with gold ring) + name; views; Lists (with + and hover "…" editor); Tags; footer Report / Settings. Collapsed: icons only, section rules replace headings.
-- **Capture line**: circular crimson "+" outline that fills on focus; underline turns gold on focus; the Add button appears only when focused or non-empty; live token pills beneath (date, time, priority in crimson, list, #tags).
-- **Row**: grip (hover) · tick · title + meta line (calendar/clock/repeat/subtask progress/list dot/tags/notes glyph) · priority flag (P1 blue, P2 gold, P3 crimson) · delete (hover). States: hover wash, selected (gold wash + start bar), focus (inset gold ring), done (50% opacity, strikethrough), leaving (slides toward reading end and fades, 220ms), dragging, drop-before/after (gold edge).
-- **Group header**: 12px 600 label + count; overdue in danger, today in gold.
-- **Detail**: bar (close · list badge · delete) → big tick + title textarea → notes → subtasks (checklist with progress) → two-column grid: due (full) with alt-calendar line and quick chips, time + reminder switch, repeat select, priority segmented (full), list select, tags → created/completed meta.
-- **Segmented control** (`.seg`): recessed track, raised active segment; priority segments tint their active color.
-- **Switch**: 34×20 track, gold when on, knob travels 14px (mirrored in RTL).
-- **Command palette** (Ctrl K): 560px lacquer sheet at 12vh; groups Tasks / Views / Lists / Actions; arrow keys + Enter.
-- **Date picker**: 284px popover; Jalali starts Saturday with Fridays in danger, Gregorian starts Sunday; today gold, selected crimson.
-- **Dialogs**: settings (language, calendar, notifications, shortcuts), list editor (name + 10 swatches).
-- **Toast**: bottom center, with Undo (gold) for deletes.
-- **Report**: a ruled ledger row of four figures, a 7-day bar chart (today's bar gold), three meter columns (list/priority/tag), export buttons.
-- **Icons**: authored inline SVG sprite, 24-unit grid, 1.6px stroke, round caps; 18px default, 16px in buttons, 13px in meta. Chevrons flip with direction.
+- **Sidebar**: workspace switcher (mark + name + chevrons) → Search / Inbox → sections Views · Lists (grouped by shared workspace) · Tags → Report / Settings → primary "New task". Hover reveals "+" on sections and "…" on lists.
+- **Topbar**: breadcrumb (workspace › list / view), sync pill (spinning while syncing, amber when offline, red on error), Share (only inside a workspace), command palette, "…" menu (exports, language, calendar, settings).
+- **Page head**: 56px tinted icon, 40px title, one-line subtitle (date · counts).
+- **Views**: list (grouped rows, inline "+ New" per group, drag to reorder), table (properties as columns, each cell a popover editor), board (columns by priority, drag between columns), calendar (month grid, drag to reschedule, click a day to add).
+- **Row**: checkbox · title · hover "Open" pill · property chips · hover delete. Context menu on right-click.
+- **Inline capture**: a highlighted row with the quick-add parser (date words, `!1-3`, `#tag`, `@list`, `HH:MM`) and live token pills.
+- **Peek**: close / expand / delete bar → 24px checkbox + 30px editable title → property rows (Due, Time + reminder switch, Repeat, Priority segmented, List, Tags, Created) → subtasks with a progress bar → notes.
+- **Menus**: 8px radius, 30px items, group titles, active dot; date picker with quick chips + month grid (Jalali starts Saturday, Fridays red; Gregorian starts Sunday).
+- **Skeleton**: shown during boot only; four shimmering rows.
+- **Toast**: bottom center, dark, with Undo.
+
+## Motion
+
+100ms hover · 160ms menus (scale .98→1) and checkbox fill · 220ms peek (24px slide) and dialog (8px rise) · 200ms row leaving. Easing `cubic-bezier(.2,.8,.2,1)`. `prefers-reduced-motion` collapses everything to a 1ms fade.
 
 ## Do's and Don'ts
 
-- Do keep gold to hairlines, selection wash, and small marks. Don't paint surfaces gold.
-- Do use crimson for one action per screen. Don't use it for emphasis text or borders.
-- Do separate rows with `gold-rule` hairlines. Don't wrap rows in cards or add colored side borders.
-- Do draw new icons in the sprite's grammar. Don't use emoji or mixed icon sets.
-- Do keep type on the fixed scale. Don't introduce a display face or fluid `clamp()` type.
-- Do mirror with logical properties (`inset-inline-*`, `margin-inline-*`). Don't hardcode left/right.
-- Do isolate mixed-direction text (`unicode-bidi: isolate`, start alignment). Don't use `plaintext` on list titles — it left-aligns Latin rows in a Persian UI.
-- Do animate state only (tick fill, row leaving, panel entrance, 140–220ms, exponential ease-out). Don't add page-load choreography or hover theatrics.
-- Do tint muted text from ink. Don't use neutral gray.
+- Do keep ruby for one action per screen and for selection. Don't use it for borders or body text.
+- Do separate rows with hairline `line` rules on phone and hover washes on desktop. Don't wrap rows in cards.
+- Do keep the fixed px scale and ≥ 15px text on phones. Don't add fluid `clamp()` type.
+- Do write layout with logical properties. Don't hard-code left/right.
+- Do draw icons in the sprite's 24-grid, 1.7px stroke. Don't mix icon sets or use emoji.

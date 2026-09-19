@@ -1,4 +1,32 @@
-/* Admin panel — extends the Qalamdan system in ../styles.css. Only panel-specific pieces live here. */
+/* Admin panel — builds on ../styles.css (Notion-style, ruby). The aliases below map the panel's older
+   token names and shell classes onto the current system so the panel matches the app. */
+:root {
+  --lac-0: var(--bg-side); --lac-1: var(--bg); --lac-2: var(--bg-2);
+  --int-1: var(--bg-2); --int-2: var(--hover);
+  --ink: var(--text); --ink-2: var(--text-2); --ink-3: var(--text-3); --ink-4: var(--text-4);
+  --rule: var(--line); --rule-strong: var(--line-strong);
+  --gold: var(--ruby-text); --gold-wash: var(--ruby-soft);
+  --t-med: var(--t-mid); --ease-out: var(--ease); --gutter: 28px;
+}
+.adm .rail { width: 240px; flex-shrink: 0; background: var(--bg-side); border-inline-end: 1px solid var(--line); display: flex; flex-direction: column; padding: 8px; }
+.rail-top { display: flex; align-items: center; height: 36px; padding: 0 8px; }
+.rail-scroll { flex: 1; overflow-y: auto; margin-top: 8px; }
+.rail-bottom { border-top: 1px solid var(--line); padding-top: 8px; display: flex; flex-direction: column; gap: 1px; }
+.brand { display: flex; align-items: center; gap: 8px; }
+.brand-seal { width: 22px; height: 22px; border-radius: 6px; background: var(--ruby); color: var(--on-ruby); display: inline-flex; align-items: center; justify-content: center; }
+.brand-seal svg { width: 14px; height: 14px; stroke-width: 2.4; }
+.brand-name { font-weight: 700; font-size: 15px; }
+.interior { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.head { display: flex; align-items: center; gap: 12px; padding: 20px var(--gutter) 12px; }
+.head-title h1 { margin: 0; font-size: 24px; font-weight: 800; }
+.head-sub { margin: 2px 0 0; color: var(--text-2); font-size: 13px; }
+.head-actions { margin-inline-start: auto; display: flex; gap: 8px; align-items: center; }
+.head-menu { display: none; }
+.adm .search { width: 260px; height: 32px; background: var(--hover); padding: 0 10px; }
+.adm .search input { opacity: 1; }
+.btn.ghost.danger { color: var(--danger); }
+.adm .menu { padding: 4px 0; }
+.adm .menu button { height: 30px; padding: 0 8px; margin: 0 4px; width: calc(100% - 8px); }
 .admin-body { overflow: hidden; user-select: text; }
 
 /* ---- sign in ---- */

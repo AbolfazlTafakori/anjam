@@ -13,10 +13,10 @@ fs.copyFileSync(path.join(root, 'build', 'icon.png'), path.join(out, 'icon.png')
 let html = fs.readFileSync(path.join(src, 'index.html'), 'utf8');
 html = html.replace(/<meta http-equiv="Content-Security-Policy"[^>]*>\s*/, '')
   .replace('<link rel="stylesheet" href="styles.css" />', `<meta name="anjam-version" content="${require(path.join(root, 'package.json')).version}" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />\n  <meta name="theme-color" content="#160a0d" />\n  <link rel="manifest" href="manifest.webmanifest" />\n  <link rel="icon" href="icon.png" />\n  <link rel="apple-touch-icon" href="icon.png" />\n  <link rel="stylesheet" href="styles.css" />`)
+  <link rel="manifest" href="manifest.webmanifest" />\n  <link rel="icon" href="icon.png" />\n  <link rel="apple-touch-icon" href="icon.png" />\n  <link rel="stylesheet" href="styles.css" />`)
   .replace('<script src="jalali.js"></script>', '<script src="jalali.js"></script>\n<script src="web-bridge.js"></script>');
 fs.writeFileSync(path.join(out, 'index.html'), html);
-fs.writeFileSync(path.join(out, 'manifest.webmanifest'), JSON.stringify({ name: 'Anjam · انجام', short_name: 'Anjam', start_url: './', scope: './', display: 'standalone', background_color: '#160a0d', theme_color: '#160a0d', dir: 'rtl', lang: 'fa', icons: [{ src: 'icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] }, null, 2));
+fs.writeFileSync(path.join(out, 'manifest.webmanifest'), JSON.stringify({ name: 'Anjam · انجام', short_name: 'Anjam', start_url: './', scope: './', display: 'standalone', background_color: '#ffffff', theme_color: '#9e1b34', dir: 'rtl', lang: 'fa', icons: [{ src: 'icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' }] }, null, 2));
 const ver = Date.now().toString(36);
 fs.writeFileSync(path.join(out, 'sw.js'), `/* Anjam PWA — offline shell (v${ver}) */
 const CACHE = 'anjam-${ver}';

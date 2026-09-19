@@ -107,7 +107,24 @@
       repeatShort: { daily: 'Daily', weekdays: 'Weekdays', weekly: 'Weekly', monthly: 'Monthly', yearly: 'Yearly' },
     },
   };
-  const LIST_COLORS = ['#e2b45a', '#dc1f2e', '#e8743b', '#58c58f', '#4fb3c9', '#7ea4d6', '#a98be0', '#e07ab5', '#b8a48c', '#8e9aa6'];
+  const EXTRA_I18N = {
+    fa: {
+      inbox: 'صندوق ورودی', all: 'همه کارها', views: 'نماها', vList: 'فهرست', vTable: 'جدول', vBoard: 'برد', vCalendar: 'تقویم',
+      filter: 'فیلتر', sort: 'مرتب‌سازی', new: 'جدید', theme: 'ظاهر', thSystem: 'سیستم', thLight: 'روشن', thDark: 'تیره',
+      showDone: 'نمایش انجام‌شده‌ها', sortDue: 'بر اساس سررسید', sortPriority: 'بر اساس اولویت', sortTitle: 'بر اساس عنوان', sortCreated: 'جدیدترین',
+      titleCol: 'عنوان', empty: 'خالی', noPriority: 'بدون اولویت', editTags: 'ویرایش برچسب‌ها…', noLists: 'هنوز لیستی ندارید', noTags: 'برچسبی نیست',
+      shared: 'مشترک', savedShort: 'ذخیره شد', notifyDesc: 'یادآور کارها با اعلان سیستم', aCollapse: 'نوار کناری', more: 'بیشتر',
+    },
+    en: {
+      views: 'Views', vList: 'List', vTable: 'Table', vBoard: 'Board', vCalendar: 'Calendar',
+      filter: 'Filter', sort: 'Sort', new: 'New', theme: 'Appearance', thSystem: 'System', thLight: 'Light', thDark: 'Dark',
+      showDone: 'Show completed', sortDue: 'By due date', sortPriority: 'By priority', sortTitle: 'By title', sortCreated: 'Newest first',
+      titleCol: 'Name', empty: 'Empty', noPriority: 'No priority', editTags: 'Edit tags…', noLists: 'No lists yet', noTags: 'No tags',
+      shared: 'shared', savedShort: 'Saved', notifyDesc: 'Task reminders as system notifications', aCollapse: 'Sidebar', more: 'More', all: 'All tasks',
+    },
+  };
+  Object.assign(I18N.fa, EXTRA_I18N.fa); Object.assign(I18N.en, EXTRA_I18N.en);
+  const LIST_COLORS = ['#9e1b34', '#d9962b', '#3f8f5b', '#4f7fc2', '#7c5cbf', '#c7508a', '#2a9d9f', '#8a6d4b', '#6b7280', '#e0673a'];
 
   // ============================================================
   // State
@@ -217,13 +234,17 @@
   }
   const REPEATS = ['none', 'daily', 'weekdays', 'weekly', 'monthly', 'yearly'];
   function normalize(data) {
-    const d = { version: 4, settings: { lang: 'fa', calendar: 'jalali', notify: true, railCollapsed: false }, workspaces: [], lists: [], tasks: [], tombstones: {}, sync: { server: '', token: '', email: '', name: '', cursors: {}, lastSync: 0 } };
+    const d = { version: 4, settings: { lang: 'fa', calendar: 'jalali', notify: true, railCollapsed: false, theme: 'system', modes: {}, sort: 'due', showDone: false }, workspaces: [], lists: [], tasks: [], tombstones: {}, sync: { server: '', token: '', email: '', name: '', cursors: {}, lastSync: 0 } };
     if (data && typeof data === 'object') {
       const s = data.settings || {};
       if (s.lang === 'en' || s.lang === 'fa') d.settings.lang = s.lang;
       d.settings.calendar = s.calendar === 'gregorian' || s.calendar === 'jalali' ? s.calendar : (d.settings.lang === 'fa' ? 'jalali' : 'gregorian');
       if (typeof s.notify === 'boolean') d.settings.notify = s.notify;
       if (typeof s.railCollapsed === 'boolean') d.settings.railCollapsed = s.railCollapsed;
+      if (['system', 'light', 'dark'].includes(s.theme)) d.settings.theme = s.theme;
+      if (s.modes && typeof s.modes === 'object') d.settings.modes = { ...s.modes };
+      if (['due', 'priority', 'title', 'created'].includes(s.sort)) d.settings.sort = s.sort;
+      if (typeof s.showDone === 'boolean') d.settings.showDone = s.showDone;
       if (data.tombstones && typeof data.tombstones === 'object') for (const [id, v] of Object.entries(data.tombstones)) d.tombstones[id] = typeof v === 'object' ? v : { at: Number(v) || Date.now(), kind: 'item', workspaceId: '' };
       if (data.sync && typeof data.sync === 'object') { d.sync = { ...d.sync, ...data.sync }; if (!d.sync.cursors || typeof d.sync.cursors !== 'object') d.sync.cursors = {}; delete d.sync.cursor; }
       if (Array.isArray(data.workspaces)) d.workspaces = data.workspaces.filter((w) => w && w.id).map((w) => ({ id: String(w.id), name: String(w.name || ''), personal: !!w.personal, role: w.role || 'owner', ownerId: w.ownerId || '' }));
@@ -259,13 +280,15 @@
   // ============================================================
   // Task operations
   // ============================================================
-  function addTask(raw) {
+  function addTask(raw, preset = {}) {
     const p = parseQuick(raw);
+    if (preset.listId) p.listId = preset.listId;
+    if (preset.due !== undefined && !p.due) p.due = preset.due;
     if (!p.title) return false;
     const minOrder = state.data.tasks.reduce((m, x) => Math.min(m, x.order), 0);
     const task = {
       id: uid(), title: p.title, notes: '', listId: p.listId || (state.view === 'list' ? state.listId : null),
-      due: p.due || (state.view === 'today' ? todayIso() : ''), time: p.time, reminder: !!p.time, notifiedAt: null, repeat: 'none',
+      due: p.due || (state.view === 'today' && preset.due === undefined ? todayIso() : ''), time: p.time, reminder: !!p.time, notifiedAt: null, repeat: 'none',
       priority: p.priority, tags: p.tags.slice(), subtasks: [], done: false, createdAt: Date.now(), completedAt: null, order: minOrder - 1,
     };
     if (state.view === 'tag' && state.tag && !task.tags.includes(state.tag)) task.tags.push(state.tag);
@@ -334,20 +357,24 @@
     const today = todayIso(); const q = state.query.trim().toLowerCase();
     let list = state.data.tasks.slice();
     if (q) list = list.filter((x) => x.title.toLowerCase().includes(q) || x.notes.toLowerCase().includes(q) || x.tags.some((g) => g.toLowerCase().includes(q)) || x.subtasks.some((s) => s.title.toLowerCase().includes(q)));
-    else switch (state.view) {
-      case 'inbox': list = list.filter((x) => !x.done && !x.listId); break;
-      case 'today': list = list.filter((x) => !x.done && x.due && x.due <= today); break;
-      case 'upcoming': list = list.filter((x) => !x.done && x.due && x.due > today); break;
-      case 'all': list = list.filter((x) => !x.done); break;
+    else { const sd = state.data.settings.showDone; const od = (x) => sd || !x.done; switch (state.view) {
+      case 'inbox': list = list.filter((x) => od(x) && !x.listId); break;
+      case 'today': list = list.filter((x) => od(x) && x.due && x.due <= today && (!x.done || x.completedAt && isoLocal(new Date(x.completedAt)) === today)); break;
+      case 'upcoming': list = list.filter((x) => od(x) && x.due && x.due > today); break;
+      case 'all': list = list.filter(od); break;
       case 'done': list = list.filter((x) => x.done); break;
-      case 'list': list = list.filter((x) => !x.done && x.listId === state.listId); break;
-      case 'tag': list = list.filter((x) => !x.done && x.tags.includes(state.tag)); break;
-    }
+      case 'list': list = list.filter((x) => od(x) && x.listId === state.listId); break;
+      case 'tag': list = list.filter((x) => od(x) && x.tags.includes(state.tag)); break;
+    } }
     return sortTasks(list);
   }
   function sortTasks(list) {
+    const mode = state.data.settings.sort;
     return list.sort((a, b) => {
       if (a.done !== b.done) return a.done ? 1 : -1;
+      if (mode === 'priority' && a.priority !== b.priority) return b.priority - a.priority;
+      if (mode === 'title') return a.title.localeCompare(b.title, numLocale());
+      if (mode === 'created') return b.createdAt - a.createdAt;
       if (a.done) return (b.completedAt || 0) - (a.completedAt || 0);
       if (!!a.due !== !!b.due) return a.due ? -1 : 1;
       if (a.due !== b.due) return a.due < b.due ? -1 : 1;
@@ -379,22 +406,55 @@
     document.title = l === 'fa' ? 'انجام · Anjam' : 'Anjam · انجام';
     $$('#set-lang button').forEach((b) => b.classList.toggle('active', b.dataset.v === l));
     $$('#set-cal button').forEach((b) => b.classList.toggle('active', b.dataset.v === cal()));
+    $$('#set-theme button').forEach((b) => b.classList.toggle('active', b.dataset.v === state.data.settings.theme));
     $('#set-notify').checked = state.data.settings.notify;
     $('#cal-preview').textContent = fmtDate(todayIso(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '  ·  ' + fmtDateAlt(todayIso());
-    $('#rail-toggle').title = t(state.data.settings.railCollapsed ? 'expand' : 'collapse');
     $('#d-time').lang = l === 'fa' ? 'fa-IR' : 'en-GB';
+    $('#ws-mark').textContent = l === 'fa' ? 'ا' : 'A';
+    applyTheme();
   }
+  const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  function applyTheme() {
+    const th = state.data.settings.theme;
+    const root = document.documentElement;
+    if (th === 'light' || th === 'dark') root.dataset.theme = th; else delete root.dataset.theme;
+    root.classList.toggle('sys-dark', th === 'system' && sysDark.matches);
+  }
+  sysDark.addEventListener('change', () => { if (state.data) applyTheme(); });
+
+  // ---- view modes (list / table / board / calendar), per view, persisted ----
+  const MODES = ['list', 'table', 'board', 'calendar'];
+  const viewKey = () => (state.view === 'list' ? 'list:' + state.listId : state.view === 'tag' ? 'tag:' + state.tag : state.view);
+  const modeOf = () => { if (state.query) return 'list'; const m = state.data.settings.modes[viewKey()]; return MODES.includes(m) ? m : (state.view === 'upcoming' ? 'calendar' : 'list'); };
+  function setMode(m) { state.data.settings.modes[viewKey()] = m; save(); render(); }
 
   function render() {
     $('#app').classList.toggle('rail-collapsed', state.data.settings.railCollapsed);
+    $('#rail-open').hidden = !state.data.settings.railCollapsed;
     renderRail();
     renderHead();
     const isReport = state.view === 'report' && !state.query;
     $('#report').hidden = !isReport;
-    $('#sheet').hidden = isReport;
-    $('#capture').hidden = isReport || state.view === 'done';
-    if (isReport) renderReport(); else renderRows();
+    $('#db').hidden = isReport;
+    const mode = isReport ? null : modeOf();
+    $('#page').classList.toggle('wide', mode === 'board' || mode === 'table' || mode === 'calendar');
+    $$('#view-tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === mode));
+    $('#view-tabs').hidden = !!state.query || state.view === 'done';
+    $('#filter-btn').hidden = state.view === 'done' || !!state.query;
+    $('#filter-btn').classList.toggle('on', state.data.settings.showDone);
+    $('#sort-btn').classList.toggle('on', state.data.settings.sort !== 'due');
+    $('#task-list').hidden = mode !== 'list';
+    $('#table').hidden = mode !== 'table';
+    $('#board').hidden = mode !== 'board';
+    $('#calendar').hidden = mode !== 'calendar';
+    if (isReport) renderReport();
+    else if (mode === 'table') renderTable();
+    else if (mode === 'board') renderBoard();
+    else if (mode === 'calendar') renderCalendar();
+    else renderRows();
+    if (state.view === 'done' || state.view === 'report') closeCapture();
     renderDetail();
+    renderSyncPill();
     updateScrim();
   }
 
@@ -409,12 +469,12 @@
     set('#count-done', state.data.tasks.length - open.length);
     const activeView = state.query ? null : state.view;
     $$('.nav-item[data-view], .tabbar button[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === activeView));
-    $('#tab-lists').classList.toggle('active', activeView === 'list' || activeView === 'inbox');
+    $('#tab-lists').classList.toggle('active', $('#app').classList.contains('sidebar-open'));
+    $('#ws-name').textContent = signedIn() && state.data.sync.name ? state.data.sync.name : t('appName');
 
-    // lists
     const lw = $('#list-items'); lw.innerHTML = '';
     const lists = sortedLists();
-    if (!lists.length) lw.innerHTML = `<div class="rail-empty">${t('newList')} →</div>`;
+    if (!lists.length) lw.innerHTML = `<div class="rail-empty">${esc(t('noLists'))}</div>`;
     const shared = state.data.workspaces.filter((w) => !w.personal);
     const groups = [{ id: personalWS() ? personalWS().id : '', name: '', ws: personalWS() }, ...shared.map((w) => ({ id: w.id, name: w.name, ws: w }))];
     groups.forEach((g) => {
@@ -426,32 +486,33 @@
         const b = document.createElement('button');
         b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : '');
         b.title = l.name;
-        b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn sm rail-edit" title="${esc(t('editList'))}">${icon('more')}</span>`;
+        b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn xs rail-edit" role="button" title="${esc(t('editList'))}">${icon('more')}</span>`;
         b.onclick = (e) => { if (e.target.closest('.rail-edit')) return openListDialog(l.id); setView('list', { listId: l.id }); };
         lw.appendChild(b);
       });
     });
-    // tags
     const counts = {};
     open.forEach((x) => x.tags.forEach((g) => { counts[g] = (counts[g] || 0) + 1; }));
     const tw = $('#tag-items'); tw.innerHTML = '';
     const names = Object.keys(counts).sort((a, b) => a.localeCompare(b, numLocale()));
-    if (!names.length) tw.innerHTML = `<div class="rail-empty">#…</div>`;
+    if (!names.length) tw.innerHTML = `<div class="rail-empty">${esc(t('noTags'))}</div>`;
     names.forEach((name) => {
       const b = document.createElement('button');
       b.className = 'rail-item' + (activeView === 'tag' && state.tag === name ? ' active' : '');
       b.title = '#' + name;
-      b.innerHTML = `<span class="dot tag"></span><span class="nav-label">${esc(name)}</span><span class="count">${num(counts[name])}</span>`;
+      b.innerHTML = `${icon('tag')}<span class="nav-label" dir="auto">${esc(name)}</span><span class="count">${num(counts[name])}</span>`;
       b.onclick = () => setView('tag', { tag: name });
       tw.appendChild(b);
     });
   }
 
+  const VIEW_ICON = { inbox: 'inbox', today: 'sun', upcoming: 'calendar', all: 'layers', done: 'check-circle', report: 'chart', tag: 'tag' };
   function renderHead() {
     const today = todayIso();
     const open = state.data.tasks.filter((x) => !x.done);
-    let title, sub;
-    if (state.query) { title = t('search'); sub = fmt('subSearch', { q: state.query }); }
+    let title, sub, ico = icon(VIEW_ICON[state.view] || 'layers');
+    const crumbs = [];
+    if (state.query) { title = t('search'); sub = fmt('subSearch', { q: state.query }); ico = icon('search'); }
     else switch (state.view) {
       case 'inbox': title = t('inbox'); sub = fmt('subInbox', { n: num(open.filter((x) => !x.listId).length) }); break;
       case 'today': title = t('today'); sub = `${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · ${fmt('subToday', { n: num(open.filter((x) => x.due && x.due <= today).length) })}`; break;
@@ -459,38 +520,76 @@
       case 'all': title = t('all'); sub = fmt('subAll', { n: num(open.length) }); break;
       case 'done': title = t('completed'); sub = fmt('subDone', { n: num(state.data.tasks.length - open.length) }); break;
       case 'report': title = t('report'); sub = t('subReport'); break;
-      case 'list': { const l = getList(state.listId); title = l ? l.name : ''; sub = fmt('subList', { n: num(open.filter((x) => x.listId === state.listId).length) }); break; }
-      case 'tag': title = '#' + state.tag; sub = fmt('subTag', { n: num(open.filter((x) => x.tags.includes(state.tag)).length) }); break;
+      case 'list': { const l = getList(state.listId); title = l ? l.name : ''; sub = fmt('subList', { n: num(open.filter((x) => x.listId === state.listId).length) }); if (l) { ico = `<span class="dot" style="background:${l.color}"></span>`; const w = getWS(workspaceOfList(l)); if (w && !w.personal) { crumbs.push({ label: w.name, icon: icon('users'), run: () => openShareDialog(w.id) }); sub += ` · ${esc(t('shared'))}`; } else crumbs.push({ label: t('lists') }); } break; }
+      case 'tag': title = '#' + state.tag; sub = fmt('subTag', { n: num(open.filter((x) => x.tags.includes(state.tag)).length) }); crumbs.push({ label: t('tags') }); break;
     }
-    $('#view-title').textContent = title; $('#view-sub').textContent = sub;
+    crumbs.push({ label: title, icon: ico });
+    $('#view-title').textContent = title; $('#view-sub').innerHTML = sub;
+    $('#page-icon').innerHTML = ico;
+    const c = $('#crumb'); c.innerHTML = '';
+    crumbs.forEach((cr, i) => {
+      if (i) { const s = document.createElement('span'); s.className = 'sep'; s.textContent = '/'; c.appendChild(s); }
+      const b = document.createElement('button'); b.innerHTML = `${cr.icon || ''}<span dir="auto">${esc(cr.label)}</span>`; if (cr.run) b.onclick = cr.run; c.appendChild(b);
+    });
+    // share: only for a list inside a workspace (signed in)
+    const l = state.view === 'list' && getList(state.listId);
+    const ws = l && signedIn() ? getWS(workspaceOfList(l)) : null;
+    $('#share-btn').hidden = !ws;
+    $('#share-btn').onclick = () => { if (ws.personal) openListDialog(l.id); else openShareDialog(ws.id); };
   }
 
+  // ---- shared helpers for all views ----
+  const dueBadge = (task) => {
+    if (!task.due) return task.time ? `<span>${icon('clock')}${esc(fmtTime(task.time))}</span>` : '';
+    const r = relDue(task.due);
+    return `<span class="due ${task.done ? '' : r.cls}">${icon('calendar')}${esc(r.text)}${task.time ? ' · ' + esc(fmtTime(task.time)) : ''}</span>`;
+  };
+  const prioChip = (p) => (p ? `<span class="chip p${p}">${esc(t('prio')[p])}</span>` : '');
+  const listBadge = (task) => { const l = task.listId && getList(task.listId); return l ? `<span class="list"><i style="background:${l.color}"></i><span dir="auto">${esc(l.name)}</span></span>` : ''; };
+  const subBadge = (task) => { if (!task.subtasks.length) return ''; const d = task.subtasks.filter((s) => s.done).length; return `<span class="sub${d === task.subtasks.length ? ' full' : ''}">${icon('subtask')}${num(d)}/${num(task.subtasks.length)}</span>`; };
+  const tagChips = (task) => task.tags.map((g) => `<span class="chip purple" dir="auto">#${esc(g)}</span>`).join('');
+  const emptyKey = () => (state.query ? 'emptySearch' : ({ inbox: 'emptyInbox', today: 'emptyToday', upcoming: 'emptyUpcoming', all: 'emptyAll', done: 'emptyDone', list: 'emptyList', tag: 'emptyTag' })[state.view]);
+  function showEmpty(list) {
+    $('#empty').hidden = list.length > 0;
+    if (!list.length) {
+      $('#empty .empty-text').textContent = t(emptyKey());
+      $('#empty .empty-hint').hidden = state.view === 'done' || !!state.query;
+      $('#empty-new').hidden = state.view === 'done' || !!state.query;
+    }
+    $('#list-actions').hidden = !(state.view === 'done' && list.length && !state.query);
+  }
+  const canEdit = (task) => canWriteWS(workspaceOfTask(task));
+
+  // ---- list view ----
   function renderRows() {
     const list = visibleTasks();
     const wrap = $('#task-list'); wrap.innerHTML = '';
-    $('#empty').hidden = list.length > 0;
-    if (!list.length) {
-      const key = state.query ? 'emptySearch' : ({ inbox: 'emptyInbox', today: 'emptyToday', upcoming: 'emptyUpcoming', all: 'emptyAll', done: 'emptyDone', list: 'emptyList', tag: 'emptyTag' })[state.view];
-      $('#empty .empty-text').textContent = t(key);
-      $('#empty .empty-hint').hidden = state.view === 'done' || !!state.query;
-    }
-    $('#list-actions').hidden = !(state.view === 'done' && list.length && !state.query);
-    const grouped = !state.query && ['today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view);
+    showEmpty(list);
+    const grouped = !state.query && ['today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view) && state.data.settings.sort === 'due';
     let last = null, groupCounts = {};
     if (grouped) list.forEach((x) => { const g = groupKey(x); groupCounts[g] = (groupCounts[g] || 0) + 1; });
     list.forEach((task) => {
       if (grouped) {
         const g = groupKey(task);
         if (g && g !== last) {
+          if (last) wrap.appendChild(newRowEl(last));
           const h = document.createElement('div');
           h.className = 'group ' + g;
-          h.innerHTML = `<span>${esc(t(g))}</span><span class="n">${num(groupCounts[g])}</span>`;
+          h.innerHTML = `${icon('chevron-down')}<span>${esc(t(g))}</span><span class="n">${num(groupCounts[g])}</span>`;
           wrap.appendChild(h); last = g;
         }
       }
       wrap.appendChild(rowEl(task));
     });
+    if (list.length && state.view !== 'done' && !state.query) wrap.appendChild(newRowEl(last));
     if (state.focusId && !list.some((x) => x.id === state.focusId)) state.focusId = null;
+  }
+  const GROUP_DUE = { overdue: () => todayIso(), today: () => todayIso(), tomorrow: () => addDays(todayIso(), 1), thisWeek: () => addDays(todayIso(), 2), later: () => addDays(todayIso(), 8), noDate: () => '' };
+  function newRowEl(group) {
+    const b = document.createElement('button'); b.className = 'row-new';
+    b.innerHTML = `${icon('plus')}<span>${esc(t('new'))}</span>`;
+    b.onclick = () => openCapture(group && GROUP_DUE[group] ? { due: GROUP_DUE[group]() } : {});
+    return b;
   }
 
   function rowEl(task) {
@@ -499,26 +598,25 @@
     el.dataset.id = task.id; el.setAttribute('role', 'listitem'); el.tabIndex = task.id === (state.focusId || state.selectedId) ? 0 : -1;
     el.draggable = !task.done && !state.query;
     const meta = [];
-    if (task.due) { const r = relDue(task.due); meta.push(`<span class="due ${task.done ? '' : r.cls}">${icon('calendar')}${esc(r.text)}${task.time ? ' · ' + esc(fmtTime(task.time)) : ''}</span>`); }
-    else if (task.time) meta.push(`<span>${icon('clock')}${esc(fmtTime(task.time))}</span>`);
+    if (task.priority) meta.push(prioChip(task.priority));
+    if (task.tags.length) meta.push(tagChips(task));
+    const sb = subBadge(task); if (sb) meta.push(sb);
     if (task.repeat !== 'none') meta.push(`<span>${icon('repeat')}${esc(t('repeatShort')[task.repeat])}</span>`);
-    if (task.subtasks.length) { const d = task.subtasks.filter((s) => s.done).length; meta.push(`<span class="sub${d === task.subtasks.length ? ' full' : ''}">${icon('subtask')}${num(d)}/${num(task.subtasks.length)}</span>`); }
-    const l = task.listId && getList(task.listId);
-    if (l && state.view !== 'list') meta.push(`<span class="list"><i style="background:${l.color}"></i><span dir="auto">${esc(l.name)}</span></span>`);
-    task.tags.forEach((g) => meta.push(`<span class="tag" dir="auto">#${esc(g)}</span>`));
+    const db = dueBadge(task); if (db) meta.push(db);
+    if (state.view !== 'list') meta.push(listBadge(task));
     if (task.notes.trim()) meta.push(`<span>${icon('notes')}</span>`);
     if (task.done && task.completedAt) meta.push(`<span>${icon('check')}${esc(fmtDateTime(task.completedAt))}</span>`);
     el.innerHTML = `
       <span class="row-grip">${icon('grip')}</span>
-      <label class="tick"><input type="checkbox" ${task.done ? 'checked' : ''} tabindex="-1"><span class="tick-box">${icon('check')}</span></label>
-      <div class="row-main"><div class="row-title">${esc(task.title)}</div>${meta.length ? `<div class="row-meta">${meta.join('')}</div>` : ''}</div>
-      ${task.priority ? `<span class="row-flag p${task.priority}" title="${esc(t('prio')[task.priority])}">${icon('flag')}</span>` : ''}
-      <button class="ibtn sm danger row-del" tabindex="-1" title="${esc(t('delete'))}">${icon('trash')}</button>`;
+      <label class="cbx"><input type="checkbox" ${task.done ? 'checked' : ''} tabindex="-1"><span class="cb">${icon('check')}</span></label>
+      <div class="row-main"><div class="row-title">${esc(task.title)}</div><span class="row-open">${icon('expand')}${esc(t('open'))}</span></div>
+      <div class="row-meta">${meta.join('')}</div>
+      <button class="ibtn xs danger row-del" tabindex="-1" title="${esc(t('delete'))}">${icon('trash')}</button>`;
     el.querySelector('input').addEventListener('change', (e) => toggleDone(task.id, e.target.checked, el));
     el.querySelector('.row-main').addEventListener('click', () => openDetail(task.id));
     el.querySelector('.row-del').addEventListener('click', (e) => { e.stopPropagation(); deleteTask(task.id); });
     el.addEventListener('focus', () => { state.focusId = task.id; });
-    // drag reorder (same group only)
+    el.addEventListener('contextmenu', (e) => { e.preventDefault(); taskMenu(task, e); });
     el.addEventListener('dragstart', (e) => { drag.id = task.id; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
     el.addEventListener('dragend', () => { drag.id = null; $$('.row').forEach((r) => r.classList.remove('dragging', 'drop-before', 'drop-after')); });
     el.addEventListener('dragover', (e) => {
@@ -533,7 +631,6 @@
       e.preventDefault(); const before = el.classList.contains('drop-before');
       el.classList.remove('drop-before', 'drop-after');
       const src = getTask(drag.id); if (!src || src.id === task.id) return;
-      // Give the dragged task the same due/time as the target (same group), then place it by order.
       src.due = task.due;
       const siblings = visibleTasks().filter((x) => x.id !== src.id && groupKey(x) === groupKey(task));
       const idx = siblings.findIndex((x) => x.id === task.id);
@@ -545,21 +642,226 @@
   }
   const drag = { id: null };
 
+  // ---- table view ----
+  function renderTable() {
+    const list = visibleTasks();
+    const wrap = $('#table'); showEmpty(list);
+    if (!list.length) { wrap.innerHTML = ''; return; }
+    const grouped = !state.query && state.data.settings.sort === 'due' && ['today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view);
+    const showList = state.view !== 'list';
+    const head = `<thead><tr><th style="width:44%">${icon('notes')}${esc(t('titleCol'))}</th><th>${icon('calendar')}${esc(t('due'))}</th><th>${icon('flag')}${esc(t('priority'))}</th>${showList ? `<th>${icon('list')}${esc(t('list'))}</th>` : ''}<th>${icon('tag')}${esc(t('tags'))}</th><th>${icon('subtask')}${esc(t('subtasks'))}</th><th></th></tr></thead>`;
+    let body = '', last = null;
+    const cols = 6 + (showList ? 1 : 0);
+    list.forEach((x) => {
+      if (grouped) { const g = groupKey(x); if (g && g !== last) { body += `<tr class="t-group ${g}"><th colspan="${cols}">${esc(t(g))}</th></tr>`; last = g; } }
+      const d = x.subtasks.filter((s) => s.done).length;
+      const l = x.listId && getList(x.listId);
+      body += `<tr class="${x.done ? 'done' : ''}${x.id === state.selectedId ? ' selected' : ''}" data-id="${x.id}">
+        <td class="title-cell"><div class="t-title-wrap"><label class="cbx"><input type="checkbox" ${x.done ? 'checked' : ''}><span class="cb">${icon('check')}</span></label><span class="t-title" data-act="open">${esc(x.title)}</span><span class="row-open" data-act="open">${icon('expand')}${esc(t('open'))}</span></div></td>
+        <td><button class="cell-btn ${x.due ? '' : 'empty'}" data-act="due">${x.due ? dueBadge(x) : esc(t('empty'))}</button></td>
+        <td><button class="cell-btn ${x.priority ? '' : 'empty'}" data-act="prio">${x.priority ? prioChip(x.priority) : esc(t('empty'))}</button></td>
+        ${showList ? `<td><button class="cell-btn ${l ? '' : 'empty'}" data-act="list">${l ? `<span class="dot" style="background:${l.color}"></span><span dir="auto">${esc(l.name)}</span>` : esc(t('inbox'))}</button></td>` : ''}
+        <td><button class="cell-btn ${x.tags.length ? '' : 'empty'}" data-act="tags"><span class="tags">${x.tags.length ? tagChips(x) : esc(t('empty'))}</span></button></td>
+        <td>${x.subtasks.length ? `<span class="row-meta">${subBadge(x)}</span>` : `<span class="cell-btn empty" data-act="open">${esc(t('empty'))}</span>`}</td>
+        <td><button class="ibtn xs" data-act="menu">${icon('more')}</button></td></tr>`;
+    });
+    if (state.view !== 'done' && !state.query) body += `<tr class="t-new" data-new="1"><td colspan="${cols}">${icon('plus')}${esc(t('new'))}</td></tr>`;
+    wrap.innerHTML = `<table class="table">${head}<tbody>${body}</tbody></table>`;
+    wrap.querySelectorAll('tr[data-id]').forEach((tr) => {
+      const x = getTask(tr.dataset.id);
+      tr.querySelector('input[type=checkbox]').onchange = (e) => toggleDone(x.id, e.target.checked);
+      tr.onclick = (e) => {
+        const a = e.target.closest('[data-act]'); if (!a) return;
+        const act = a.dataset.act;
+        if (act === 'open') openDetail(x.id);
+        else if (act === 'due') openPicker(a, x.due, (iso) => { x.due = iso; save(); render(); });
+        else if (act === 'prio') prioMenu(x, a);
+        else if (act === 'list') listMenu(x, a);
+        else if (act === 'tags') tagsMenu(x, a);
+        else if (act === 'menu') taskMenu(x, a);
+      };
+      tr.oncontextmenu = (e) => { e.preventDefault(); taskMenu(x, e); };
+    });
+    const nr = wrap.querySelector('tr[data-new]'); if (nr) nr.onclick = () => openCapture();
+  }
+
+  // ---- board view (grouped by priority, drag between columns) ----
+  function renderBoard() {
+    const list = visibleTasks();
+    const wrap = $('#board'); showEmpty(list);
+    wrap.innerHTML = '';
+    if (!list.length) return;
+    const cols = [3, 2, 1, 0];
+    cols.forEach((p) => {
+      const items = list.filter((x) => x.priority === p);
+      const col = document.createElement('section'); col.className = 'col'; col.dataset.p = p;
+      col.innerHTML = `<div class="col-head">${p ? prioChip(p) : `<span class="chip">${esc(t('noPriority'))}</span>`}<span class="n">${num(items.length)}</span><button class="ibtn xs" title="${esc(t('new'))}">${icon('plus')}</button></div>`;
+      col.querySelector('.ibtn').onclick = () => openCapture({ priority: p });
+      items.forEach((x) => {
+        const c = document.createElement('article'); c.className = `card${x.done ? ' done' : ''}${x.id === state.selectedId ? ' selected' : ''}`; c.draggable = !x.done;
+        const meta = [dueBadge(x), subBadge(x), state.view !== 'list' ? listBadge(x) : '', tagChips(x), x.repeat !== 'none' ? `<span>${icon('repeat')}</span>` : ''].filter(Boolean).join('');
+        c.innerHTML = `<div class="card-title"><label class="cbx"><input type="checkbox" ${x.done ? 'checked' : ''}><span class="cb">${icon('check')}</span></label><span>${esc(x.title)}</span></div>${meta ? `<div class="card-meta">${meta}</div>` : ''}`;
+        c.querySelector('input').onchange = (e) => toggleDone(x.id, e.target.checked);
+        c.onclick = (e) => { if (e.target.closest('.cbx')) return; openDetail(x.id); };
+        c.oncontextmenu = (e) => { e.preventDefault(); taskMenu(x, e); };
+        c.addEventListener('dragstart', (e) => { drag.id = x.id; c.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
+        c.addEventListener('dragend', () => { drag.id = null; $$('.col').forEach((k) => k.classList.remove('drop')); });
+        col.appendChild(c);
+      });
+      const nb = document.createElement('button'); nb.className = 'col-new'; nb.innerHTML = `${icon('plus')}<span>${esc(t('new'))}</span>`; nb.onclick = () => openCapture({ priority: p }); col.appendChild(nb);
+      col.addEventListener('dragover', (e) => { if (!drag.id) return; e.preventDefault(); col.classList.add('drop'); });
+      col.addEventListener('dragleave', () => col.classList.remove('drop'));
+      col.addEventListener('drop', (e) => { e.preventDefault(); col.classList.remove('drop'); const x = getTask(drag.id); if (x && x.priority !== p) { x.priority = p; save(); render(); } });
+      wrap.appendChild(col);
+    });
+  }
+
+  // ---- calendar view (month grid, drag to reschedule) ----
+  const calState = { y: 0, m: 0 };
+  function renderCalendar() {
+    const wrap = $('#calendar');
+    const all = visibleTasks(); showEmpty(all.length ? all : []); $('#empty').hidden = true;
+    if (!calState.y) { const p = isoToParts(todayIso()); calState.y = p.y; calState.m = p.m; }
+    const jal = cal() === 'jalali'; const months = jal ? t('jMonths') : t('gMonths');
+    const firstDow = jal ? 6 : 0; const wd = jal ? t('wdSat') : t('wdSun');
+    const len = monthLen(calState.y, calState.m);
+    const startDow = new Date(partsToIso(calState.y, calState.m, 1) + 'T00:00:00').getDay();
+    const offset = (startDow - firstDow + 7) % 7; const today = todayIso();
+    const byDay = {}; all.forEach((x) => { if (x.due) (byDay[x.due] = byDay[x.due] || []).push(x); });
+    const firstIso = addDays(partsToIso(calState.y, calState.m, 1), -offset);
+    const cells = Math.ceil((offset + len) / 7) * 7;
+    let grid = wd.map((w) => `<div class="cal-wd">${w}</div>`).join('');
+    for (let i = 0; i < cells; i++) {
+      const iso = addDays(firstIso, i); const inMonth = i >= offset && i < offset + len;
+      const dow = i % 7; const holiday = jal ? dow === 6 : dow === 0;
+      const dayNum = inMonth ? i - offset + 1 : isoToParts(iso).d;
+      const evs = (byDay[iso] || []);
+      const shown = evs.slice(0, 4);
+      grid += `<div class="cal-day${inMonth ? '' : ' other'}${iso === today ? ' today' : ''}${holiday ? ' holiday' : ''}" data-iso="${iso}"><span class="cal-d">${num(dayNum)}</span>${shown.map((x) => `<div class="cal-ev${x.done ? ' done' : ''}${x.priority === 3 ? ' p3' : ''}" data-id="${x.id}" draggable="${!x.done}" title="${esc(x.title)}"><i style="${x.listId && getList(x.listId) ? `background:${getList(x.listId).color}` : ''}"></i><span dir="auto">${esc(x.title)}</span></div>`).join('')}${evs.length > 4 ? `<span class="cal-more">+${num(evs.length - 4)}</span>` : ''}</div>`;
+    }
+    wrap.innerHTML = `<div class="cal-head"><button class="ibtn" id="cal-prev">${icon('chevron', 'flip-rtl')}</button><button class="ibtn" id="cal-next">${icon('chevron', 'flip-ltr')}</button><span class="cal-title">${esc(months[calState.m - 1])} ${num(calState.y).replace(/[,٬]/g, '')}</span><button class="tbtn today-btn" id="cal-today">${esc(t('today'))}</button></div><div class="cal-grid">${grid}</div>`;
+    $('#cal-prev').onclick = () => { calState.m -= 1; if (calState.m < 1) { calState.m = 12; calState.y -= 1; } renderCalendar(); };
+    $('#cal-next').onclick = () => { calState.m += 1; if (calState.m > 12) { calState.m = 1; calState.y += 1; } renderCalendar(); };
+    $('#cal-today').onclick = () => { const p = isoToParts(todayIso()); calState.y = p.y; calState.m = p.m; renderCalendar(); };
+    wrap.querySelectorAll('.cal-day').forEach((d) => {
+      d.onclick = (e) => { const ev = e.target.closest('.cal-ev'); if (ev) return openDetail(ev.dataset.id); openCapture({ due: d.dataset.iso }); };
+      d.addEventListener('dragover', (e) => { if (!drag.id) return; e.preventDefault(); d.classList.add('drop'); });
+      d.addEventListener('dragleave', () => d.classList.remove('drop'));
+      d.addEventListener('drop', (e) => { e.preventDefault(); d.classList.remove('drop'); const x = getTask(drag.id); if (x && x.due !== d.dataset.iso) { x.due = d.dataset.iso; save(); render(); } });
+    });
+    wrap.querySelectorAll('.cal-ev').forEach((ev) => {
+      ev.addEventListener('dragstart', (e) => { drag.id = ev.dataset.id; e.dataTransfer.effectAllowed = 'move'; });
+      ev.addEventListener('dragend', () => { drag.id = null; $$('.cal-day').forEach((k) => k.classList.remove('drop')); });
+      ev.oncontextmenu = (e) => { e.preventDefault(); const x = getTask(ev.dataset.id); if (x) taskMenu(x, e); };
+    });
+  }
+
+  // ---- popover menu (single instance) ----
+  const menu = { open: false, onClose: null };
+  function openMenu(anchor, items, opts = {}) {
+    const el = $('#menu'); el.innerHTML = '';
+    if (opts.title) { const h = document.createElement('div'); h.className = 'menu-title'; h.textContent = opts.title; el.appendChild(h); }
+    items.forEach((it) => {
+      if (it === '-') { const s = document.createElement('div'); s.className = 'menu-sep'; el.appendChild(s); return; }
+      const b = document.createElement('button'); b.className = 'menu-item' + (it.on ? ' on' : '') + (it.danger ? ' danger' : ''); b.setAttribute('role', 'menuitem');
+      b.innerHTML = `${it.color ? `<span class="dot" style="background:${it.color}"></span>` : it.icon ? icon(it.icon) : ''}<span dir="auto">${esc(it.label)}</span>${it.hint ? `<span class="mi-hint">${esc(it.hint)}</span>` : ''}`;
+      b.onclick = () => { closeMenu(); it.run && it.run(); };
+      el.appendChild(b);
+    });
+    el.hidden = false; menu.open = true;
+    const point = anchor instanceof MouseEvent ? { left: anchor.clientX, right: anchor.clientX, top: anchor.clientY, bottom: anchor.clientY } : anchor.getBoundingClientRect();
+    const w = el.offsetWidth, h = el.offsetHeight;
+    let left = document.documentElement.dir === 'rtl' ? point.right - w : point.left; left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+    let top = point.bottom + 4; if (top + h > window.innerHeight - 8) top = Math.max(8, point.top - h - 4);
+    el.style.left = left + 'px'; el.style.top = top + 'px';
+    const first = el.querySelector('.menu-item'); if (first && !(anchor instanceof MouseEvent)) first.focus();
+  }
+  function closeMenu() { $('#menu').hidden = true; menu.open = false; }
+  const prioMenu = (x, a) => openMenu(a, [3, 2, 1, 0].map((p) => ({ label: p ? t('prio')[p] : t('none'), icon: p ? 'flag' : 'x', hint: p ? '!' + p : '', on: x.priority === p, run: () => { x.priority = p; save(); render(); } })), { title: t('priority') });
+  const listMenu = (x, a) => openMenu(a, [{ label: t('inbox'), icon: 'inbox', on: !x.listId, run: () => { x.listId = null; save(); render(); } }, ...sortedLists().filter(canWriteList).map((l) => ({ label: l.name, color: l.color, on: x.listId === l.id, run: () => { x.listId = l.id; save(); render(); } }))], { title: t('list') });
+  const tagsMenu = (x, a) => {
+    const all = new Set(); state.data.tasks.forEach((q) => q.tags.forEach((g) => all.add(g))); x.tags.forEach((g) => all.add(g));
+    const items = [...all].sort().map((g) => ({ label: '#' + g, icon: 'tag', on: x.tags.includes(g), run: () => { x.tags = x.tags.includes(g) ? x.tags.filter((q) => q !== g) : [...x.tags, g]; save(); render(); } }));
+    items.push('-', { label: t('editTags'), icon: 'plus', run: () => { openDetail(x.id); setTimeout(() => $('#d-tags').focus(), 250); } });
+    openMenu(a, items, { title: t('tags') });
+  };
+  const dueMenu = (x, a) => { const td = todayIso(); openMenu(a, [{ label: t('today'), icon: 'sun', run: () => { x.due = td; save(); render(); } }, { label: t('tomorrow'), icon: 'calendar', run: () => { x.due = addDays(td, 1); save(); render(); } }, { label: t('nextWeek'), icon: 'calendar', run: () => { x.due = addDays(td, 7); save(); render(); } }, { label: t('pickDate'), icon: 'calendar', run: () => openPicker(a, x.due, (iso) => { x.due = iso; save(); render(); }) }, '-', { label: t('noDate'), icon: 'x', run: () => { x.due = ''; save(); render(); } }], { title: t('due') }); };
+  function taskMenu(x, a) {
+    openMenu(a, [
+      { label: t('open'), icon: 'expand', hint: 'Enter', run: () => openDetail(x.id) },
+      { label: x.done ? t('notDone') : t('done'), icon: 'check-circle', hint: 'Space', run: () => toggleDone(x.id, !x.done) },
+      '-',
+      { label: t('due'), icon: 'calendar', run: () => dueMenu(x, a) },
+      { label: t('priority'), icon: 'flag', run: () => prioMenu(x, a) },
+      { label: t('list'), icon: 'list', run: () => listMenu(x, a) },
+      { label: t('tags'), icon: 'tag', run: () => tagsMenu(x, a) },
+      '-',
+      { label: t('delete'), icon: 'trash', hint: 'Del', danger: true, run: () => deleteTask(x.id) },
+    ]);
+  }
+
+  // ---- inline capture ----
+  const capture = { open: false, preset: {} };
+  function openCapture(preset = {}) {
+    if (state.view === 'done' || state.view === 'report') setView('all');
+    capture.open = true; capture.preset = preset;
+    $('#capture').hidden = false; $('#app').classList.remove('sidebar-open'); updateScrim();
+    const qa = $('#qa-input'); qa.value = ''; renderChips();
+    setTimeout(() => { qa.focus(); qa.scrollIntoView({ block: 'nearest' }); }, 20);
+  }
+  function closeCapture() { capture.open = false; capture.preset = {}; $('#capture').hidden = true; $('#qa-chips').innerHTML = ''; }
+  function effectiveQuick(raw) {
+    const p = parseQuick(raw);
+    if (!p.due && capture.preset.due !== undefined) p.due = capture.preset.due;
+    if (!p.priority && capture.preset.priority) p.priority = capture.preset.priority;
+    return p;
+  }
+  function renderChips() {
+    const raw = $('#qa-input').value; const w = $('#qa-chips');
+    if (!raw.trim()) { w.innerHTML = ''; return; }
+    const p = effectiveQuick(raw); const out = [];
+    if (p.due) out.push(`<span class="pill">${icon('calendar')} ${esc(relDue(p.due).text)}</span>`);
+    if (p.time) out.push(`<span class="pill">${icon('clock')} ${esc(fmtTime(p.time))}</span>`);
+    if (p.priority) out.push(`<span class="pill p${p.priority}">${icon('flag')} ${esc(t('prio')[p.priority])}</span>`);
+    if (p.listId) { const l = getList(p.listId); out.push(`<span class="pill"><i class="dot" style="background:${l.color}"></i> ${esc(l.name)}</span>`); }
+    p.tags.forEach((g) => out.push(`<span class="pill tag" dir="auto">#${esc(g)}</span>`));
+    w.innerHTML = out.join('');
+  }
+  function submitCapture() {
+    const qa = $('#qa-input'); const raw = qa.value;
+    const p = effectiveQuick(raw); if (!p.title) return false;
+    const rebuilt = [p.title, p.due ? p.due : '', p.time || '', p.priority ? '!' + p.priority : '', ...p.tags.map((g) => '#' + g)].filter(Boolean).join(' ');
+    const ok = addTask(rebuilt, { listId: p.listId, due: p.due });
+    if (ok) { qa.value = ''; renderChips(); qa.focus(); }
+    return ok;
+  }
+
+  // ---- sync pill (topbar) ----
+  function renderSyncPill() {
+    const pill = $('#sync-pill'); const on = signedIn();
+    pill.hidden = !on && navigator.onLine;
+    pill.className = 'sync-pill' + (syncUI.status === 'busy' ? ' busy' : syncUI.status === 'err' ? ' err' : !navigator.onLine ? ' off' : '');
+    pill.title = syncUI.error || '';
+    $('#sync-pill-text').textContent = !navigator.onLine ? t('offline') : syncUI.status === 'busy' ? t('syncing') : syncUI.status === 'err' ? t('syncErr') : state.data.sync.lastSync ? t('synced') : t('syncNow');
+    pill.querySelector('use').setAttribute('href', navigator.onLine ? '#i-sync' : '#i-wifi-off');
+  }
+
   // ---------- Detail ----------
-  function openDetail(id) { state.selectedId = id; state.focusId = id; render(); }
+  function openDetail(id) { state.selectedId = id; state.focusId = id; closeMenu(); $('#detail').classList.remove('full'); render(); }
   function closeDetail() { state.selectedId = null; render(); const r = state.focusId && document.querySelector(`.row[data-id="${state.focusId}"]`); if (r) r.focus(); }
   function autoGrow(ta) { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; }
   function renderDetail() {
     const task = getTask(state.selectedId);
     $('#detail').hidden = !task;
+    $('#app').classList.toggle('peek-open', !!task);
     if (!task) return;
     const ae = document.activeElement;
     $('#d-done').checked = task.done;
     if (ae !== $('#d-title')) { $('#d-title').value = task.title; autoGrow($('#d-title')); }
     if (ae !== $('#d-notes')) { $('#d-notes').value = task.notes; autoGrow($('#d-notes')); }
     const l = task.listId && getList(task.listId);
-    $('#d-list-name').innerHTML = l ? `<i style="background:${l.color}"></i>${esc(l.name)}` : `${icon('inbox')}${esc(t('inbox'))}`;
-    $('#d-due-text').textContent = task.due ? fmtDate(task.due, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : t('pickDate');
+    $('#d-list-name').innerHTML = l ? `<i style="background:${l.color}"></i><span dir="auto">${esc(l.name)}</span>` : `${icon('inbox')}${esc(t('inbox'))}`;
+    $('#d-due-text').textContent = task.due ? fmtDate(task.due, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : t('empty');
     $('#d-due-text').classList.toggle('placeholder', !task.due);
     $('#d-due-alt').textContent = task.due ? fmtDateAlt(task.due) : '';
     $('#d-time').value = task.time; $('#d-reminder').checked = task.reminder; $('#d-reminder-wrap').style.opacity = task.time ? 1 : .45;
@@ -569,13 +871,14 @@
     sel.innerHTML = `<option value="">${esc(t('inbox'))}</option>` + sortedLists().map((x) => `<option value="${x.id}">${esc(x.name)}</option>`).join('');
     sel.value = task.listId || '';
     if (ae !== $('#d-tags')) $('#d-tags').value = task.tags.join(' ');
-    // subtasks
     const done = task.subtasks.filter((s) => s.done).length;
     $('#d-sub-progress').textContent = task.subtasks.length ? `${num(done)} / ${num(task.subtasks.length)}` : '';
+    $('#d-sub-bar').hidden = !task.subtasks.length;
+    $('#d-sub-bar i').style.width = task.subtasks.length ? (done / task.subtasks.length * 100) + '%' : '0';
     const sw = $('#d-subtasks'); sw.innerHTML = '';
     task.subtasks.forEach((s) => {
       const row = document.createElement('div'); row.className = 'subtask' + (s.done ? ' done' : '');
-      row.innerHTML = `<label class="tick sm"><input type="checkbox" ${s.done ? 'checked' : ''}><span class="tick-box">${icon('check')}</span></label><input type="text" dir="auto" value="${esc(s.title)}"><button class="ibtn sm danger">${icon('x')}</button>`;
+      row.innerHTML = `<label class="cbx"><input type="checkbox" ${s.done ? 'checked' : ''}><span class="cb">${icon('check')}</span></label><input type="text" dir="auto" value="${esc(s.title)}"><button class="ibtn xs danger">${icon('x')}</button>`;
       row.querySelector('input[type=checkbox]').onchange = (e) => { s.done = e.target.checked; save(); render(); };
       const ti = row.querySelector('input[type=text]');
       ti.oninput = (e) => { s.title = e.target.value; save(); };
@@ -584,25 +887,31 @@
       row.querySelector('button').onclick = () => { task.subtasks = task.subtasks.filter((x) => x !== s); save(); render(); };
       sw.appendChild(row);
     });
-    $('#d-meta').innerHTML = `${esc(t('created'))}: ${esc(fmtDateTime(task.createdAt))}` + (task.completedAt ? `<br>${esc(t('completedAt'))}: ${esc(fmtDateTime(task.completedAt))}` : '');
+    $('#d-meta').textContent = fmtDateTime(task.createdAt) + (task.completedAt ? ` · ${t('completedAt')}: ${fmtDateTime(task.completedAt)}` : '');
+    const ro = !canEdit(task);
+    $('#detail').classList.toggle('readonly', ro);
+    $$('#detail input, #detail textarea, #detail select, #detail .seg button').forEach((el) => { el.disabled = ro; });
   }
+  let savedTimer = null;
+  const flashSaved = () => { $('#d-saved').textContent = t('savedShort'); clearTimeout(savedTimer); savedTimer = setTimeout(() => { $('#d-saved').textContent = ''; }, 1500); };
   function bindDetail() {
     const cur = () => getTask(state.selectedId);
+    const upd = (fn) => { const x = cur(); if (!x) return; fn(x); save(); flashSaved(); };
     $('#detail-close').onclick = closeDetail;
+    $('#detail-expand').onclick = () => $('#detail').classList.toggle('full');
     $('#detail-delete').onclick = () => deleteTask(state.selectedId);
     $('#d-done').onchange = (e) => toggleDone(state.selectedId, e.target.checked);
-    $('#d-title').oninput = (e) => { const x = cur(); if (!x) return; x.title = e.target.value.replace(/\n/g, ' '); autoGrow(e.target); save(); const r = document.querySelector(`.row[data-id="${x.id}"] .row-title`); if (r) r.textContent = x.title; };
+    $('#d-title').oninput = (e) => { upd((x) => { x.title = e.target.value.replace(/\n/g, ' '); autoGrow(e.target); }); const x = cur(); const r = x && document.querySelector(`.row[data-id="${x.id}"] .row-title`); if (r) r.textContent = x.title; };
     $('#d-title').onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); $('#d-notes').focus(); } };
-    $('#d-title').onblur = () => { const x = cur(); if (x && !x.title.trim()) { x.title = '…'; save(); render(); } };
-    $('#d-notes').oninput = (e) => { const x = cur(); if (x) { x.notes = e.target.value; autoGrow(e.target); save(); } };
+    $('#d-title').onblur = () => { const x = cur(); if (x && !x.title.trim()) { x.title = '…'; save(); render(); } else render(); };
+    $('#d-notes').oninput = (e) => upd((x) => { x.notes = e.target.value; autoGrow(e.target); });
     $('#d-due').onclick = (e) => { const x = cur(); if (x) openPicker(e.currentTarget, x.due, (iso) => { x.due = iso; save(); render(); }); };
-    $$('.chip[data-due]').forEach((b) => b.onclick = () => { const x = cur(); if (!x) return; const td = todayIso(); x.due = ({ today: td, tomorrow: addDays(td, 1), nextweek: addDays(td, 7), '': '' })[b.dataset.due]; save(); render(); });
-    $('#d-time').onchange = (e) => { const x = cur(); if (!x) return; x.time = e.target.value || ''; if (!x.time) x.reminder = false; else if (!x.reminder) x.reminder = true; x.notifiedAt = null; save(); render(); };
-    $('#d-reminder').onchange = (e) => { const x = cur(); if (!x) return; x.reminder = e.target.checked; x.notifiedAt = null; save(); };
-    $('#d-repeat').onchange = (e) => { const x = cur(); if (!x) return; x.repeat = e.target.value; if (x.repeat !== 'none' && !x.due) x.due = todayIso(); save(); render(); };
-    $$('#d-prio button').forEach((b) => b.onclick = () => { const x = cur(); if (x) { x.priority = +b.dataset.p; save(); render(); } });
-    $('#d-listsel').onchange = (e) => { const x = cur(); if (x) { x.listId = e.target.value || null; save(); render(); } };
-    $('#d-tags').onchange = (e) => { const x = cur(); if (!x) return; x.tags = [...new Set(e.target.value.split(/[\s,،]+/).map((s) => s.replace(/^#/, '').trim()).filter(Boolean))]; save(); render(); };
+    $('#d-time').onchange = (e) => { upd((x) => { x.time = e.target.value || ''; if (!x.time) x.reminder = false; else if (!x.reminder) x.reminder = true; x.notifiedAt = null; }); render(); };
+    $('#d-reminder').onchange = (e) => upd((x) => { x.reminder = e.target.checked; x.notifiedAt = null; });
+    $('#d-repeat').onchange = (e) => { upd((x) => { x.repeat = e.target.value; if (x.repeat !== 'none' && !x.due) x.due = todayIso(); }); render(); };
+    $$('#d-prio button').forEach((b) => b.onclick = () => { upd((x) => { x.priority = +b.dataset.p; }); render(); });
+    $('#d-listsel').onchange = (e) => { upd((x) => { x.listId = e.target.value || null; }); render(); };
+    $('#d-tags').onchange = (e) => { upd((x) => { x.tags = [...new Set(e.target.value.split(/[\s,،]+/).map((s) => s.replace(/^#/, '').trim()).filter(Boolean))]; }); render(); };
     $('#d-sub-input').onkeydown = (e) => {
       if (e.key !== 'Enter') return; e.preventDefault();
       const x = cur(); const v = e.target.value.trim(); if (!x || !v) return;
@@ -794,7 +1103,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   const partsToIso = (y, m, d) => { if (cal() === 'jalali') { const g = Jalali.toGregorian(y, m, d); return `${g.gy}-${pad(g.gm)}-${pad(g.gd)}`; } return `${y}-${pad(m)}-${pad(d)}`; };
   const monthLen = (y, m) => (cal() === 'jalali' ? Jalali.jalaliMonthLength(y, m) : new Date(y, m, 0).getDate());
   function openPicker(anchor, value, onPick) {
-    picker.value = value || ''; picker.onPick = onPick;
+    picker.value = value || ''; picker.onPick = onPick; picker.anchor = anchor; closeMenu();
     const p = isoToParts(value || todayIso()); picker.y = p.y; picker.m = p.m;
     const el = $('#datepicker'); el.hidden = false; renderPicker();
     const r = anchor.getBoundingClientRect(); const w = el.offsetWidth, h = el.offsetHeight;
@@ -819,8 +1128,10 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#dp-next').onclick = () => { picker.m += 1; if (picker.m > 12) { picker.m = 1; picker.y += 1; } renderPicker(); };
     $('#dp-grid').onclick = (e) => { const b = e.target.closest('.dp-day'); if (!b) return; picker.onPick && picker.onPick(b.dataset.iso); closePicker(); };
     $('#dp-today').onclick = () => { picker.onPick && picker.onPick(todayIso()); closePicker(); };
+    $('#dp-tomorrow').onclick = () => { picker.onPick && picker.onPick(addDays(todayIso(), 1)); closePicker(); };
+    $('#dp-nextweek').onclick = () => { picker.onPick && picker.onPick(addDays(todayIso(), 7)); closePicker(); };
     $('#dp-clear').onclick = () => { picker.onPick && picker.onPick(''); closePicker(); };
-    document.addEventListener('mousedown', (e) => { if (!$('#datepicker').hidden && !e.target.closest('#datepicker') && !e.target.closest('#d-due')) closePicker(); });
+    document.addEventListener('mousedown', (e) => { if (!$('#datepicker').hidden && !e.target.closest('#datepicker') && !(picker.anchor && picker.anchor.contains && picker.anchor.contains(e.target))) closePicker(); });
   }
 
   // ---------- Command palette ----------
@@ -830,15 +1141,17 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   function paletteItems(q) {
     const items = [];
     const views = [['inbox', 'inbox'], ['today', 'sun'], ['upcoming', 'calendar'], ['all', 'layers'], ['done', 'check-circle'], ['report', 'chart']];
+    const settingsDlg = () => { $('#settings').hidden = false; };
     const actions = [
-      { label: t('aNewTask'), icon: 'plus', hint: 'Ctrl N', run: () => { $('#qa-input').focus(); } },
+      { label: t('aNewTask'), icon: 'plus', hint: 'Ctrl N', run: () => openCapture() },
+      ...MODES.map((m) => ({ label: t('v' + m[0].toUpperCase() + m.slice(1)), icon: m === 'calendar' ? 'calendar' : m, run: () => setMode(m) })),
       { label: t('aNewList'), icon: 'list', run: () => openListDialog() },
       { label: t('aToggleLang'), icon: 'lang', hint: 'Ctrl Shift L', run: toggleLang },
       { label: t('aCalendar'), icon: 'calendar', run: () => { state.data.settings.calendar = cal() === 'jalali' ? 'gregorian' : 'jalali'; applyLang(); save(); render(); } },
       { label: t('aCollapse'), icon: 'panel', run: toggleRail },
       { label: t('aExportPdf'), icon: 'file', run: exportPdf },
       { label: t('aBackup'), icon: 'download', run: exportJson },
-      { label: t('aSettings'), icon: 'settings', run: () => { $('#settings').hidden = false; } },
+      { label: t('aSettings'), icon: 'settings', run: settingsDlg },
     ];
     const match = (s) => !q || s.toLowerCase().includes(q);
     if (q) state.data.tasks.filter((x) => !x.done && match(x.title)).slice(0, 8).forEach((x) => items.push({ group: 'pTasks', label: x.title, icon: 'check-circle', hint: x.due ? relDue(x.due).text : '', run: () => { setView('all'); openDetail(x.id); } }));
@@ -872,7 +1185,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     if (!r.ok) { const e = new Error((json && json.error) || 'http_' + r.status); e.code = (json && json.error) || 'http_' + r.status; throw e; }
     return json;
   }
-  function setSyncStatus(status, error) { syncUI.status = status; syncUI.error = error || ''; renderAccount(); }
+  function setSyncStatus(status, error) { syncUI.status = status; syncUI.error = error || ''; renderAccount(); renderSyncPill(); }
   async function syncNow() {
     if (!signedIn() || syncing) return;
     syncing = true; setSyncStatus('busy');
@@ -1034,6 +1347,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || DEFAULT_SERVER || ''; }
     else {
       $('#acc-who').textContent = `${state.data.sync.name ? state.data.sync.name + ' · ' : ''}${state.data.sync.email}`;
+      $('#acc-avatar').textContent = (state.data.sync.name || state.data.sync.email || '?').trim().charAt(0).toUpperCase();
       $('#acc-last').textContent = `${t('lastSync')}: ${state.data.sync.lastSync ? fmtDateTime(state.data.sync.lastSync) : t('never')}` + (syncUI.error ? ` · ${syncUI.error}` : '');
     }
     $('#sync-status').textContent = !on ? '' : syncUI.status === 'busy' ? t('syncing') : syncUI.status === 'err' ? t('syncErr') : syncUI.status === 'ok' ? t('synced') : '';
@@ -1119,17 +1433,20 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   // ---------- Navigation helpers ----------
   function setView(view, opts = {}) {
     state.view = view; state.listId = opts.listId || null; state.tag = opts.tag || null;
-    state.query = ''; $('#search').value = '';
+    state.query = ''; $('#search').value = ''; $('#search-wrap').classList.remove('has-q'); $('#search-clear').hidden = true;
     $('#app').classList.remove('sidebar-open');
+    closeCapture(); closeMenu();
+    $('#scroller').scrollTop = 0;
     render();
   }
   function toggleLang() { state.data.settings.lang = lang() === 'fa' ? 'en' : 'fa'; state.data.settings.settingsUpdatedAt = Date.now(); dirty.add('settings'); applyLang(); save(); render(); }
-  function toggleRail() { state.data.settings.railCollapsed = !state.data.settings.railCollapsed; applyLang(); save(); render(); }
-  const isNarrowDetail = () => window.matchMedia('(max-width: 1180px)').matches;
+  function toggleRail() { state.data.settings.railCollapsed = !state.data.settings.railCollapsed; save(); render(); }
+  const isPhone = () => window.matchMedia('(max-width: 760px)').matches;
   function updateScrim() {
     const drawer = $('#app').classList.contains('sidebar-open');
-    const detail = !!getTask(state.selectedId) && isNarrowDetail();
+    const detail = !!getTask(state.selectedId) && window.matchMedia('(max-width: 1100px)').matches;
     $('#backdrop').hidden = !(drawer || detail);
+    $('#tab-lists').classList.toggle('active', drawer);
   }
   function focusRow(delta) {
     const rows = $$('.row'); if (!rows.length) return;
@@ -1137,6 +1454,34 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     i = i < 0 ? (delta > 0 ? 0 : rows.length - 1) : Math.max(0, Math.min(rows.length - 1, i + delta));
     rows.forEach((r) => { r.tabIndex = -1; }); rows[i].tabIndex = 0; rows[i].focus(); state.focusId = rows[i].dataset.id;
     rows[i].scrollIntoView({ block: 'nearest' });
+  }
+  function filterMenu(a) {
+    const s = state.data.settings;
+    openMenu(a, [{ label: t('showDone'), icon: 'check-circle', on: s.showDone, run: () => { s.showDone = !s.showDone; save(); render(); } }], { title: t('filter') });
+  }
+  function sortMenu(a) {
+    const s = state.data.settings;
+    const opts = [['due', 'calendar', 'sortDue'], ['priority', 'flag', 'sortPriority'], ['title', 'notes', 'sortTitle'], ['created', 'clock', 'sortCreated']];
+    openMenu(a, opts.map(([k, ic, lb]) => ({ label: t(lb), icon: ic, on: s.sort === k, run: () => { s.sort = k; save(); render(); } })), { title: t('sort') });
+  }
+  function moreMenu(a) {
+    openMenu(a, [
+      { label: t('aNewList'), icon: 'list', run: () => openListDialog() },
+      { label: t('aToggleLang'), icon: 'lang', hint: 'Ctrl Shift L', run: toggleLang },
+      { label: t('aCalendar'), icon: 'calendar', run: () => { state.data.settings.calendar = cal() === 'jalali' ? 'gregorian' : 'jalali'; applyLang(); save(); render(); } },
+      '-',
+      { label: t('aExportPdf'), icon: 'file', run: exportPdf },
+      { label: 'CSV', icon: 'download', run: exportCsv },
+      { label: 'Markdown', icon: 'download', run: exportMd },
+      { label: t('aBackup'), icon: 'download', run: exportJson },
+      { label: t('impJson'), icon: 'upload', run: importJson },
+      '-',
+      { label: t('report'), icon: 'chart', hint: 'Ctrl E', run: () => setView('report') },
+      { label: t('aSettings'), icon: 'settings', run: () => { $('#settings').hidden = false; } },
+    ]);
+  }
+  function setQuery(q) {
+    state.query = q; $('#search-wrap').classList.toggle('has-q', !!q); $('#search-clear').hidden = !q; render();
   }
 
   // ============================================================
@@ -1150,11 +1495,20 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     applyLang();
 
     $$('.nav-item[data-view], .tabbar button[data-view]').forEach((b) => b.onclick = () => setView(b.dataset.view));
-    $('#tab-lists').onclick = () => { $('#app').classList.toggle('sidebar-open'); updateScrim(); };
-    $('#tab-more').onclick = openPalette;
-    $('#rail-toggle').onclick = toggleRail;
-    $('#menu-btn').onclick = () => { $('#app').classList.toggle('sidebar-open'); updateScrim(); };
-    $('#backdrop').onclick = () => { $('#app').classList.remove('sidebar-open'); if (isNarrowDetail()) state.selectedId = null; render(); };
+    const toggleDrawer = () => { $('#app').classList.toggle('sidebar-open'); updateScrim(); };
+    $('#tab-lists').onclick = toggleDrawer;
+    $('#menu-btn').onclick = toggleDrawer;
+    $('#tab-search').onclick = () => { $('#scroller').scrollTop = 0; $('#search').focus(); };
+    $('#rail-toggle').onclick = toggleRail; $('#rail-open').onclick = toggleRail;
+    $('#nav-search').onclick = openPalette;
+    $('#ws-btn').onclick = (e) => openMenu(e.currentTarget, [
+      { label: signedIn() ? state.data.sync.email : t('signInUp'), icon: 'user', run: () => { if (signedIn()) $('#settings').hidden = false; else openAuth('signin'); } },
+      ...state.data.workspaces.filter((w) => !w.personal).map((w) => ({ label: w.name, icon: 'users', run: () => openShareDialog(w.id) })),
+      '-',
+      { label: t('aSettings'), icon: 'settings', run: () => { $('#settings').hidden = false; } },
+      { label: t('aCollapse'), icon: 'panel', hint: 'Ctrl \\', run: toggleRail },
+    ]);
+    $('#backdrop').onclick = () => { $('#app').classList.remove('sidebar-open'); if (state.selectedId) state.selectedId = null; render(); };
     window.addEventListener('resize', updateScrim);
     $('#list-add').onclick = () => openListDialog();
     $('#list-dialog-close').onclick = () => { $('#list-dialog').hidden = true; };
@@ -1165,10 +1519,17 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $$('.overlay').forEach((o) => o.addEventListener('mousedown', (e) => { if (e.target === o) o.hidden = true; }));
     const touchSettings = () => { state.data.settings.settingsUpdatedAt = Date.now(); dirty.add('settings'); };
     $$('#set-lang button').forEach((b) => b.onclick = () => { state.data.settings.lang = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
-    $$('#set-cal button').forEach((b) => b.onclick = () => { state.data.settings.calendar = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
+    $$('#set-cal button').forEach((b) => b.onclick = () => { state.data.settings.calendar = b.dataset.v; calState.y = 0; touchSettings(); applyLang(); save(); render(); });
+    $$('#set-theme button').forEach((b) => b.onclick = () => { state.data.settings.theme = b.dataset.v; applyLang(); save(); });
     $('#set-notify').onchange = (e) => { state.data.settings.notify = e.target.checked; touchSettings(); save(); };
     bindAccount(); bindUpdates(); bindShare();
     $('#palette-btn').onclick = openPalette;
+    $('#more-btn').onclick = (e) => moreMenu(e.currentTarget);
+    $('#filter-btn').onclick = (e) => filterMenu(e.currentTarget);
+    $('#sort-btn').onclick = (e) => sortMenu(e.currentTarget);
+    $$('#view-tabs button').forEach((b) => b.onclick = () => setMode(b.dataset.mode));
+    $('#sync-pill').onclick = () => { if (signedIn()) syncNow(); else $('#settings').hidden = false; };
+    window.addEventListener('offline', renderSyncPill);
     $('#palette-q').oninput = () => { pal.index = 0; renderPalette(); };
     $('#palette-q').onkeydown = (e) => {
       if (e.key === 'ArrowDown') { e.preventDefault(); pal.index = Math.min(pal.items.length - 1, pal.index + 1); renderPalette(); }
@@ -1177,44 +1538,49 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     };
 
     const qa = $('#qa-input');
-    const chips = () => {
-      const raw = qa.value; qa.closest('.capture-line').classList.toggle('has-text', !!raw.trim());
-      const w = $('#qa-chips'); if (!raw.trim()) { w.innerHTML = ''; return; }
-      const p = parseQuick(raw); const out = [];
-      if (p.due) out.push(`<span class="pill">${icon('calendar')} ${esc(relDue(p.due).text)}</span>`);
-      if (p.time) out.push(`<span class="pill">${icon('clock')} ${esc(fmtTime(p.time))}</span>`);
-      if (p.priority) out.push(`<span class="pill red">${icon('flag')} ${esc(t('prio')[p.priority])}</span>`);
-      if (p.listId) { const l = getList(p.listId); out.push(`<span class="pill list"><i class="dot" style="display:inline-block;width:8px;height:8px;border-radius:2px;background:${l.color}"></i> ${esc(l.name)}</span>`); }
-      p.tags.forEach((g) => out.push(`<span class="pill" dir="auto">#${esc(g)}</span>`));
-      w.innerHTML = out.join('');
-    };
-    qa.oninput = chips;
-    qa.onkeydown = (e) => { if (e.key === 'Enter') { if (addTask(qa.value)) { qa.value = ''; chips(); } } else if (e.key === 'ArrowDown') { e.preventDefault(); focusRow(1); } };
-    $('#qa-add').onclick = () => { if (addTask(qa.value)) { qa.value = ''; chips(); } qa.focus(); };
-    $('#search').oninput = (e) => { state.query = e.target.value; render(); };
+    qa.oninput = renderChips;
+    qa.onkeydown = (e) => { if (e.key === 'Enter') { e.preventDefault(); submitCapture(); } else if (e.key === 'Escape') { e.preventDefault(); closeCapture(); } else if (e.key === 'ArrowDown') { e.preventDefault(); focusRow(1); } };
+    qa.onblur = () => { setTimeout(() => { if (!qa.value.trim() && document.activeElement !== qa && !document.activeElement.closest('#capture')) closeCapture(); }, 150); };
+    $('#qa-add').onclick = () => submitCapture();
+    $('#qa-cancel').onclick = closeCapture;
+    ['#qa-open', '#new-task-btn', '#fab', '#empty-new'].forEach((s) => { $(s).onclick = () => openCapture(state.view === 'today' ? { due: todayIso() } : {}); });
+    $('#qa-menu').onclick = (e) => openMenu(e.currentTarget, [
+      { label: t('today'), icon: 'sun', run: () => openCapture({ due: todayIso() }) },
+      { label: t('tomorrow'), icon: 'calendar', run: () => openCapture({ due: addDays(todayIso(), 1) }) },
+      { label: t('noDate'), icon: 'inbox', run: () => openCapture({ due: '' }) },
+      '-',
+      { label: t('aNewList'), icon: 'list', run: () => openListDialog() },
+    ]);
+    $('#search').oninput = (e) => setQuery(e.target.value);
+    $('#search-clear').onclick = () => { $('#search').value = ''; setQuery(''); };
     $('#clear-done').onclick = clearCompleted;
     $('#toast-undo').onclick = undo;
     $('#exp-pdf').onclick = exportPdf; $('#exp-csv').onclick = exportCsv; $('#exp-md').onclick = exportMd; $('#exp-json').onclick = exportJson; $('#imp-json').onclick = importJson;
     bindDetail(); bindPicker();
+    document.addEventListener('mousedown', (e) => { if (menu.open && !e.target.closest('#menu')) closeMenu(); });
+    window.addEventListener('resize', () => { if (menu.open) closeMenu(); });
 
     document.addEventListener('keydown', (e) => {
       const mod = e.ctrlKey || e.metaKey; const k = e.key.toLowerCase();
       const inField = /^(input|textarea|select)$/i.test(document.activeElement.tagName);
       if (mod && k === 'k') { e.preventDefault(); $('#palette').hidden ? openPalette() : closePalette(); return; }
-      if (mod && k === 'n') { e.preventDefault(); if (state.view === 'report' || state.view === 'done') setView('all'); qa.focus(); return; }
+      if (mod && k === 'n') { e.preventDefault(); openCapture(state.view === 'today' ? { due: todayIso() } : {}); return; }
       if (mod && k === 'f') { e.preventDefault(); $('#search').focus(); $('#search').select(); return; }
       if (mod && e.shiftKey && k === 'l') { e.preventDefault(); toggleLang(); return; }
       if (mod && k === 'e') { e.preventDefault(); setView('report'); return; }
       if (mod && k === '\\') { e.preventDefault(); toggleRail(); return; }
       if (e.key === 'Escape') {
-        if (!$('#auth').hidden && !$('#auth-close').hidden) closeAuth();
+        if (menu.open) closeMenu();
+        else if (!$('#auth').hidden && !$('#auth-close').hidden) closeAuth();
         else if (!$('#profile').hidden) $('#profile').hidden = true;
         else if (!$('#palette').hidden) closePalette();
         else if (!$('#datepicker').hidden) closePicker();
         else if (!$('#settings').hidden) $('#settings').hidden = true;
         else if (!$('#list-dialog').hidden) $('#list-dialog').hidden = true;
+        else if (!$('#share-dialog').hidden) $('#share-dialog').hidden = true;
         else if ($('#app').classList.contains('sidebar-open')) { $('#app').classList.remove('sidebar-open'); updateScrim(); }
-        else if (state.query) { state.query = ''; $('#search').value = ''; render(); }
+        else if (capture.open) closeCapture();
+        else if (state.query) { $('#search').value = ''; setQuery(''); }
         else if (state.selectedId) closeDetail();
         else if (inField) document.activeElement.blur();
         return;
@@ -1235,8 +1601,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
 
     window.anjam.onOpenTask((id) => { if (getTask(id)) { setView('all'); openDetail(id); } });
     render();
+    $('#app').classList.remove('booting');
     checkReminders();
-    qa.focus();
   }
   init();
 })();

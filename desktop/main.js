@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell, Menu, screen, Notification } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu, screen, Notification, nativeTheme } = require('electron');
 const updater = require('./updater');
 app.setAppUserModelId('ir.abolfazl.anjam');
 const path = require('path');
@@ -32,7 +32,7 @@ function createWindow() {
     height: Math.min(780, Math.round(sh * 0.85)),
     minWidth: 480,
     minHeight: 420,
-    backgroundColor: '#140708',
+    backgroundColor: nativeTheme.shouldUseDarkColors ? '#191415' : '#ffffff',
     autoHideMenuBar: true,
     icon: path.join(__dirname, '..', 'build', 'icon.png'),
     webPreferences: {
