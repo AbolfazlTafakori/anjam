@@ -4,3 +4,5 @@
 *.conf text eol=lf
 *.example text eol=lf
 gradlew text eol=lf
+*.go text eol=lf
+*.sql text eol=lf

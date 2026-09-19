@@ -143,11 +143,11 @@ type SyncRequest struct {
 	Changes []domain.Change  `json:"changes"`
 }
 type SyncResponse struct {
-	Applied    []string           `json:"applied"`
-	Changes    []domain.Change    `json:"changes"`
-	Cursors    map[string]int64   `json:"cursors"`
-	Workspaces []WorkspaceView    `json:"workspaces"`
-	Now        int64              `json:"now"`
+	Applied    []string         `json:"applied"`
+	Changes    []domain.Change  `json:"changes"`
+	Cursors    map[string]int64 `json:"cursors"`
+	Workspaces []WorkspaceView  `json:"workspaces"`
+	Now        int64            `json:"now"`
 }
 
 // Sync applies the client's changes to every workspace it may write to, then returns what

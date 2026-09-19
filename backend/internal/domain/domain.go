@@ -109,13 +109,13 @@ type Item struct {
 
 // Change is one entity in a sync exchange, in either direction.
 type Change struct {
-	Kind        string          `json:"kind"` // "database" | "item" | "workspace"
-	ID          string          `json:"id"`
-	WorkspaceID string          `json:"workspaceId"`
-	Data        RawJSON         `json:"data,omitempty"`
-	UpdatedAt   int64           `json:"updatedAt"` // unix ms, client clock; last-write-wins
-	Deleted     bool            `json:"deleted,omitempty"`
-	Seq         int64           `json:"seq,omitempty"`
+	Kind        string  `json:"kind"` // "database" | "item" | "workspace"
+	ID          string  `json:"id"`
+	WorkspaceID string  `json:"workspaceId"`
+	Data        RawJSON `json:"data,omitempty"`
+	UpdatedAt   int64   `json:"updatedAt"` // unix ms, client clock; last-write-wins
+	Deleted     bool    `json:"deleted,omitempty"`
+	Seq         int64   `json:"seq,omitempty"`
 }
 
 // RawJSON keeps JSON payloads opaque to the domain.

@@ -160,16 +160,16 @@ func (a *App) CreateInvite(ctx context.Context, admin *domain.User, note, ip str
 // ---------- overview ----------
 
 type Overview struct {
-	Users        int              `json:"users"`
-	Admins       int              `json:"admins"`
-	Tasks        int              `json:"tasks"`
-	Done7        int              `json:"done7"`
-	Signups7     int              `json:"signups7"`
-	Active7      int              `json:"active7"`
-	Active1      int              `json:"active1"`
-	Series       []DayCount       `json:"signupsSeries"`
+	Users        int                 `json:"users"`
+	Admins       int                 `json:"admins"`
+	Tasks        int                 `json:"tasks"`
+	Done7        int                 `json:"done7"`
+	Signups7     int                 `json:"signups7"`
+	Active7      int                 `json:"active7"`
+	Active1      int                 `json:"active1"`
+	Series       []DayCount          `json:"signupsSeries"`
 	Registration domain.Registration `json:"registration"`
-	Mail         bool             `json:"mail"`
+	Mail         bool                `json:"mail"`
 }
 type DayCount struct {
 	D string `json:"d"`

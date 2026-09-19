@@ -237,11 +237,11 @@ func (r syncRepo) Apply(ctx context.Context, wsID string, changes []domain.Chang
 		}
 		if c.Kind == "database" {
 			var d struct {
-				Name  string          `json:"name"`
-				Color string          `json:"color"`
-				Icon  string          `json:"icon"`
-				Kind  string          `json:"kind"`
-				Order float64         `json:"order"`
+				Name   string          `json:"name"`
+				Color  string          `json:"color"`
+				Icon   string          `json:"icon"`
+				Kind   string          `json:"kind"`
+				Order  float64         `json:"order"`
 				Schema json.RawMessage `json:"schema"`
 			}
 			_ = json.Unmarshal(data, &d)

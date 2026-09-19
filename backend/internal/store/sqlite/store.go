@@ -94,10 +94,25 @@ func (s *Store) Audit() domain.AuditRepo          { return auditRepo{s.db} }
 
 // ---------- helpers ----------
 
-func now() int64            { return time.Now().UnixMilli() }
-func ms(t time.Time) int64  { if t.IsZero() { return 0 }; return t.UnixMilli() }
-func tm(v int64) time.Time  { if v == 0 { return time.Time{} }; return time.UnixMilli(v) }
-func b2i(b bool) int        { if b { return 1 }; return 0 }
+func now() int64 { return time.Now().UnixMilli() }
+func ms(t time.Time) int64 {
+	if t.IsZero() {
+		return 0
+	}
+	return t.UnixMilli()
+}
+func tm(v int64) time.Time {
+	if v == 0 {
+		return time.Time{}
+	}
+	return time.UnixMilli(v)
+}
+func b2i(b bool) int {
+	if b {
+		return 1
+	}
+	return 0
+}
 func notFound(err error) error {
 	if errors.Is(err, sql.ErrNoRows) {
 		return domain.ErrNotFound

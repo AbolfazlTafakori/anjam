@@ -57,9 +57,17 @@ func RandomPassword(n int) string {
 	}
 	return string(b)
 }
-func randomToken() string { b := make([]byte, 24); _, _ = rand.Read(b); return base64.RawURLEncoding.EncodeToString(b) }
-func inviteCode() string   { b := make([]byte, 4); _, _ = rand.Read(b); return strings.ToUpper(hex.EncodeToString(b)) }
-func newID() string        { b := make([]byte, 16); _, _ = rand.Read(b); return hex.EncodeToString(b) }
+func randomToken() string {
+	b := make([]byte, 24)
+	_, _ = rand.Read(b)
+	return base64.RawURLEncoding.EncodeToString(b)
+}
+func inviteCode() string {
+	b := make([]byte, 4)
+	_, _ = rand.Read(b)
+	return strings.ToUpper(hex.EncodeToString(b))
+}
+func newID() string { b := make([]byte, 16); _, _ = rand.Read(b); return hex.EncodeToString(b) }
 
 // ---------- signed tokens: base64url(json) . hmac ----------
 

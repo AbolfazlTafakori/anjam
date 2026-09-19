@@ -41,14 +41,14 @@ type Error struct {
 	Status int
 }
 
-func (e *Error) Error() string { return e.Code }
+func (e *Error) Error() string           { return e.Code }
 func fail(status int, code string) error { return &Error{Code: code, Status: status} }
 
 // ======================================================= registration & sessions
 
 type Session struct {
-	Token string       `json:"token"`
-	User  *PublicUser  `json:"user"`
+	Token string      `json:"token"`
+	User  *PublicUser `json:"user"`
 }
 type PublicUser struct {
 	ID        string `json:"id"`
