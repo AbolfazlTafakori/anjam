@@ -8,11 +8,12 @@ npm install
 npm start
 ```
 
-## Build the Windows installer
+## Build the desktop installers
 ```bash
-npm run dist
+npm run dist          # Windows (dist/Anjam-Setup-<version>.exe)
+npm run dist:linux    # AppImage + deb
 ```
-The installer is written to `dist/Anjam Setup 1.0.0.exe`.
+Releases are built by GitHub Actions: push a tag `vX.Y.Z` and the installers appear under Releases; the apps update themselves from there (electron-updater) and every server's `/download` page lists them.
 
 ## Features
 - Quick add with smart tokens: `!1 / !2 / !3` (priority), `#tag`, `@list`, `14:30` (time), `today / tomorrow / next week / fri / 2026-10-01 / 1405-07-05`

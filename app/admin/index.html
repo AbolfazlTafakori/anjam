@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anjam · پنل مدیریت</title>
+  <link rel="stylesheet" href="../styles.css" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body class="admin-body">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16"/><path d="M7 16v-5M12 16V6M17 16v-8"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 20a6 6 0 0 1 12 0"/><circle cx="17" cy="9.5" r="2.6"/><path d="M15.5 14.2A5 5 0 0 1 21 19"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4z"/><path d="M14 6v12"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h13"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/><circle cx="19" cy="12" r="2"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 19h16"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4.5" cy="6" r=".9"/><circle cx="4.5" cy="12" r=".9"/><circle cx="4.5" cy="18" r=".9"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
+  <symbol id="i-lang" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M3.5 12h17M12 3.5c3 3 3 14 0 17M12 3.5c-3 3-3 14 0 17"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.2"/><circle cx="12" cy="12" r="1.2"/><circle cx="18" cy="12" r="1.2"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-windows" viewBox="0 0 24 24"><path d="M3 5.5 11 4.4v7.1H3zM12 4.2 21 3v8.5h-9zM3 12.5h8v7.1L3 18.5zM12 12.5h9V21l-9-1.2z"/></symbol>
+  <symbol id="i-android" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0v6H6z"/><path d="M8 5.5 6.8 3.5M16 5.5l1.2-2M9 16v4M15 16v4M3.5 10v5M20.5 10v5"/><circle cx="9.5" cy="9" r=".8"/><circle cx="14.5" cy="9" r=".8"/></symbol>
+  <symbol id="i-linux" viewBox="0 0 24 24"><path d="M12 3c-2.5 0-4 2-4 5 0 2-2.5 4.5-2.5 8S8 21 12 21s6.5-1.5 6.5-5S16 10 16 8c0-3-1.5-5-4-5z"/><circle cx="10.5" cy="9" r=".8"/><circle cx="13.5" cy="9" r=".8"/><path d="M10.5 12.5c.8 1 2.2 1 3 0"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 7h.01M10 7h.01"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7"/><path d="M20 4v5h-5"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle cx="8" cy="14" r="4"/><path d="m11 11 9-9M15 7l3 3M18 4l2 2"/></symbol>
+</defs></svg>
+
+<!-- Sign in -->
+<div class="adm-login" id="login">
+  <form class="adm-login-card" id="login-form" novalidate>
+    <div class="brand"><span class="brand-seal"><svg><use href="#i-check"/></svg></span><span class="brand-name">انجام</span></div>
+    <h1 data-i18n="panelTitle">پنل مدیریت</h1>
+    <p class="adm-sub" data-i18n="panelSub">فقط حساب مدیر که هنگام نصب تعیین شده وارد می‌شود.</p>
+    <label class="f"><span>ایمیل / Email</span><input id="l-email" type="email" class="field-input" dir="ltr" autocomplete="username" inputmode="email" /></label>
+    <label class="f"><span data-i18n="password">رمز عبور</span><input id="l-pass" type="password" class="field-input" dir="ltr" autocomplete="current-password" /></label>
+    <div class="auth-err" id="l-err"></div>
+    <button class="btn primary auth-submit" id="l-go" type="submit" data-i18n="signIn">ورود</button>
+  </form>
+</div>
+
+<!-- Panel -->
+<div class="adm" id="panel" hidden>
+  <aside class="rail adm-rail" id="rail">
+    <div class="rail-top">
+      <div class="brand"><span class="brand-seal"><svg><use href="#i-check"/></svg></span><span class="brand-name">انجام</span></div>
+      <span class="adm-tag" data-i18n="panelTag">مدیریت</span>
+    </div>
+    <nav class="nav" id="nav">
+      <button class="nav-item" data-sec="overview"><svg><use href="#i-chart"/></svg><span class="nav-label" data-i18n="overview">نمای کلی</span></button>
+      <button class="nav-item" data-sec="users"><svg><use href="#i-users"/></svg><span class="nav-label" data-i18n="users">کاربران</span><span class="count" id="n-users"></span></button>
+      <button class="nav-item" data-sec="invites"><svg><use href="#i-ticket"/></svg><span class="nav-label" data-i18n="invites">کدهای دعوت</span><span class="count" id="n-invites"></span></button>
+      <button class="nav-item" data-sec="downloads"><svg><use href="#i-download"/></svg><span class="nav-label" data-i18n="downloads">دانلود برنامه</span></button>
+      <button class="nav-item" data-sec="settings"><svg><use href="#i-settings"/></svg><span class="nav-label" data-i18n="settings">تنظیمات</span></button>
+      <button class="nav-item" data-sec="audit"><svg><use href="#i-list"/></svg><span class="nav-label" data-i18n="audit">رویدادها</span></button>
+    </nav>
+    <div class="rail-scroll"></div>
+    <div class="rail-bottom">
+      <button class="nav-item" data-sec="account"><svg><use href="#i-user"/></svg><span class="nav-label" id="who"></span></button>
+      <button class="nav-item" id="lang"><svg><use href="#i-lang"/></svg><span class="nav-label" id="lang-label">English</span></button>
+    </div>
+  </aside>
+
+  <main class="interior adm-main">
+    <header class="head">
+      <button class="ibtn head-menu" id="menu-btn"><svg><use href="#i-menu"/></svg></button>
+      <div class="head-title"><h1 id="sec-title"></h1><p class="head-sub" id="sec-sub"></p></div>
+      <div class="head-actions" id="head-actions"></div>
+    </header>
+    <div class="adm-content" id="content"></div>
+  </main>
+  <div class="scrim" id="scrim" hidden></div>
+</div>
+
+<!-- Confirm dialog -->
+<div class="overlay" id="confirm" hidden>
+  <div class="dialog sm" role="dialog">
+    <div class="dialog-head"><h2 id="confirm-title"></h2><button class="ibtn" id="confirm-x"><svg><use href="#i-x"/></svg></button></div>
+    <p class="adm-sub" id="confirm-text"></p>
+    <div class="dialog-actions"><button class="btn ghost" id="confirm-no" data-i18n="cancel">انصراف</button><button class="btn primary" id="confirm-yes"></button></div>
+  </div>
+</div>
+
+<!-- Result dialog (reset link etc.) -->
+<div class="overlay" id="result" hidden>
+  <div class="dialog sm" role="dialog">
+    <div class="dialog-head"><h2 id="result-title"></h2><button class="ibtn" id="result-x"><svg><use href="#i-x"/></svg></button></div>
+    <p class="adm-sub" id="result-text"></p>
+    <div class="copy-line"><code id="result-code"></code><button class="ibtn" id="result-copy" data-i18n-title="copy"><svg><use href="#i-copy"/></svg></button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden><span id="toast-text"></span></div>
+
+<script src="admin.js"></script>
+</body>
+</html>

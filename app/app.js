@@ -23,6 +23,7 @@
       doneForgotMail: 'اگر این ایمیل ثبت شده باشد، لینک بازیابی برایش فرستاده شد.', doneForgotNoMail: 'این سرور ایمیل نمی‌فرستد. از مدیر سرور بخواهید از پنل مدیریت برایتان «لینک بازیابی رمز» بسازد.', doneReset: 'رمز عوض شد و وارد شدید.', doneSignup: 'حساب ساخته شد. کارهای این دستگاه هم به حساب منتقل شدند.',
       errDisabled: 'این حساب غیرفعال شده', errInvite: 'کد دعوت نامعتبر است', errName: 'نام را وارد کنید', errToken: 'لینک بازیابی نامعتبر یا منقضی است', errLastAdmin: 'تنها مدیر را نمی‌توان حذف کرد',
       editProfile: 'ویرایش حساب', currentPassword: 'رمز فعلی', newPassword: 'رمز جدید (اختیاری)', deleteAccount: 'حذف حساب', confirmDeleteAccount: 'حساب و همه‌ی داده‌های آن روی سرور حذف شود؟ (داده‌های این دستگاه می‌ماند)', profileSaved: 'حساب به‌روز شد', adminPanel: 'پنل مدیریت',
+      updates: 'به‌روزرسانی', checkUpdate: 'بررسی', restartUpdate: 'راه‌اندازی مجدد و نصب', upToDate: 'آخرین نسخه را دارید', upChecking: 'در حال بررسی…', upAvailable: 'نسخه {v} پیدا شد', upDownloading: 'دانلود نسخه {v}… {p}٪', upReady: 'نسخه {v} آماده است', upError: 'بررسی ناموفق', upWeb: 'نسخه‌ی وب همیشه آخرین نسخه است',
       account: 'حساب و همگام‌سازی', password: 'رمز عبور', yourName: 'نام (برای ثبت‌نام)', signIn: 'ورود', signUp: 'ثبت‌نام', signOut: 'خروج', syncNow: 'همگام‌سازی',
       accountHint: 'بدون حساب هم همه‌چیز روی همین دستگاه ذخیره می‌شود. با حساب، کارها بین ویندوز، وب و اندروید همگام می‌شوند.',
       lastSync: 'آخرین همگام‌سازی', never: 'هنوز', syncing: 'در حال همگام‌سازی…', synced: 'همگام', syncErr: 'خطا در همگام‌سازی', offline: 'آفلاین',
@@ -71,6 +72,7 @@
       doneForgotMail: 'If that e-mail is registered, a reset link has been sent.', doneForgotNoMail: 'This server does not send e-mail. Ask the server admin to create a reset link from the admin panel.', doneReset: 'Password changed; you are signed in.', doneSignup: 'Account created. Tasks on this device were moved into it.',
       errDisabled: 'This account is disabled', errInvite: 'Invalid invite code', errName: 'Enter your name', errToken: 'Reset link is invalid or expired', errLastAdmin: 'The last admin cannot be deleted',
       editProfile: 'Edit account', currentPassword: 'Current password', newPassword: 'New password (optional)', deleteAccount: 'Delete account', confirmDeleteAccount: 'Delete the account and all its data on the server? (This device keeps its copy)', profileSaved: 'Account updated', adminPanel: 'Admin panel',
+      updates: 'Updates', checkUpdate: 'Check', restartUpdate: 'Restart to update', upToDate: 'You have the latest version', upChecking: 'Checking…', upAvailable: 'Version {v} found', upDownloading: 'Downloading {v}… {p}%', upReady: 'Version {v} is ready', upError: 'Check failed', upWeb: 'The web version is always current',
       account: 'Account & sync', password: 'Password', yourName: 'Name (for sign-up)', signIn: 'Sign in', signUp: 'Sign up', signOut: 'Sign out', syncNow: 'Sync now',
       accountHint: 'Without an account everything stays on this device. With one, tasks sync across Windows, web and Android.',
       lastSync: 'Last sync', never: 'never', syncing: 'Syncing…', synced: 'Synced', syncErr: 'Sync failed', offline: 'Offline',
@@ -983,7 +985,32 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     // Web: password-reset link (?reset=TOKEN) and first-run sign-in prompt
     const params = new URLSearchParams(location.search);
     if (params.get('reset')) { history.replaceState(null, '', location.pathname); openAuth('reset', { token: params.get('reset') }); }
+    else if (params.get('invite')) { history.replaceState(null, '', location.pathname); openAuth('signup', { firstRun: !signedIn() }); $('#au-invite').value = params.get('invite').toUpperCase(); }
     else if (window.anjam.defaultServer && !signedIn() && !localStorage.getItem('anjam-auth-skipped') && !state.data.tasks.length) openAuth('signin', { firstRun: true });
+  }
+
+  // ---------- Updates (desktop) ----------
+  let upd = { state: 'idle', version: '', percent: 0 };
+  function renderUpdate() {
+    const pill = $('#update-pill'); const text = $('#update-text'); const inst = $('#update-install');
+    if (!window.anjam.update) { pill.hidden = true; text.textContent = t('upWeb'); $('#update-check').hidden = true; inst.hidden = true; return; }
+    const v = { v: upd.version, p: num(upd.percent) };
+    const msg = { idle: '', checking: t('upChecking'), uptodate: t('upToDate'), available: fmt('upAvailable', v), downloading: fmt('upDownloading', v), ready: fmt('upReady', v), error: t('upError') + (upd.message ? ` — ${upd.message}` : '') }[upd.state] || '';
+    text.textContent = msg;
+    inst.hidden = upd.state !== 'ready';
+    $('#update-check').disabled = upd.state === 'checking' || upd.state === 'downloading';
+    pill.hidden = !(upd.state === 'ready' || upd.state === 'downloading');
+    pill.classList.toggle('quiet', upd.state === 'downloading');
+    $('#update-pill-text').textContent = upd.state === 'ready' ? fmt('upReady', v) : fmt('upDownloading', v);
+  }
+  function bindUpdates() {
+    window.anjam.version().then((v) => { $('#app-version').textContent = 'v' + v; });
+    if (!window.anjam.update) return renderUpdate();
+    window.anjam.update.onStatus((s) => { upd = s; renderUpdate(); });
+    window.anjam.update.status().then((s) => { upd = s; renderUpdate(); });
+    $('#update-check').onclick = () => window.anjam.update.check();
+    $('#update-install').onclick = () => window.anjam.update.install();
+    $('#update-pill').onclick = () => { if (upd.state === 'ready') window.anjam.update.install(); else { $('#settings').hidden = false; } };
   }
 
   // ---------- Reminders ----------
@@ -1050,7 +1077,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $$('#set-lang button').forEach((b) => b.onclick = () => { state.data.settings.lang = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
     $$('#set-cal button').forEach((b) => b.onclick = () => { state.data.settings.calendar = b.dataset.v; touchSettings(); applyLang(); save(); render(); });
     $('#set-notify').onchange = (e) => { state.data.settings.notify = e.target.checked; touchSettings(); save(); };
-    bindAccount();
+    bindAccount(); bindUpdates();
     $('#palette-btn').onclick = openPalette;
     $('#palette-q').oninput = () => { pal.index = 0; renderPalette(); };
     $('#palette-q').onkeydown = (e) => {

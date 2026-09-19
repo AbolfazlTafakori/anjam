@@ -1,13 +1,15 @@
 {
   "name": "anjam",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Anjam - a simple, bilingual (فارسی/English) to-do list for Windows",
-  "main": "src/main.js",
+  "main": "desktop/main.js",
   "scripts": {
     "start": "electron .",
     "dist": "electron-builder --win",
     "web": "node scripts/build-web.js",
-    "server": "node server/server.js"
+    "server": "node server/server.js",
+    "dist:linux": "electron-builder --linux",
+    "release": "electron-builder --publish always"
   },
   "keywords": [],
   "author": "Abolfazl Tafakori",
@@ -18,29 +20,58 @@
     "electron-builder": "^26.15.3"
   },
   "dependencies": {
+    "electron-updater": "^6.8.9",
     "vazirmatn": "^33.0.3"
   },
   "build": {
     "appId": "ir.abolfazl.anjam",
     "productName": "Anjam",
     "files": [
-      "src/**/*",
-      "build/icon.png"
+      "desktop/**/*",
+      "app/**/*",
+      "build/icon.png",
+      "!app/admin/**",
+      "!app/download.html",
+      "!app/web-bridge.js"
     ],
     "directories": {
       "output": "dist"
     },
     "win": {
       "target": [
-        "nsis"
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
       ],
-      "icon": "build/icon.ico"
+      "icon": "build/icon.ico",
+      "artifactName": "Anjam-Setup-${version}.${ext}"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
-      "shortcutName": "Anjam"
+      "shortcutName": "Anjam",
+      "artifactName": "Anjam-Setup-${version}.${ext}"
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "AbolfazlTafakori",
+        "repo": "anjam"
+      }
+    ],
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "icon": "build/icon.png",
+      "category": "Office",
+      "artifactName": "Anjam-${version}-${arch}.${ext}",
+      "maintainer": "Abolfazl Tafakori <abolfazltafakoriy@gmail.com>"
     }
   }
 }

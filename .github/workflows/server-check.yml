@@ -1,0 +1,15 @@
+# Syntax + smoke test of the server on every push (no deploy).
+name: server-check
+on: [push, pull_request]
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: cd server && npm ci
+      - run: node --check server/server.js && for f in server/src/*.js server/src/routes/*.js server/cli.js app/app.js desktop/*.js; do node --check "$f"; done
+      - run: node scripts/build-web.js
+      - run: |
+          cd server && (PORT=8799 node server.js & sleep 2; curl -fsS http://127.0.0.1:8799/api/health; kill %1)

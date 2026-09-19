@@ -1,4 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu, screen, Notification } = require('electron');
+const updater = require('./updater');
 app.setAppUserModelId('ir.abolfazl.anjam');
 const path = require('path');
 const fs = require('fs');
@@ -42,7 +43,7 @@ function createWindow() {
     },
   });
   Menu.setApplicationMenu(null);
-  win.loadFile(path.join(__dirname, 'index.html'));
+  win.loadFile(path.join(__dirname, '..', 'app', 'index.html'));
   // Dev helper: ANJAM_SHOT=<file.png> captures the window and exits (used for visual checks)
   if (process.env.ANJAM_SHOT) {
     if (process.env.ANJAM_SIZE) { const [w, h] = process.env.ANJAM_SIZE.split('x').map(Number); win.setSize(w, h); }
@@ -66,6 +67,7 @@ app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(
 
 app.whenReady().then(() => {
   createWindow();
+  updater.start(() => win);
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
@@ -98,7 +100,7 @@ ipcMain.handle('export:pdf', async (_e, { defaultName, html }) => {
   // Embed the bundled Persian font so the PDF renders identically everywhere
   let fontCss = '';
   try {
-    const b64 = fs.readFileSync(path.join(__dirname, 'fonts', 'Vazirmatn.woff2')).toString('base64');
+    const b64 = fs.readFileSync(path.join(__dirname, '..', 'app', 'fonts', 'Vazirmatn.woff2')).toString('base64');
     fontCss = `<style>@font-face{font-family:'Vazirmatn';src:url(data:font/woff2;base64,${b64}) format('woff2-variations');font-weight:100 900}</style>`;
   } catch {}
   const pdfWin = new BrowserWindow({ show: false, webPreferences: { sandbox: true } });

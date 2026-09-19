@@ -10,5 +10,11 @@ contextBridge.exposeInMainWorld('anjam', {
   version: () => ipcRenderer.invoke('app:version'),
   notify: (o) => ipcRenderer.invoke('notify', o),
   openExternal: (u) => ipcRenderer.invoke('shell:openExternal', u),
+  update: {
+    status: () => ipcRenderer.invoke('update:status'),
+    check: () => ipcRenderer.invoke('update:check'),
+    install: () => ipcRenderer.invoke('update:install'),
+    onStatus: (cb) => ipcRenderer.on('update:status', (_e, s) => cb(s)),
+  },
   onOpenTask: (cb) => ipcRenderer.on('open-task', (_e, id) => cb(id)),
 });

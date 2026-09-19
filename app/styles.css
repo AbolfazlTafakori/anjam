@@ -569,3 +569,12 @@ select.field-input option { background: var(--lac-2); }
 .auth-done { text-align: center; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 12px 0; }
 .auth-done svg { width: 44px; height: 44px; color: var(--ok); }
 .acc-link { margin-inline-start: auto; color: var(--gold); font-size: 12px; text-decoration: none; }
+
+/* ---------- Updates ---------- */
+.update-pill { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 10px; margin-bottom: 4px; border-radius: var(--r-md); color: var(--lac-0); background: var(--gold); font-weight: 600; font-size: 12.5px; width: 100%; text-align: start; transition: background var(--t-fast); }
+.update-pill:hover { background: var(--gold-2); }
+.update-pill svg { color: var(--lac-0); }
+.update-pill.quiet { background: var(--gold-wash); color: var(--gold); }
+.update-pill.quiet svg { color: var(--gold); }
+.app.rail-collapsed .update-pill { justify-content: center; padding: 0; }
+#update-field .acc-row { grid-template-columns: 1fr auto; align-items: center; }

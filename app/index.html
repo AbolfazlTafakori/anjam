@@ -51,6 +51,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 18h10a4 4 0 0 0 .8-7.9A6 6 0 0 0 6.3 9.2 4.5 4.5 0 0 0 7 18z"/></symbol>
     <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.5"/><path d="M5 20a7 7 0 0 1 14 0"/></symbol>
     <symbol id="i-eye" viewBox="0 0 24 24"><path d="M3 12s3.5-6 9-6 9 6 9 6-3.5 6-9 6-9-6-9-6z"/><circle cx="12" cy="12" r="2.5"/></symbol>
+    <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6.5 6.5l2 2M15.5 15.5l2 2M6.5 17.5l2-2M15.5 8.5l2-2"/></symbol>
     <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
   </defs>
 </svg>
@@ -86,6 +87,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
     </div>
 
     <div class="rail-bottom">
+      <button class="update-pill" id="update-pill" hidden><svg><use href="#i-sparkle"/></svg><span class="nav-label" id="update-pill-text"></span></button>
       <button class="nav-item" data-view="report"><svg><use href="#i-chart"/></svg><span class="nav-label" data-i18n="report">گزارش</span></button>
       <button class="nav-item" id="settings-btn"><svg><use href="#i-settings"/></svg><span class="nav-label" data-i18n="settings">تنظیمات</span></button>
     </div>
@@ -282,6 +284,10 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
           <button class="btn ghost danger" id="acc-logout" data-i18n="signOut">خروج</button>
         </div>
       </div>
+    </div>
+    <div class="d-field" id="update-field">
+      <div class="d-label"><svg><use href="#i-sparkle"/></svg><span data-i18n="updates">به‌روزرسانی</span><span class="d-progress" id="app-version"></span></div>
+      <div class="acc-row"><div class="d-alt" id="update-text"></div><div class="acc-actions"><button class="btn ghost" id="update-check" data-i18n="checkUpdate">بررسی</button><button class="btn primary" id="update-install" hidden data-i18n="restartUpdate">راه‌اندازی مجدد و نصب</button></div></div>
     </div>
     <div class="d-field">
       <div class="d-label"><svg><use href="#i-command"/></svg><span data-i18n="shortcuts">میانبرها</span></div>

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Anjam · دانلود</title>
+  <link rel="icon" href="icon.png" />
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="/_panel/admin.css" />
+  <style>
+    body { overflow: auto; user-select: text; background: var(--lac-0); }
+    .dlp { max-width: 960px; margin: 0 auto; padding: 40px 20px 60px; display: flex; flex-direction: column; gap: 26px; }
+    .dlp-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+    .dlp-head h1 { font-size: 26px; font-weight: 800; }
+    .dlp-head .spacer { flex: 1; }
+    .dlp-sub { color: var(--ink-3); font-size: 14px; line-height: 1.7; max-width: 60ch; }
+    .server-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-size: 13.5px; color: var(--ink-2); }
+    .lang { color: var(--gold); text-decoration: none; font-size: 13px; }
+  </style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 4v11M7 10l5 5 5-5"/><path d="M4 19h16"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/></symbol>
+  <symbol id="i-windows" viewBox="0 0 24 24"><path d="M3 5.5 11 4.4v7.1H3zM12 4.2 21 3v8.5h-9zM3 12.5h8v7.1L3 18.5zM12 12.5h9V21l-9-1.2z"/></symbol>
+  <symbol id="i-android" viewBox="0 0 24 24"><path d="M6 10a6 6 0 0 1 12 0v6H6z"/><path d="M8 5.5 6.8 3.5M16 5.5l1.2-2M9 16v4M15 16v4M3.5 10v5M20.5 10v5"/><circle cx="9.5" cy="9" r=".8"/><circle cx="14.5" cy="9" r=".8"/></symbol>
+  <symbol id="i-linux" viewBox="0 0 24 24"><path d="M12 3c-2.5 0-4 2-4 5 0 2-2.5 4.5-2.5 8S8 21 12 21s6.5-1.5 6.5-5S16 10 16 8c0-3-1.5-5-4-5z"/><circle cx="10.5" cy="9" r=".8"/><circle cx="13.5" cy="9" r=".8"/><path d="M10.5 12.5c.8 1 2.2 1 3 0"/></symbol>
+  <symbol id="i-web" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18M7 7h.01M10 7h.01"/></symbol>
+</defs></svg>
+<main class="dlp">
+  <div class="dlp-head">
+    <span class="brand-seal"><svg><use href="#i-check"/></svg></span>
+    <h1 data-fa="دانلود انجام" data-en="Download Anjam"></h1>
+    <span class="spacer"></span>
+    <a class="lang" href="#" id="lang">English</a>
+  </div>
+  <p class="dlp-sub" data-fa="کارهای شما روی همه‌ی دستگاه‌ها یکی است: ویندوز، اندروید، لینوکس و وب. نسخه را نصب کنید، هنگام ورود آدرس همین سرور را بدهید و با حساب خود وارد شوید." data-en="Your tasks stay identical on every device: Windows, Android, Linux and the web. Install a build, enter this server's address when signing in, and use your account."></p>
+  <div class="server-line"><span data-fa="آدرس سرور:" data-en="Server address:"></span><code id="server"></code><button class="ibtn" id="copy" title="copy"><svg><use href="#i-copy"/></svg></button></div>
+  <div class="dl-grid" id="grid"></div>
+  <p class="hint" id="foot"></p>
+</main>
+<script>
+(() => {
+  const L = {
+    fa: { win: 'ویندوز', and: 'اندروید', lin: 'لینوکس', web: 'وب', get: 'دانلود', open: 'باز کردن', steps: ['آدرس سرور را در Chrome باز کنید', 'منوی ⋮ → Add to Home screen', 'آیکون «انجام» به صفحه‌ی گوشی اضافه می‌شود؛ آفلاین هم کار می‌کند'], webText: 'همیشه آخرین نسخه؛ نیازی به نصب ندارد.', none: 'هنوز نسخه‌ی نصبی منتشر نشده.', auto: 'نسخه‌های ویندوز و لینوکس خودشان به‌روزرسانی می‌گیرند و داخل برنامه اعلام می‌کنند.', dl: 'دانلود', copied: 'کپی شد' },
+    en: { win: 'Windows', and: 'Android', lin: 'Linux', web: 'Web', get: 'Download', open: 'Open', steps: ['Open the server address in Chrome', 'Menu ⋮ → Add to Home screen', 'An "Anjam" icon appears on your phone; it works offline too'], webText: 'Always the latest version; nothing to install.', none: 'No installer published yet.', auto: 'Windows and Linux builds update themselves and announce it inside the app.', dl: 'downloads', copied: 'Copied' },
+  };
+  let lang = localStorage.getItem('anjam-dl-lang') || 'fa';
+  const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+  const bytes = (b) => (b >= 1e6 ? (b / 1e6).toFixed(0) + ' MB' : (b / 1e3).toFixed(0) + ' KB');
+  const icon = (n) => `<svg><use href="#i-${n}"/></svg>`;
+  let rel = null;
+  function draw() {
+    const t = L[lang];
+    document.documentElement.lang = lang; document.documentElement.dir = lang === 'fa' ? 'rtl' : 'ltr';
+    document.querySelectorAll('[data-fa]').forEach((el) => { el.textContent = el.dataset[lang]; });
+    document.getElementById('lang').textContent = lang === 'fa' ? 'English' : 'فارسی';
+    document.getElementById('server').textContent = location.origin;
+    const file = (id) => rel && rel.files.find((f) => f.platform === id);
+    const card = (ic, title, body) => `<div class="dl"><div class="dl-head">${icon(ic)}<span>${title}</span></div>${body}</div>`;
+    const fb = (f) => f ? `<div class="dl-meta">v${esc(rel.version)} · ${bytes(f.size)}</div><a class="btn primary" href="${esc(f.url)}">${icon('download')}<span>${t.get}</span></a>` : `<p class="hint">${t.none}</p>`;
+    const a = file('linux-appimage'), d = file('linux-deb');
+    document.getElementById('grid').innerHTML = card('windows', t.win, fb(file('windows')))
+      + card('android', t.and, `<ol>${t.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol><a class="btn ghost" href="/">${icon('web')}<span>${t.open}</span></a>`)
+      + card('linux', t.lin, a || d ? `<div class="dl-meta">v${esc(rel.version)}</div>${a ? `<a class="btn primary" href="${esc(a.url)}">${icon('download')}<span>AppImage · ${bytes(a.size)}</span></a>` : ''}${d ? `<a class="btn ghost" href="${esc(d.url)}">${icon('download')}<span>.deb · ${bytes(d.size)}</span></a>` : ''}` : `<p class="hint">${t.none}</p>`)
+      + card('web', t.web, `<p class="hint">${t.webText}</p><a class="btn ghost" href="/">${icon('web')}<span>${t.open}</span></a>`);
+    document.getElementById('foot').textContent = t.auto;
+  }
+  document.getElementById('lang').onclick = (e) => { e.preventDefault(); lang = lang === 'fa' ? 'en' : 'fa'; localStorage.setItem('anjam-dl-lang', lang); draw(); };
+  document.getElementById('copy').onclick = () => navigator.clipboard.writeText(location.origin);
+  draw();
+  fetch('/api/releases').then((r) => r.json()).then((j) => { rel = j.release; draw(); }).catch(() => {});
+})();
+</script>
+</body>
+</html>

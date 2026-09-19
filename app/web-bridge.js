@@ -25,7 +25,7 @@
       new Notification(title, { body, icon: 'icon.png' }); return true;
     },
     onOpenTask: () => {},
-    version: async () => 'web',
+    version: async () => (document.querySelector('meta[name="anjam-version"]') || {}).content || 'web',
   };
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();
