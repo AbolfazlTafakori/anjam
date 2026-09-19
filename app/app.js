@@ -7,6 +7,9 @@
   // ============================================================
   const I18N = {
     fa: {
+      home: 'خانه', calendarView: 'تقویم', searchAsk: 'جستجو', upcomingSide: 'پیش‌رو', recents: 'اخیر', sharedSec: 'مشترک', privateSec: 'شخصی', startCollab: 'شروع همکاری', noShared: 'هنوز لیست مشترکی ندارید', accountMenu: 'حساب و فضای کاری',
+      gMorning: 'صبح بخیر', gAfternoon: 'ظهر بخیر', gEvening: 'عصر بخیر', gNight: 'شب بخیر', subHome: '{a} کار برای امروز · {b} کار این هفته', subCalendar: '{n} کار با تاریخ', emptyHome: 'این هفته کاری نمانده', emptyCalendar: 'کاری با تاریخ ندارید', yourLists: 'لیست‌ها', tasksOpen: '{n} باز',
+      mRename: 'تغییر نام', mDuplicate: 'کپی لیست', mMove: 'انتقال به فضای کاری', mDeleteList: 'حذف لیست', mInvite: 'دعوت اعضا', mLogout: 'خروج از حساب', mSignIn: 'ورود / ثبت‌نام', mNewWorkspace: 'فضای کاری جدید', mWorkspaces: 'فضاهای کاری', mCopyOk: 'کپی شد', mAccount: 'حساب',
       appName: 'انجام', inbox: 'صندوق', today: 'امروز', upcoming: 'پیش‌رو', all: 'همه', completed: 'انجام‌شده', report: 'گزارش',
       lists: 'لیست‌ها', tags: 'برچسب‌ها', settings: 'تنظیمات', more: 'بیشتر', collapse: 'جمع‌کردن', expand: 'باز کردن',
       search: 'جستجو', quickAdd: 'کار جدید…  فردا !2 #کار', add: 'افزودن',
@@ -57,6 +60,9 @@
       repeatShort: { daily: 'روزانه', weekdays: 'روزهای کاری', weekly: 'هفتگی', monthly: 'ماهانه', yearly: 'سالانه' },
     },
     en: {
+      home: 'Home', calendarView: 'Calendar', searchAsk: 'Search', upcomingSide: 'Upcoming', recents: 'Recents', sharedSec: 'Shared', privateSec: 'Private', startCollab: 'Start collaborating', noShared: 'No shared lists yet', accountMenu: 'Account & workspace',
+      gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', gNight: 'Good night', subHome: '{a} tasks today · {b} this week', subCalendar: '{n} dated tasks', emptyHome: 'Nothing left this week', emptyCalendar: 'No dated tasks yet', yourLists: 'Lists', tasksOpen: '{n} open',
+      mRename: 'Rename', mDuplicate: 'Duplicate list', mMove: 'Move to workspace', mDeleteList: 'Delete list', mInvite: 'Invite members', mLogout: 'Log out', mSignIn: 'Sign in / Sign up', mNewWorkspace: 'New workspace', mWorkspaces: 'Workspaces', mCopyOk: 'Copied', mAccount: 'Account',
       appName: 'Anjam', inbox: 'Inbox', today: 'Today', upcoming: 'Upcoming', all: 'All', completed: 'Completed', report: 'Report',
       lists: 'Lists', tags: 'Tags', settings: 'Settings', more: 'More', collapse: 'Collapse', expand: 'Expand',
       search: 'Search', quickAdd: 'New task…  tomorrow !2 #work', add: 'Add',
@@ -131,7 +137,7 @@
   // ============================================================
   const state = {
     data: null,
-    view: 'today', listId: null, tag: null, query: '',
+    view: 'home', listId: null, tag: null, query: '',
     selectedId: null, focusId: null, undo: null,
   };
   const $ = (s) => document.querySelector(s);
@@ -360,6 +366,8 @@
     else { const sd = state.data.settings.showDone; const od = (x) => sd || !x.done; switch (state.view) {
       case 'inbox': list = list.filter((x) => od(x) && !x.listId); break;
       case 'today': list = list.filter((x) => od(x) && x.due && x.due <= today && (!x.done || x.completedAt && isoLocal(new Date(x.completedAt)) === today)); break;
+      case 'home': { const wk = addDays(today, 7); list = list.filter((x) => od(x) && x.due && x.due <= wk && (!x.done || x.completedAt && isoLocal(new Date(x.completedAt)) === today)); break; }
+      case 'calendar': list = list.filter((x) => od(x) && x.due); break;
       case 'upcoming': list = list.filter((x) => od(x) && x.due && x.due > today); break;
       case 'all': list = list.filter(od); break;
       case 'done': list = list.filter((x) => x.done); break;
@@ -425,7 +433,7 @@
   // ---- view modes (list / table / board / calendar), per view, persisted ----
   const MODES = ['list', 'table', 'board', 'calendar'];
   const viewKey = () => (state.view === 'list' ? 'list:' + state.listId : state.view === 'tag' ? 'tag:' + state.tag : state.view);
-  const modeOf = () => { if (state.query) return 'list'; const m = state.data.settings.modes[viewKey()]; return MODES.includes(m) ? m : (state.view === 'upcoming' ? 'calendar' : 'list'); };
+  const modeOf = () => { if (state.query || state.view === 'home') return 'list'; if (state.view === 'calendar') return 'calendar'; const m = state.data.settings.modes[viewKey()]; return MODES.includes(m) ? m : (state.view === 'upcoming' ? 'calendar' : 'list'); };
   function setMode(m) { state.data.settings.modes[viewKey()] = m; save(); render(); }
 
   function render() {
@@ -439,7 +447,10 @@
     const mode = isReport ? null : modeOf();
     $('#page').classList.toggle('wide', mode === 'board' || mode === 'table' || mode === 'calendar');
     $$('#view-tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === mode));
-    $('#view-tabs').hidden = !!state.query || state.view === 'done';
+    $('#view-tabs').hidden = !!state.query || ['done', 'home', 'calendar'].includes(state.view);
+    const isHome = state.view === 'home' && !state.query;
+    $('#home-cards').hidden = !isHome;
+    if (isHome) renderHomeCards();
     $('#filter-btn').hidden = state.view === 'done' || !!state.query;
     $('#filter-btn').classList.toggle('on', state.data.settings.showDone);
     $('#sort-btn').classList.toggle('on', state.data.settings.sort !== 'due');
@@ -468,34 +479,59 @@
     set('#count-all', open.length);
     set('#count-done', state.data.tasks.length - open.length);
     const activeView = state.query ? null : state.view;
-    $$('.nav-item[data-view], .tabbar button[data-view]').forEach((b) => b.classList.toggle('active', b.dataset.view === activeView));
+    $$('.nav-item[data-view], .tabbar button[data-view], .side-tab[data-view], .side-inbox').forEach((b) => b.classList.toggle('active', b.dataset.view === activeView));
     $('#tab-lists').classList.toggle('active', $('#app').classList.contains('sidebar-open'));
     $('#ws-name').textContent = signedIn() && state.data.sync.name ? state.data.sync.name : t('appName');
 
-    const lw = $('#list-items'); lw.innerHTML = '';
-    const lists = sortedLists();
-    if (!lists.length) lw.innerHTML = `<div class="rail-empty">${esc(t('noLists'))}</div>`;
-    const shared = state.data.workspaces.filter((w) => !w.personal);
-    const groups = [{ id: personalWS() ? personalWS().id : '', name: '', ws: personalWS() }, ...shared.map((w) => ({ id: w.id, name: w.name, ws: w }))];
-    groups.forEach((g) => {
-      const items = lists.filter((l) => workspaceOfList(l) === g.id || (!g.id && !l.workspaceId));
-      if (!items.length && !g.name) return;
-      if (g.name) { const h = document.createElement('button'); h.className = 'rail-group'; h.innerHTML = `${icon('users')}<span class="nav-label">${esc(g.name)}</span>${g.ws.role === 'viewer' ? `<span class="count">${esc(t('viewer'))}</span>` : ''}`; h.title = t('shareTitle'); h.onclick = () => openShareDialog(g.id); lw.appendChild(h); }
-      items.forEach((l) => {
-        const n = open.filter((x) => x.listId === l.id).length;
-        const b = document.createElement('button');
-        b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : '');
-        b.title = l.name;
-        b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn xs rail-edit" role="button" title="${esc(t('editList'))}">${icon('more')}</span>`;
-        b.onclick = (e) => { if (e.target.closest('.rail-edit')) return openListDialog(l.id); setView('list', { listId: l.id }); };
-        lw.appendChild(b);
-      });
+    // Upcoming: the next three dated tasks, like Notion's "Upcoming events"
+    const up = $('#side-upcoming'); up.innerHTML = '';
+    const soon = open.filter((x) => x.due && x.due >= today).sort((a, b) => (a.due + (a.time || '')).localeCompare(b.due + (b.time || ''))).slice(0, 3);
+    $('#side-upcoming-sec').hidden = !soon.length;
+    soon.forEach((x) => {
+      const b = document.createElement('button'); b.className = 'side-up';
+      const r = relDue(x.due);
+      b.innerHTML = `<span class="side-up-day">${esc(fmtDate(x.due, { day: 'numeric' }))}</span><span class="side-up-body"><span class="side-up-title" dir="auto">${esc(x.title)}</span><span class="side-up-sub">${esc(r.text)}${x.time ? ' · ' + esc(fmtTime(x.time)) : ''}</span></span>`;
+      b.onclick = () => { setView(x.listId ? 'list' : 'today', { listId: x.listId }); state.selectedId = x.id; render(); };
+      up.appendChild(b);
     });
-    const counts = {};
-    open.forEach((x) => x.tags.forEach((g) => { counts[g] = (counts[g] || 0) + 1; }));
+    // Recents: last lists / tags opened on this device
+    const rw = $('#side-recents'); rw.innerHTML = '';
+    const rec = recents().filter((r) => (r.view === 'list' && getList(r.listId)) || (r.view === 'tag' && counts0(open)[r.tag]));
+    $('#side-recents-sec').hidden = !rec.length;
+    rec.forEach((r) => {
+      const b = document.createElement('button'); b.className = 'rail-item';
+      if (r.view === 'list') { const l = getList(r.listId); b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label" dir="auto">${esc(l.name)}</span>`; b.onclick = () => setView('list', { listId: l.id }); }
+      else { b.innerHTML = `${icon('tag')}<span class="nav-label" dir="auto">${esc(r.tag)}</span>`; b.onclick = () => setView('tag', { tag: r.tag }); }
+      rw.appendChild(b);
+    });
+    // Shared: lists grouped by shared workspace; Private: the personal lists
+    const lists = sortedLists();
+    const listBtn = (l) => {
+      const n = open.filter((x) => x.listId === l.id).length;
+      const b = document.createElement('button');
+      b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : '');
+      b.title = l.name;
+      b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label" dir="auto">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn xs rail-edit" role="button" title="${esc(t('editList'))}">${icon('more')}</span>`;
+      b.onclick = (e) => { if (e.target.closest('.rail-edit')) return openListDialog(l.id); setView('list', { listId: l.id }); };
+      return b;
+    };
+    const sw = $('#shared-items'); sw.innerHTML = '';
+    const shared = state.data.workspaces.filter((w) => !w.personal);
+    shared.forEach((w) => {
+      const hd = document.createElement('button'); hd.className = 'rail-group';
+      hd.innerHTML = `${icon('users')}<span class="nav-label" dir="auto">${esc(w.name)}</span>${w.role === 'viewer' ? `<span class="count">${esc(t('viewer'))}</span>` : ''}`;
+      hd.title = t('shareTitle'); hd.onclick = () => openShareDialog(w.id); sw.appendChild(hd);
+      lists.filter((l) => workspaceOfList(l) === w.id).forEach((l) => sw.appendChild(listBtn(l)));
+    });
+    if (!shared.length) { const b = document.createElement('button'); b.className = 'rail-item rail-add'; b.innerHTML = `${icon('plus')}<span class="nav-label">${esc(t('startCollab'))}</span>`; b.onclick = startCollab; sw.appendChild(b); }
+    const lw = $('#list-items'); lw.innerHTML = '';
+    const pid = personalWS() ? personalWS().id : '';
+    lists.filter((l) => !l.workspaceId || workspaceOfList(l) === pid || !getWS(workspaceOfList(l))).forEach((l) => lw.appendChild(listBtn(l)));
+    { const b = document.createElement('button'); b.className = 'rail-item rail-add'; b.innerHTML = `${icon('plus')}<span class="nav-label">${esc(t('newList'))}</span>`; b.onclick = () => openListDialog(); lw.appendChild(b); }
+    const counts = counts0(open);
     const tw = $('#tag-items'); tw.innerHTML = '';
     const names = Object.keys(counts).sort((a, b) => a.localeCompare(b, numLocale()));
-    if (!names.length) tw.innerHTML = `<div class="rail-empty">${esc(t('noTags'))}</div>`;
+    $('#side-tags-sec').hidden = !names.length;
     names.forEach((name) => {
       const b = document.createElement('button');
       b.className = 'rail-item' + (activeView === 'tag' && state.tag === name ? ' active' : '');
@@ -506,7 +542,42 @@
     });
   }
 
-  const VIEW_ICON = { inbox: 'inbox', today: 'sun', upcoming: 'calendar', all: 'layers', done: 'check-circle', report: 'chart', tag: 'tag' };
+  const counts0 = (open) => { const c = {}; open.forEach((x) => x.tags.forEach((g) => { c[g] = (c[g] || 0) + 1; })); return c; };
+  const recents = () => { try { const r = JSON.parse(localStorage.getItem('anjam.recents') || '[]'); return Array.isArray(r) ? r : []; } catch { return []; } };
+  function pushRecent(r) {
+    const key = (x) => x.view + ':' + (x.listId || x.tag || '');
+    const list = [r, ...recents().filter((x) => key(x) !== key(r))].slice(0, 3);
+    try { localStorage.setItem('anjam.recents', JSON.stringify(list)); } catch {}
+  }
+  function startCollab() { if (!signedIn()) return openAuth('signin'); openListDialog(); setTimeout(() => { const s = $('#list-ws'); if (s && !$('#list-ws-wrap').hidden) s.value = '__new'; }, 0); }
+  function duplicateList(id) {
+    const l = getList(id); if (!l) return;
+    const nid = uid();
+    state.data.lists.push({ id: nid, name: l.name + ' 2', color: l.color, order: state.data.lists.length, workspaceId: l.workspaceId || '' });
+    state.data.tasks.filter((x) => x.listId === id && !x.done).forEach((x) => state.data.tasks.push({ ...x, id: uid(), listId: nid, createdAt: Date.now(), updatedAt: Date.now(), subtasks: x.subtasks.map((s) => ({ ...s, id: uid() })), tags: x.tags.slice() }));
+    save(); setView('list', { listId: nid });
+  }
+  // Home: list cards (like the link columns on a Notion home page), then this week's tasks below
+  function renderHomeCards() {
+    const w = $('#home-cards'); w.innerHTML = '';
+    const open = state.data.tasks.filter((x) => !x.done);
+    const lists = sortedLists();
+    if (!lists.length) return;
+    const groups = [{ name: t('yourLists'), items: lists.filter((l) => { const ws = getWS(workspaceOfList(l)); return !ws || ws.personal; }) }, ...state.data.workspaces.filter((x) => !x.personal).map((ws) => ({ name: ws.name, items: lists.filter((l) => workspaceOfList(l) === ws.id) }))].filter((g) => g.items.length);
+    groups.forEach((g) => {
+      const col = document.createElement('div'); col.className = 'home-col';
+      col.innerHTML = `<h3 class="home-h" dir="auto">${esc(g.name)}</h3>`;
+      g.items.forEach((l) => {
+        const n = open.filter((x) => x.listId === l.id).length;
+        const b = document.createElement('button'); b.className = 'home-link';
+        b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="home-link-name" dir="auto">${esc(l.name)}</span><span class="count">${n ? esc(fmt('tasksOpen', { n: num(n) })) : ''}</span>`;
+        b.onclick = () => setView('list', { listId: l.id }); col.appendChild(b);
+      });
+      w.appendChild(col);
+    });
+  }
+
+  const VIEW_ICON = { home: 'home', calendar: 'calendar', inbox: 'inbox', today: 'sun', upcoming: 'calendar', all: 'layers', done: 'check-circle', report: 'chart', tag: 'tag' };
   function renderHead() {
     const today = todayIso();
     const open = state.data.tasks.filter((x) => !x.done);
@@ -515,6 +586,8 @@
     if (state.query) { title = t('search'); sub = fmt('subSearch', { q: state.query }); ico = icon('search'); }
     else switch (state.view) {
       case 'inbox': title = t('inbox'); sub = fmt('subInbox', { n: num(open.filter((x) => !x.listId).length) }); break;
+      case 'home': { const hr = new Date().getHours(); const g = t(hr < 12 ? 'gMorning' : hr < 16 ? 'gAfternoon' : hr < 20 ? 'gEvening' : 'gNight'); const nm = signedIn() && state.data.sync.name ? state.data.sync.name.split(' ')[0] : ''; title = nm ? `${g}، ${nm}`.replace('، ', lang() === 'fa' ? '، ' : ', ') : g; sub = `${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · ${fmt('subHome', { a: num(open.filter((x) => x.due && x.due <= today).length), b: num(open.filter((x) => x.due && x.due > today && x.due <= addDays(today, 7)).length) })}`; break; }
+      case 'calendar': title = t('calendarView'); sub = fmt('subCalendar', { n: num(open.filter((x) => x.due).length) }); break;
       case 'today': title = t('today'); sub = `${fmtDate(today, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })} · ${fmt('subToday', { n: num(open.filter((x) => x.due && x.due <= today).length) })}`; break;
       case 'upcoming': title = t('upcoming'); sub = fmt('subUpcoming', { n: num(open.filter((x) => x.due && x.due > today).length) }); break;
       case 'all': title = t('all'); sub = fmt('subAll', { n: num(open.length) }); break;
@@ -548,7 +621,7 @@
   const listBadge = (task) => { const l = task.listId && getList(task.listId); return l ? `<span class="list"><i style="background:${l.color}"></i><span dir="auto">${esc(l.name)}</span></span>` : ''; };
   const subBadge = (task) => { if (!task.subtasks.length) return ''; const d = task.subtasks.filter((s) => s.done).length; return `<span class="sub${d === task.subtasks.length ? ' full' : ''}">${icon('subtask')}${num(d)}/${num(task.subtasks.length)}</span>`; };
   const tagChips = (task) => task.tags.map((g) => `<span class="chip purple" dir="auto">#${esc(g)}</span>`).join('');
-  const emptyKey = () => (state.query ? 'emptySearch' : ({ inbox: 'emptyInbox', today: 'emptyToday', upcoming: 'emptyUpcoming', all: 'emptyAll', done: 'emptyDone', list: 'emptyList', tag: 'emptyTag' })[state.view]);
+  const emptyKey = () => (state.query ? 'emptySearch' : ({ home: 'emptyHome', calendar: 'emptyCalendar', inbox: 'emptyInbox', today: 'emptyToday', upcoming: 'emptyUpcoming', all: 'emptyAll', done: 'emptyDone', list: 'emptyList', tag: 'emptyTag' })[state.view]);
   function showEmpty(list) {
     $('#empty').hidden = list.length > 0;
     if (!list.length) {
@@ -565,7 +638,7 @@
     const list = visibleTasks();
     const wrap = $('#task-list'); wrap.innerHTML = '';
     showEmpty(list);
-    const grouped = !state.query && ['today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view) && state.data.settings.sort === 'due';
+    const grouped = !state.query && ['home', 'today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view) && state.data.settings.sort === 'due';
     let last = null, groupCounts = {};
     if (grouped) list.forEach((x) => { const g = groupKey(x); groupCounts[g] = (groupCounts[g] || 0) + 1; });
     list.forEach((task) => {
@@ -647,7 +720,7 @@
     const list = visibleTasks();
     const wrap = $('#table'); showEmpty(list);
     if (!list.length) { wrap.innerHTML = ''; return; }
-    const grouped = !state.query && state.data.settings.sort === 'due' && ['today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view);
+    const grouped = !state.query && state.data.settings.sort === 'due' && ['home', 'today', 'all', 'upcoming', 'list', 'tag', 'inbox'].includes(state.view);
     const showList = state.view !== 'list';
     const head = `<thead><tr><th style="width:44%">${icon('notes')}${esc(t('titleCol'))}</th><th>${icon('calendar')}${esc(t('due'))}</th><th>${icon('flag')}${esc(t('priority'))}</th>${showList ? `<th>${icon('list')}${esc(t('list'))}</th>` : ''}<th>${icon('tag')}${esc(t('tags'))}</th><th>${icon('subtask')}${esc(t('subtasks'))}</th><th></th></tr></thead>`;
     let body = '', last = null;
@@ -1433,6 +1506,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   // ---------- Navigation helpers ----------
   function setView(view, opts = {}) {
     state.view = view; state.listId = opts.listId || null; state.tag = opts.tag || null;
+    if (view === 'list' || view === 'tag') pushRecent({ view, listId: state.listId, tag: state.tag });
     state.query = ''; $('#search').value = ''; $('#search-wrap').classList.remove('has-q'); $('#search-clear').hidden = true;
     $('#app').classList.remove('sidebar-open');
     closeCapture(); closeMenu();
@@ -1465,7 +1539,16 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     openMenu(a, opts.map(([k, ic, lb]) => ({ label: t(lb), icon: ic, on: s.sort === k, run: () => { s.sort = k; save(); render(); } })), { title: t('sort') });
   }
   function moreMenu(a) {
+    const l = state.view === 'list' && !state.query ? getList(state.listId) : null;
+    const listItems = l && canWriteWS(workspaceOfList(l)) ? [
+      { label: t('mRename'), icon: 'notes', run: () => openListDialog(l.id) },
+      { label: t('mDuplicate'), icon: 'file', run: () => duplicateList(l.id) },
+      { label: t('mMove'), icon: 'users', run: () => openListDialog(l.id) },
+      { label: t('mDeleteList'), icon: 'trash', danger: true, run: () => { openListDialog(l.id); $('#list-delete').click(); } },
+      '-',
+    ] : [];
     openMenu(a, [
+      ...listItems,
       { label: t('aNewList'), icon: 'list', run: () => openListDialog() },
       { label: t('aToggleLang'), icon: 'lang', hint: 'Ctrl Shift L', run: toggleLang },
       { label: t('aCalendar'), icon: 'calendar', run: () => { state.data.settings.calendar = cal() === 'jalali' ? 'gregorian' : 'jalali'; applyLang(); save(); render(); } },
@@ -1494,19 +1577,26 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     snapshotSeen();
     applyLang();
 
-    $$('.nav-item[data-view], .tabbar button[data-view]').forEach((b) => b.onclick = () => setView(b.dataset.view));
+    $$('.nav-item[data-view], .tabbar button[data-view], .side-tab[data-view]').forEach((b) => b.onclick = () => setView(b.dataset.view));
     const toggleDrawer = () => { $('#app').classList.toggle('sidebar-open'); updateScrim(); };
     $('#tab-lists').onclick = toggleDrawer;
     $('#tab-search').onclick = () => { $('#scroller').scrollTop = 0; $('#search').focus(); };
     $('#rail-toggle').onclick = () => (isPhone() ? toggleDrawer() : toggleRail()); $('#rail-open').onclick = () => (isPhone() ? toggleDrawer() : toggleRail());
     $('#nav-search').onclick = openPalette;
     $('#ws-btn').onclick = (e) => openMenu(e.currentTarget, [
-      { label: signedIn() ? state.data.sync.email : t('signInUp'), icon: 'user', run: () => { if (signedIn()) $('#settings').hidden = false; else openAuth('signin'); } },
-      ...state.data.workspaces.filter((w) => !w.personal).map((w) => ({ label: w.name, icon: 'users', run: () => openShareDialog(w.id) })),
+      { label: signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName'), hint: signedIn() ? state.data.sync.email : '', icon: 'user', run: () => { if (signedIn()) $('#settings').hidden = false; else openAuth('signin'); } },
       '-',
       { label: t('aSettings'), icon: 'settings', run: () => { $('#settings').hidden = false; } },
-      { label: t('aCollapse'), icon: 'panel', hint: 'Ctrl \\', run: toggleRail },
+      { label: t('mInvite'), icon: 'users', run: startCollab },
+      '-',
+      ...state.data.workspaces.map((w) => ({ label: w.personal ? t('privateSec') : w.name, icon: w.personal ? 'user' : 'users', hint: w.personal ? '' : t('role_' + (w.role || 'editor')), run: () => { if (!w.personal) openShareDialog(w.id); } })),
+      { label: t('mNewWorkspace'), icon: 'plus', run: startCollab },
+      '-',
+      signedIn() ? { label: t('mLogout'), icon: 'arrow', run: () => { signOut(); render(); } } : { label: t('mSignIn'), icon: 'user', run: () => openAuth('signin') },
     ]);
+    $('#side-inbox').onclick = () => setView('inbox');
+    $('#side-compose').onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {});
+    $('#shared-add').onclick = startCollab;
     $('#backdrop').onclick = () => { $('#app').classList.remove('sidebar-open'); if (state.selectedId) state.selectedId = null; render(); };
     window.addEventListener('resize', updateScrim);
     $('#list-add').onclick = () => openListDialog();
@@ -1542,7 +1632,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     qa.onblur = () => { setTimeout(() => { if (!qa.value.trim() && document.activeElement !== qa && !document.activeElement.closest('#capture')) closeCapture(); }, 150); };
     $('#qa-add').onclick = () => submitCapture();
     $('#qa-cancel').onclick = closeCapture;
-    ['#qa-open', '#new-task-btn', '#fab', '#empty-new'].forEach((s) => { $(s).onclick = () => openCapture(state.view === 'today' ? { due: todayIso() } : {}); });
+    ['#qa-open', '#new-task-btn', '#fab', '#empty-new'].forEach((s) => { $(s).onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); });
     $('#qa-menu').onclick = (e) => openMenu(e.currentTarget, [
       { label: t('today'), icon: 'sun', run: () => openCapture({ due: todayIso() }) },
       { label: t('tomorrow'), icon: 'calendar', run: () => openCapture({ due: addDays(todayIso(), 1) }) },
@@ -1563,7 +1653,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       const mod = e.ctrlKey || e.metaKey; const k = e.key.toLowerCase();
       const inField = /^(input|textarea|select)$/i.test(document.activeElement.tagName);
       if (mod && k === 'k') { e.preventDefault(); $('#palette').hidden ? openPalette() : closePalette(); return; }
-      if (mod && k === 'n') { e.preventDefault(); openCapture(state.view === 'today' ? { due: todayIso() } : {}); return; }
+      if (mod && k === 'n') { e.preventDefault(); openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); return; }
       if (mod && k === 'f') { e.preventDefault(); $('#search').focus(); $('#search').select(); return; }
       if (mod && e.shiftKey && k === 'l') { e.preventDefault(); toggleLang(); return; }
       if (mod && k === 'e') { e.preventDefault(); setView('report'); return; }

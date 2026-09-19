@@ -135,9 +135,9 @@ Three shadows: `shadow-sm` (buttons, cards, 1px ring + 2px drop), `shadow-md` (m
 
 ## Components
 
-- **Sidebar**: workspace switcher (mark + name + chevrons) → Search / Inbox → sections Views · Lists (grouped by shared workspace) · Tags → Report / Settings → primary "New task". Hover reveals "+" on sections and "…" on lists.
+- **Sidebar** (Notion's form): icon row (collapse · inbox with badge · compose) → search field with `Ctrl K` → tab strip Home · Calendar · Report (label only on the active tab) → sections Upcoming (next three dated tasks) · Views · Recents · Shared · Private · Tags → Settings and the primary "New task" → account/workspace footer (mark + name + chevrons) opening the account menu. Hover reveals "+" on sections and "…" on lists.
 - **Topbar**: breadcrumb (workspace › list / view), sync pill (spinning while syncing, amber when offline, red on error), Share (only inside a workspace), command palette, "…" menu (exports, language, calendar, settings).
-- **Page head**: 56px tinted icon, 40px title, one-line subtitle (date · counts).
+- **Page head**: 56px tinted icon, 40px title (34 ≤ 1100, 30 ≤ 900, 28 on phones), one-line subtitle (date · counts). Home greets by time of day and lists the lists as link columns above this week's tasks.
 - **Views**: list (grouped rows, inline "+ New" per group, drag to reorder), table (properties as columns, each cell a popover editor), board (columns by priority, drag between columns), calendar (month grid, drag to reschedule, click a day to add).
 - **Row**: checkbox · title · hover "Open" pill · property chips · hover delete. Context menu on right-click.
 - **Inline capture**: a highlighted row with the quick-add parser (date words, `!1-3`, `#tag`, `@list`, `HH:MM`) and live token pills.

@@ -138,14 +138,15 @@ kbd { font-family: var(--font); font-size: 11px; color: var(--text-3); }
   display: flex; flex-direction: column; padding: 8px; min-width: 0; width: var(--sidebar-w);
   transition: transform var(--t-slow) var(--ease), visibility 0s linear var(--t-slow); position: relative; z-index: 30;
 }
-.ws { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: var(--r-md); width: 100%; text-align: start; }
+.ws { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: var(--r-md); width: 100%; text-align: start; margin-top: 4px; }
+.ws:hover { background: var(--hover); }
 .ws:hover { background: var(--hover); }
 .ws-mark { width: 22px; height: 22px; border-radius: 6px; background: var(--ruby); color: var(--on-ruby); display: inline-flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
 .ws-mark.lg { width: 34px; height: 34px; border-radius: 9px; font-size: 18px; }
 .ws-name { font-weight: 600; flex: 0 1 auto; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .ws-spacer { flex: 1; }
 .ws-chev { width: 14px; height: 14px; color: var(--text-3); }
-.sidebar-close { position: absolute; top: 12px; inset-inline-end: 12px; opacity: 0; }
+.sidebar-close { opacity: 0; }
 .sidebar:hover .sidebar-close, .sidebar-close:focus-visible { opacity: 1; }
 .sidebar-scroll { flex: 1; overflow-y: auto; overflow-x: hidden; margin: 6px -8px 0; padding: 0 8px; scrollbar-width: thin; }
 .side-section { margin-top: 14px; }
@@ -661,7 +662,6 @@ select.field-input { appearance: auto; }
   .sidebar { position: fixed; top: 0; bottom: 0; inset-inline-start: 0; width: min(300px, 86vw); transform: translateX(var(--side-hide)); box-shadow: none; z-index: 50; padding-top: calc(8px + var(--safe-t)); }
   .app.sidebar-open .sidebar { transform: none; box-shadow: var(--shadow-lg); pointer-events: auto; }
   .app.rail-collapsed .sidebar { transform: translateX(var(--side-hide)); }
-  .sidebar-close { display: none; }
   .topbar { padding: 0 8px; padding-top: var(--safe-t); height: calc(var(--topbar-h) + 4px + var(--safe-t)); }
   .topbar-menu { display: none; }
   .topbar-expand { display: inline-flex; width: 40px; height: 40px; }
@@ -752,3 +752,68 @@ select.field-input { appearance: auto; }
   .peek, .dialog, .menu, .datepicker, .toast { animation: fade var(--t-fast) both; }
 }
 @media print { .sidebar, .topbar, .tabbar, .fab, .db-bar, .peek, .scrim { display: none !important; } .page { max-width: none; padding: 0; } }
+
+/* ============================================================
+   Sidebar in Notion's form: icon row · search · tab strip · sections · account footer
+   ============================================================ */
+.side-top { display: flex; align-items: center; gap: 2px; height: 32px; margin-bottom: 6px; }
+.side-top .spacer { flex: 1; }
+.side-inbox { position: relative; }
+.side-inbox .badge { position: absolute; top: 3px; inset-inline-end: 3px; min-width: 14px; height: 14px; padding: 0 4px; border-radius: 7px; background: var(--ruby); color: var(--on-ruby); font-size: 9.5px; font-weight: 700; line-height: 14px; text-align: center; }
+.side-inbox .badge:empty { display: none; }
+.side-inbox.active { background: var(--active); }
+.side-search { display: flex; align-items: center; gap: 8px; height: 30px; padding: 0 8px; border-radius: var(--r-md); background: var(--bg); border: 1px solid var(--line); color: var(--text-3); font-size: 13px; width: 100%; text-align: start; box-shadow: var(--shadow-sm); }
+.side-search:hover { background: var(--hover); color: var(--text-2); }
+.side-search svg { width: 15px; height: 15px; }
+.side-search .nav-label { flex: 1; }
+.side-search kbd { font-size: 10.5px; color: var(--text-4); font-family: inherit; }
+.side-tabs { display: flex; align-items: center; gap: 2px; margin: 8px 0 4px; }
+.side-tab { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 8px; border-radius: var(--r-md); color: var(--text-2); font-size: 13.5px; font-weight: 500; }
+.side-tab svg { width: 17px; height: 17px; color: var(--text-3); }
+.side-tab .nav-label { display: none; }
+.side-tab:hover { background: var(--hover); color: var(--text); }
+.side-tab.active { background: var(--active); color: var(--text); font-weight: 600; }
+.side-tab.active .nav-label { display: inline; }
+.side-tab.active svg { color: var(--text); }
+.side-section { margin-top: 10px; }
+.side-section:first-child { margin-top: 2px; }
+.side-up { display: flex; align-items: flex-start; gap: 10px; width: 100%; padding: 5px 8px; border-radius: var(--r-md); text-align: start; }
+.side-up:hover { background: var(--hover); }
+.side-up-day { width: 26px; height: 26px; border-radius: 6px; background: var(--ruby-soft); color: var(--ruby-text, var(--ruby)); font-size: 12px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-variant-numeric: tabular-nums; }
+.side-up-body { display: flex; flex-direction: column; min-width: 0; }
+.side-up-title { font-size: 13.5px; font-weight: 500; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.side-up-sub { font-size: 11.5px; color: var(--text-3); }
+.rail-add { color: var(--text-3); font-weight: 400; }
+.rail-add svg { width: 15px; height: 15px; }
+.sidebar-bottom { border-top: 0; margin-top: 6px; padding-top: 6px; }
+
+/* Home: link columns above the week list */
+.home-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 32px 48px; margin: 28px 0 8px; }
+.home-h { margin: 0 0 6px; padding-bottom: 8px; border-bottom: 1px solid var(--line); font-size: 18px; font-weight: 700; }
+.home-link { display: flex; align-items: center; gap: 10px; width: 100%; height: 32px; padding: 0 6px; margin-inline: -6px; border-radius: var(--r-md); font-size: 14px; font-weight: 600; text-align: start; }
+.home-link:hover { background: var(--hover); }
+.home-link .dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+.home-link-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-bottom: 1px solid var(--line); padding-bottom: 1px; }
+.home-link .count { font-size: 12px; color: var(--text-3); font-weight: 400; }
+
+/* Type and spacing scale with the page, like Notion */
+.page-title { font-size: 40px; }
+@media (max-width: 1280px) { .page { padding-inline: 48px; } }
+@media (max-width: 1100px) { .page { padding-inline: 40px; } .page-title { font-size: 34px; } .page-icon { width: 48px; height: 48px; } .page-icon svg { width: 28px; height: 28px; } }
+@media (max-width: 900px) { .page { padding-inline: 28px; } .page-title { font-size: 30px; } .home-cards { gap: 24px 32px; } }
+@media (max-width: 760px) {
+  .page { padding-inline: 16px; }
+  .page-title { font-size: 28px; }
+  .page-icon { width: 40px; height: 40px; border-radius: 10px; }
+  .page-icon svg { width: 24px; height: 24px; }
+  .home-cards { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+  .side-tab .nav-label { display: inline; }
+  .side-tab { height: 36px; }
+  .side-search { height: 36px; font-size: 14px; }
+  .side-up-title { font-size: 15px; }
+}
+.sidebar { overflow: hidden; }
+.sidebar-scroll { min-height: 0; }
+.sidebar-bottom, .sidebar > .ws { flex-shrink: 0; }
+.home-link-name { flex: 0 1 auto; }
+.home-link .count { margin-inline-start: auto; }
