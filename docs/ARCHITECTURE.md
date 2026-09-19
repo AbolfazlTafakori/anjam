@@ -1,6 +1,6 @@
 # Anjam — Architecture
 
-Anjam is an **offline-first, single-codebase** to-do system: one renderer runs inside Electron (Windows), inside the browser as a PWA (Android/phone/desktop web), and later inside a native Android shell. A small Node service holds accounts and syncs items between devices.
+Anjam is an **offline-first, single-codebase** to-do system: one renderer runs inside Electron (Windows/Linux), inside the browser as a PWA, and inside a Capacitor shell on Android. A **Go backend** (one static binary, SQLite) holds accounts, **workspaces shared between users**, and syncs their databases and items between devices.
 
 ```
 ┌──────────────────────────────────────────────────────────────────────────┐
@@ -23,13 +23,15 @@ Anjam is an **offline-first, single-codebase** to-do system: one renderer runs i
              │        HTTPS  /api/*         │
              ▼                             ▼
 ┌──────────────────────────────────────────────────────────────────────────┐
-│  SERVER  (server/server.js — Node 22, express, built-in SQLite)          │
-│   /api/auth/*   register · login · forgot · reset                        │
-│   /api/me       profile · password · delete account                      │
-│   /api/sync     last-write-wins item sync (tasks, lists, settings)       │
-│   /api/admin/*  overview · users · invites · settings · audit · backup   │
-│   /            serves web/ (PWA)   /<ADMIN_PATH> panel   /download   │
-│   data: /var/lib/anjam/anjam.sqlite (WAL) + secret.key                   │
+│  BACKEND  (backend/ — Go, net/http, SQLite via modernc, one binary)      │
+│   /api/auth/*        register · login · forgot · reset                   │
+│   /api/me            profile · password · delete account                 │
+│   /api/workspaces/*  create · rename · delete · members (share by e-mail)│
+│   /api/sync          per-workspace last-write-wins (databases, items)    │
+│   /api/admin/*       overview · users · invites · settings · audit · backup│
+│   /dl/<platform>     installers mirrored from GitHub Releases            │
+│   /  web (PWA)   /<ADMIN_PATH> panel   /download                         │
+│   data: /var/lib/anjam/anjam.sqlite (WAL) + secret.key + releases/       │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -37,36 +39,38 @@ Anjam is an **offline-first, single-codebase** to-do system: one renderer runs i
 
 | Layer | Location | Responsibility |
 |---|---|---|
-| **UI / domain** | `src/app.js` | State, i18n (fa/en), Jalali/Gregorian dates, quick-add parser, views, detail panel, command palette, reports, exports, **sync engine**. Knows nothing about Electron or the browser: it only talks to `window.anjam`. |
-| **Platform bridge** | `src/preload.js` (Electron) · `src/web-bridge.js` (browser) | Implements the `window.anjam` contract: `load/save` (persistence), `exportFile/exportPdf/importFile`, `notify`, `openExternal`, `defaultServer`. Swapping the bridge is how a native Android shell (Capacitor/TWA) plugs in. |
-| **Desktop host** | `src/main.js` | Window, single-instance lock, atomic file writes with `.bak`, PDF rendering, Windows notifications. |
-| **Server** | `server/server.js` | Accounts, tokens, invites, password reset, admin API, sync, static hosting of the PWA. |
-| **Build / deploy** | `scripts/build-web.js`, `deploy/*` | Produces `web/` from `src/`; installs the service on a shared Ubuntu host without touching other apps. |
+| **UI / domain (client)** | `app/app.js` | State, i18n, calendars, quick-add parser, views, detail, palette, reports, exports, **sync engine**, sharing UI. Talks only to `window.anjam`. |
+| **Platform bridge** | `desktop/preload.js` · `app/web-bridge.js` | The `window.anjam` contract: persistence, files/PDF, notifications, updates, `openExternal`. |
+| **Desktop host** | `desktop/main.js`, `updater.js` | Window, single instance, atomic writes, PDF, Windows notifications, electron-updater. |
+| **Backend — domain** | `backend/internal/domain` | Entities (User, Workspace, Member, Database, Item, Change …) and repository interfaces. No I/O. |
+| **Backend — application** | `backend/internal/app` | Use cases: registration modes, sessions, password reset, profiles, workspaces & members, sync, admin. Owns security primitives (scrypt, HMAC tokens, limiter/tarpit). |
+| **Backend — adapters** | `internal/store/sqlite` (all SQL, embedded migrations) · `internal/httpapi` (routes, middleware) · `internal/mail` · `internal/releases` (mirror) · `internal/system` · `internal/cli` | Replaceable edges. Postgres = a second `store` package; nothing else changes. |
+| **Build / deploy** | `scripts/build-web.js`, `deploy/*`, `install.sh`, `.github/workflows` | web bundle, installers, server binaries, one-command install, in-place `anjam update`. |
 
 ## 2. Data model (client)
 
 One JSON document per device (`anjam-data.json` / `localStorage['anjam-data']`), version 3:
 
 ```
-settings   { lang, calendar, notify, railCollapsed, settingsUpdatedAt }
-lists[]    { id, name, color, order, updatedAt }
-tasks[]    { id, title, notes, listId, due 'YYYY-MM-DD', time 'HH:MM', reminder, notifiedAt,
-             repeat none|daily|weekdays|weekly|monthly|yearly, priority 0-3, tags[], subtasks[{id,title,done}],
-             done, createdAt, completedAt, order, updatedAt }
-tombstones { id: deletedAtMs }        ← deletions waiting to be pushed
-sync       { server, token, email, name, role, cursor, lastSync }
+settings    { lang, calendar, notify, railCollapsed }               (per device)
+workspaces  [{ id, name, personal, role owner|editor|viewer, ownerId }]   (from the server)
+lists       [{ id, workspaceId, name, color, order, updatedAt }]    = server "databases"
+tasks       [{ id, listId, title, notes, due, time, reminder, repeat, priority, tags[], subtasks[], done, createdAt, completedAt, order, updatedAt }]  = server "items" (props JSON)
+tombstones  { id: { at, kind, workspaceId } }                       deletions waiting to be pushed
+sync        { server, token, email, name, cursors { workspaceId: seq }, lastSync }
 ```
+Inbox = tasks with no list; they live in the user's **personal workspace**. A list belongs to exactly one workspace; a shared workspace (owner + editors/viewers) is how a family shares lists.
 
 `normalize()` upgrades any older document on load, so clients never break on old files.
 
-## 3. Sync protocol (last-write-wins, per item)
+## 3. Sync protocol (last-write-wins, per entity, per workspace)
 
-- Every task/list carries `updatedAt`. On each `save()` the client diffs against a snapshot (`seen`), stamps changed items with `Date.now()`, and adds their ids to a `dirty` set; removed ids become tombstones.
-- `POST /api/sync { since: cursor, changes: [{id, type, data, updatedAt, deleted}] }`
-  - server keeps an item only if `updatedAt` is newer than its copy, assigns a monotonic `server_seq`, and returns every item with `server_seq > since` plus the new `cursor`.
-  - client applies returned items with the same rule (newer wins; tombstone removes if not newer locally).
+- Every list/task carries `updatedAt`. On each `save()` the client diffs against a snapshot (`seen`), stamps changed entities, and adds their ids to a `dirty` set; removed ids become tombstones.
+- `POST /api/sync { cursors: {wsId: seq}, changes: [{kind: database|item, id, workspaceId, data, updatedAt, deleted}] }`
+  - the server applies each change only inside a workspace the user may **write** (owner/editor), keeps it only if `updatedAt` is newer, and assigns a per-workspace monotonic `seq`;
+  - it returns every entity with `seq > cursor` for **every workspace the user belongs to**, the new cursors, and the membership list (so a device learns about a newly shared space on its next sync);
+  - the client applies returned entities with the same rule and drops data of workspaces it no longer belongs to.
 - Triggers: 2 s after any change, every 60 s, on start, on `online`. Offline changes simply wait in `dirty`.
-- Settings (`lang`, `calendar`, `notify`) sync as one item `settings`; `railCollapsed` is per device.
 - Trade-off: LWW is field-blind (whole item wins). For a family-sized user base this is the right simplicity; CRDT merging can replace it behind the same endpoint later.
 
 ## 4. Auth & security
@@ -86,52 +90,40 @@ sync       { server, token, email, name, role, cursor, lastSync }
 The host runs other projects (their own Node 20, nginx sites, Postgres). Anjam never shares anything with them:
 
 ```
-/opt/anjam/node/          private Node 22 runtime (host /usr/bin/node untouched)
-/opt/anjam/app/           git checkout of this repo
-/var/lib/anjam/           anjam.sqlite, secret.key      (only path the service may write)
-/etc/anjam/anjam.env      PORT, BIND=127.0.0.1, PUBLIC_URL, optional SMTP   (root, 600)
-/etc/systemd/system/anjam.service      user=anjam, ProtectSystem=strict, MemoryMax=512M
-/etc/nginx/sites-available/anjam       server_name anjam.abolfazltafakori.com only
+/opt/anjam/bin/anjam      the server binary (static, ~12 MB) — also the management CLI
+/opt/anjam/web/           web bundle of the same release
+/opt/anjam/deploy/        unit, nginx templates, fetch-release.sh
+/var/lib/anjam/           anjam.sqlite, secret.key, releases/ (mirrored installers)   — only writable path
+/etc/anjam/anjam.env      PORT, BIND=127.0.0.1, PUBLIC_URL, ADMIN_PATH, REGISTRATION, optional SMTP (root, 600)
+/etc/systemd/system/anjam.service      user=anjam, ProtectSystem=strict, MemoryMax=256M
+/etc/nginx/sites-available/anjam       server_name <domain> only; /dl/ unbuffered
 /etc/nginx/conf.d/anjam-zones.conf     limit_req zones prefixed anjam_
 ```
 
-Install = `bash <(curl -fsSL …/install.sh)` (interactive; `-y` unattended). Deploy = `bash deploy/push.sh` (git push → `server-deploy.sh`: pull, `npm ci`, build web, restart). Backups: admin panel → *Database backup* (a `VACUUM INTO` copy), or `cp /var/lib/anjam/anjam.sqlite`.
+Install = `bash <(curl -fsSL …/install.sh)` (interactive; `-y` unattended). Update = `anjam update [vX.Y.Z]` (downloads the release binary + web bundle, restarts). No git, Node or Go on the host. Backups: admin panel → *Database backup* (a `VACUUM INTO` copy), or `cp /var/lib/anjam/anjam.sqlite`.
 
 ## 6. Repository map
 
 ```
-app/                renderer (shared by desktop and web)
-  index.html · app.js · styles.css · jalali.js · fonts/
-  web-bridge.js     window.anjam for the browser/PWA
-  admin/            admin panel (index.html · admin.css · admin.js)
-  download.html     public download page
-desktop/            Electron host: main.js (window, IPC, files, notifications) · preload.js (bridge) · updater.js (electron-updater)
-server/
-  server.js         entry point
-  cli.js            `anjam` management commands
-  src/config.js     env → frozen config
-  src/db.js         schema, migrations, every prepared statement
-  src/security.js   scrypt, tokens, validation, limiter + tarpit
-  src/http.js       fail/requireUser/requireAdmin/wrap
-  src/mail.js       optional SMTP
-  src/releases.js   GitHub Releases proxy (cached)
-  src/system.js     host health for the panel
-  src/routes/       auth.js · me.js (profile + sync) · admin.js
-  src/app.js        express assembly, static pages
-scripts/build-web.js   app/ → web/ (PWA, manifest, service worker, panel assets under /_panel)
-deploy/             anjam CLI, systemd unit, nginx vhost + zones, env example, push.sh, server-deploy.sh
-install.sh          one-command interactive installer
-.github/workflows   release.yml (tag → installers on GitHub Releases) · server-check.yml
-build/              icons
-docs/               this file        DESIGN.md  visual system        PRODUCT.md  product truth
+app/                renderer shared by desktop, web and Android (+ admin/, download.html, web-bridge.js)
+desktop/            Electron host (main.js · preload.js · updater.js)
+android/            Capacitor shell (signed APK built in CI)
+backend/
+  cmd/anjam/        main: `anjam serve` + management subcommands
+  internal/domain   entities + repository interfaces
+  internal/app      use cases (auth, workspaces, sync, admin) + security
+  internal/store/sqlite   SQL + embedded migrations
+  internal/httpapi  routes + middleware
+  internal/{mail,releases,system,cli,config}
+scripts/build-web.js   app/ → web/
+deploy/             anjam CLI wrapper, systemd unit, nginx, fetch-release.sh, env example
+install.sh          one-command installer
+.github/workflows   release.yml (tag → apps + server binaries + web bundle + APK) · server-check.yml
 ```
-
-## 8. Releases and in-app updates
-
-`git tag vX.Y.Z && git push --tags` → GitHub Actions builds `Anjam-Setup-X.Y.Z.exe`, `.AppImage`, `.deb` and publishes them with `latest.yml` / `latest-linux.yml`. Desktop apps run **electron-updater** against those files: check 8 s after launch and every 6 h, download silently, then show a gold pill in the rail ("version X ready — restart"); nothing installs until the user clicks. Every server's `/download` page and the panel's *Downloads* section read `/api/releases`, which proxies the latest GitHub release (10-minute cache). The web/PWA build is always the server's current version.
 
 ## 7. Roadmap hooks
 
 - **Android native**: wrap `web/` with Bubblewrap (TWA) or Capacitor; the bridge contract is the only thing to implement.
 - **Scale**: SQLite → Postgres by replacing the `q.*` prepared statements; the HTTP contract stays.
-- **Sharing lists** between users: add `list.members[]` + per-list ACL in `/api/sync`; the client model already keys everything by `listId`.
+- **Realtime**: a WebSocket/SSE channel that pushes "workspace X has new seq" so clients sync immediately instead of every 60 s.
+- **Property schemas**: `Database.schema` already exists; typed properties (select, number, person) can be added without touching sync.
