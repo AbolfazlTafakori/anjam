@@ -855,7 +855,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   const serverUrl = () => ($('#au-server').value || state.data.sync.server || window.anjam.defaultServer || '').trim().replace(/\/+$/, '');
   function openAuth(mode, opts = {}) {
     au.mode = mode; au.resetToken = opts.token || '';
-    $('#au-server').value = state.data.sync.server || window.anjam.defaultServer || $('#acc-server').value || '';
+    $('#au-server').value = state.data.sync.server || window.anjam.defaultServer || $('#acc-server').value || 'https://anjam.abolfazltafakori.com';
     $('#au-email').value = state.data.sync.email || $('#au-email').value || '';
     $('#au-pass').value = ''; $('#au-pass2').value = ''; $('#au-invite').value = '';
     $('#auth-done').hidden = true; $('#auth-form').hidden = false;
@@ -942,7 +942,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   function renderAccount() {
     const on = signedIn();
     $('#account-out').hidden = on; $('#account-in').hidden = !on;
-    if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || (window.anjam.defaultServer || ''); }
+    if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || window.anjam.defaultServer || 'https://anjam.abolfazltafakori.com'; }
     else {
       $('#acc-who').textContent = `${state.data.sync.name ? state.data.sync.name + ' · ' : ''}${state.data.sync.email}`;
       $('#acc-admin').hidden = state.data.sync.role !== 'admin'; $('#acc-admin').href = state.data.sync.server + '/admin';
