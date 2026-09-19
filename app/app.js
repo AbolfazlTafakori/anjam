@@ -879,7 +879,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#auth-title').textContent = t({ signin: 'tSignin', signup: 'tSignup', forgot: 'tForgot', reset: 'tReset' }[m]);
     $('#auth-sub').textContent = t({ signin: 'sSignin', signup: 'sSignup', forgot: 'sForgot', reset: 'sReset' }[m]);
     $('#auth-submit').textContent = t({ signin: 'bSignin', signup: 'bSignup', forgot: 'bForgot', reset: 'bReset' }[m]);
-    $('#f-server').hidden = m === 'reset' || (window.anjam.defaultServer && !state.data.sync.server);
+    $('#f-server').hidden = m === 'reset' || (!!window.anjam.defaultServer && !window.anjam.isNative && !state.data.sync.server);
     $('#f-name').hidden = m !== 'signup';
     $('#f-email').hidden = m === 'reset';
     $('#f-pass').hidden = m === 'forgot';
@@ -986,7 +986,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     const params = new URLSearchParams(location.search);
     if (params.get('reset')) { history.replaceState(null, '', location.pathname); openAuth('reset', { token: params.get('reset') }); }
     else if (params.get('invite')) { history.replaceState(null, '', location.pathname); openAuth('signup', { firstRun: !signedIn() }); $('#au-invite').value = params.get('invite').toUpperCase(); }
-    else if ((window.anjam.defaultServer || window.anjam.isNative) && !signedIn() && !localStorage.getItem('anjam-auth-skipped') && !state.data.tasks.length) openAuth('signin', { firstRun: true });
+    // First run on every platform (Windows, web, Android): sign in / sign up, or continue without an account.
+    else if (!signedIn() && !localStorage.getItem('anjam-auth-skipped') && !state.data.tasks.length) openAuth('signin', { firstRun: true });
   }
 
   // ---------- Updates (desktop) ----------
