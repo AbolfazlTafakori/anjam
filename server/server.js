@@ -88,9 +88,9 @@ const q = {
 };
 // Make sure there is always an admin: ADMIN_EMAIL if set, else the oldest account.
 if (ADMIN_EMAIL && q.userByEmail.get(ADMIN_EMAIL)) q.setRole.run('admin', q.userByEmail.get(ADMIN_EMAIL).id);
-if (q.countAdmins.get().n === 0) { const first = db.prepare('SELECT id FROM users ORDER BY created_at LIMIT 1').get(); if (first) q.setRole.run('admin', first.id); }
+if (!ADMIN_EMAIL && q.countAdmins.get().n === 0) { const first = db.prepare('SELECT id FROM users ORDER BY created_at LIMIT 1').get(); if (first) q.setRole.run('admin', first.id); }
 const setting = (k, dflt) => { const r = q.getSetting.get(k); return r ? r.v : dflt; };
-const registration = () => setting('registration', process.env.ALLOW_REGISTER === '0' ? 'closed' : 'open'); // open | invite | closed
+const registration = () => setting('registration', process.env.REGISTRATION || 'invite'); // open | invite | closed (default: invite; the admin opens it from the panel)
 const audit = (actor, action, target, ip) => q.audit.run(Date.now(), actor, action, target || '', ip || '');
 
 // ---------- auth helpers ----------
@@ -150,10 +150,11 @@ app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'anjam', versio
 // ---------- auth ----------
 app.post('/api/auth/register', (req, res) => {
   if (limited(req.ip)) return fail(res, 429, 'too_many_requests');
-  const mode = registration();
   const { email, password, name, invite } = req.body || {};
-  if (mode === 'closed') return fail(res, 403, 'registration_closed');
   if (!validEmail(email)) return fail(res, 400, 'invalid_email');
+  const isPinnedAdmin = ADMIN_EMAIL && email.toLowerCase() === ADMIN_EMAIL;
+  const mode = isPinnedAdmin ? 'open' : registration(); // the pinned admin can always sign up
+  if (mode === 'closed') return fail(res, 403, 'registration_closed');
   const pp = passwordProblem(password); if (pp) return fail(res, 400, pp);
   if (!String(name || '').trim()) return fail(res, 400, 'name_required');
   const lower = email.toLowerCase();
@@ -161,7 +162,7 @@ app.post('/api/auth/register', (req, res) => {
   let inv = null;
   if (mode === 'invite') { inv = typeof invite === 'string' && q.invite.get(invite.trim().toUpperCase()); if (!inv || inv.used_by) return fail(res, 403, 'invite_required'); }
   const id = crypto.randomUUID(); const salt = crypto.randomBytes(16).toString('hex');
-  const role = (ADMIN_EMAIL && lower === ADMIN_EMAIL) || q.countUsers.get().n === 0 ? 'admin' : 'user';
+  const role = ADMIN_EMAIL ? (isPinnedAdmin ? 'admin' : 'user') : (q.countUsers.get().n === 0 ? 'admin' : 'user');
   q.insertUser.run(id, lower, String(name).trim().slice(0, 80), scrypt(password, salt), salt, Date.now(), role);
   if (inv) q.useInvite.run(id, Date.now(), inv.code);
   audit(id, 'register', lower, req.ip);
