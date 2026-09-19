@@ -30,6 +30,7 @@ app.use((req, res, next) => {
 // ---- public API ----
 app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'anjam', version: config.version, registration: auth.registrationMode(), mail: mail.enabled() }));
 app.get('/api/releases', wrap(async (_req, res) => res.json({ release: await releases.latest(), server: config.publicUrl })));
+app.get('/dl/:platform', wrap(releases.serve));
 app.use('/api/auth', auth.router);
 app.use('/api/me', me);
 app.use('/api/sync', sync);

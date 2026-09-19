@@ -20,7 +20,7 @@
       invCreate: 'ساخت کد', invNote: 'یادداشت (مثلاً: خانم)', code: 'کد', note: 'یادداشت', used: 'استفاده‌شده', free: 'آزاد', noInvites: 'کدی ساخته نشده', invLink: 'لینک ثبت‌نام', invHelp: 'کد را بدهید یا لینک را بفرستید؛ لینک، کد را در فرم ثبت‌نام خودکار پر می‌کند.',
       dlIntro: 'کاربران با هر نسخه، به همین سرور وصل می‌شوند: هنگام ورود آدرس سرور را وارد می‌کنند.', dlServer: 'آدرس سرور برای کاربران', dlPublic: 'صفحه‌ی عمومی دانلود', dlWindows: 'ویندوز', dlAndroid: 'اندروید', dlLinux: 'لینوکس', dlWeb: 'وب', dlGet: 'دانلود', dlOpen: 'باز کردن',
       dlAndroidSteps: [], dlPwaAlt: 'بدون نصب هم می‌شود: آدرس سرور را در Chrome باز کنید → ⋮ → Add to Home screen.', dlWebText: 'همیشه آخرین نسخه؛ نیازی به نصب ندارد.', dlAutoUpdate: 'نسخه‌های ویندوز، لینوکس و اندروید خودشان به‌روزرسانی را پیدا می‌کنند و در برنامه اعلام می‌کنند.',
-      dlNoRelease: 'هنوز نسخه‌ی نصبی منتشر نشده. با انتشار نسخه در GitHub، این‌جا خودکار ظاهر می‌شود.', size: 'حجم', published: 'انتشار', downloadsN: 'دانلود',
+      mirror: 'کپی روی همین سرور', dlNoRelease: 'هنوز نسخه‌ی نصبی منتشر نشده. با انتشار نسخه در GitHub، این‌جا خودکار ظاهر می‌شود.', size: 'حجم', published: 'انتشار', downloadsN: 'دانلود',
       backup: 'پشتیبان', backupBtn: 'دانلود پشتیبان دیتابیس', backupHelp: 'یک کپی سازگار از SQLite (کاربران، کارها، تنظیمات). روی سرور: anjam backup',
       refresh: 'تازه‌کردن', changePw: 'تغییر رمز', curPw: 'رمز فعلی', newPw: 'رمز جدید', newPw2: 'تکرار رمز جدید', pwHint: 'حداقل ۸ کاراکتر، شامل حرف و عدد. با تغییر رمز، همه‌ی نشست‌ها (پنل و برنامه) بسته می‌شوند.', pwMatch: 'رمزها یکسان نیستند', accountHelp: 'همین ایمیل و رمز، حساب شما در خود برنامه هم هست.',
       actor: 'عامل', action: 'رویداد', target: 'هدف', ip: 'IP', filterAudit: 'فیلتر…',
@@ -43,7 +43,7 @@
       invCreate: 'Create code', invNote: 'Note (e.g. wife)', code: 'Code', note: 'Note', used: 'used', free: 'free', noInvites: 'No codes yet', invLink: 'Sign-up link', invHelp: 'Give the code or send the link; the link pre-fills the code in the sign-up form.',
       dlIntro: 'Every build connects to this server: users enter the server address when they sign in.', dlServer: 'Server address for users', dlPublic: 'Public download page', dlWindows: 'Windows', dlAndroid: 'Android', dlLinux: 'Linux', dlWeb: 'Web', dlGet: 'Download', dlOpen: 'Open',
       dlAndroidSteps: [], dlPwaAlt: 'No install needed either: open the server address in Chrome → ⋮ → Add to Home screen.', dlWebText: 'Always the latest version; nothing to install.', dlAutoUpdate: 'Windows, Linux and Android builds find updates themselves and announce them inside the app.',
-      dlNoRelease: 'No installer published yet. Publishing a GitHub release makes it appear here automatically.', size: 'Size', published: 'Published', downloadsN: 'downloads',
+      mirror: 'Mirrored on this server', dlNoRelease: 'No installer published yet. Publishing a GitHub release makes it appear here automatically.', size: 'Size', published: 'Published', downloadsN: 'downloads',
       backup: 'Backup', backupBtn: 'Download database backup', backupHelp: 'A consistent SQLite copy (users, tasks, settings). On the server: anjam backup',
       refresh: 'Refresh', changePw: 'Change password', curPw: 'Current password', newPw: 'New password', newPw2: 'Repeat new password', pwHint: 'At least 8 characters with letters and digits. Changing it ends every session (panel and app).', pwMatch: 'Passwords do not match', accountHelp: 'This e-mail and password are also your account in the app itself.',
       actor: 'Actor', action: 'Event', target: 'Target', ip: 'IP', filterAudit: 'Filter…',
@@ -219,7 +219,7 @@
           ${card('linux', t('dlLinux'), (() => { const a = file('linux-appimage'), d = file('linux-deb'); return a || d ? `<div class="dl-meta">v${esc(rel.version)}</div>${a ? `<a class="btn primary" href="${esc(a.url)}">${icon('download')}<span>AppImage · ${bytes(a.size)}</span></a>` : ''}${d ? `<a class="btn ghost" href="${esc(d.url)}">${icon('download')}<span>.deb · ${bytes(d.size)}</span></a>` : ''}` : `<p class="hint">${t('dlNoRelease')}</p>`; })())}
           ${card('web', t('dlWeb'), `<p class="hint">${t('dlWebText')}</p><a class="btn ghost" href="/" target="_blank">${icon('web')}<span>${t('dlOpen')}</span></a>`)}
         </div>
-        <p class="hint">${t('dlAutoUpdate')}${rel ? ` · <a href="${esc(rel.page)}" target="_blank" style="color:var(--gold)">GitHub · v${esc(rel.version)}</a>` : ''}${status.error ? ` · <span style="color:var(--danger)">${esc(status.error)}</span>` : ''}</p>`;
+        <p class="hint">${t('dlAutoUpdate')}${rel ? ` · <a href="${esc(rel.page)}" target="_blank" style="color:var(--gold)">GitHub · v${esc(rel.version)}</a>` : ''}${status.error ? ` · <span style="color:var(--danger)">${esc(status.error)}</span>` : ''}${rel ? ` · ${t('mirror')}: ${rel.files.map((f) => `${f.label} ${status.mirrored[f.platform] ? '✓' : '…'}`).join(', ')}` : ''}</p>`;
       $('#content').onclick = (e) => { const c = e.target.closest('[data-copy]'); if (c) copy(c.dataset.copy); };
     },
 
