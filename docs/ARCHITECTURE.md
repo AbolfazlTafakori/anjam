@@ -28,7 +28,7 @@ Anjam is an **offline-first, single-codebase** to-do system: one renderer runs i
 │   /api/me       profile · password · delete account                      │
 │   /api/sync     last-write-wins item sync (tasks, lists, settings)       │
 │   /api/admin/*  overview · users · invites · settings · audit · backup   │
-│   /            serves web/ (PWA)        /admin  serves web/admin.html    │
+│   /            serves web/ (PWA)   /<ADMIN_PATH> panel   /download   │
 │   data: /var/lib/anjam/anjam.sqlite (WAL) + secret.key                   │
 └──────────────────────────────────────────────────────────────────────────┘
 ```
@@ -100,14 +100,35 @@ Install = `bash <(curl -fsSL …/install.sh)` (interactive; `-y` unattended). De
 ## 6. Repository map
 
 ```
-src/            shared UI + Electron main/preload + web bridge + admin page
-server/         API (single file by design; split into routes/ when it grows)
-scripts/        build-web.js
-deploy/         install/deploy scripts, systemd, nginx, env example
-build/          app icon
-docs/           this file
-DESIGN.md       visual system (Qalamdan)      PRODUCT.md  product truth
+app/                renderer (shared by desktop and web)
+  index.html · app.js · styles.css · jalali.js · fonts/
+  web-bridge.js     window.anjam for the browser/PWA
+  admin/            admin panel (index.html · admin.css · admin.js)
+  download.html     public download page
+desktop/            Electron host: main.js (window, IPC, files, notifications) · preload.js (bridge) · updater.js (electron-updater)
+server/
+  server.js         entry point
+  cli.js            `anjam` management commands
+  src/config.js     env → frozen config
+  src/db.js         schema, migrations, every prepared statement
+  src/security.js   scrypt, tokens, validation, limiter + tarpit
+  src/http.js       fail/requireUser/requireAdmin/wrap
+  src/mail.js       optional SMTP
+  src/releases.js   GitHub Releases proxy (cached)
+  src/system.js     host health for the panel
+  src/routes/       auth.js · me.js (profile + sync) · admin.js
+  src/app.js        express assembly, static pages
+scripts/build-web.js   app/ → web/ (PWA, manifest, service worker, panel assets under /_panel)
+deploy/             anjam CLI, systemd unit, nginx vhost + zones, env example, push.sh, server-deploy.sh
+install.sh          one-command interactive installer
+.github/workflows   release.yml (tag → installers on GitHub Releases) · server-check.yml
+build/              icons
+docs/               this file        DESIGN.md  visual system        PRODUCT.md  product truth
 ```
+
+## 8. Releases and in-app updates
+
+`git tag vX.Y.Z && git push --tags` → GitHub Actions builds `Anjam-Setup-X.Y.Z.exe`, `.AppImage`, `.deb` and publishes them with `latest.yml` / `latest-linux.yml`. Desktop apps run **electron-updater** against those files: check 8 s after launch and every 6 h, download silently, then show a gold pill in the rail ("version X ready — restart"); nothing installs until the user clicks. Every server's `/download` page and the panel's *Downloads* section read `/api/releases`, which proxies the latest GitHub release (10-minute cache). The web/PWA build is always the server's current version.
 
 ## 7. Roadmap hooks
 
