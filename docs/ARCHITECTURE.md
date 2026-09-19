@@ -73,7 +73,8 @@ sync       { server, token, email, name, role, cursor, lastSync }
 
 - Passwords: `scrypt` (N=16384) with a per-user salt; never logged.
 - Tokens: HMAC-SHA256 signed `{sub, v, exp}` (90 days). `token_version` on the user invalidates all sessions on password change/reset/disable.
-- Registration modes: **open / invite / closed** (admin panel). First account = admin (or `ADMIN_EMAIL`).
+- **Administrators are not users.** They live in a separate `admins` table, are created only by the installer / `anjam admin reset` (random username + generated password printed once), sign in at a random panel path (`ADMIN_PATH`, e.g. `/panel-a68…`; `/admin` is 404), get 12 h sessions, and face a tarpit (exponential delay per failed attempt) plus rate limits. App users can never reach `/api/admin/*`.
+- Registration modes: **open / invite / closed** (panel or `anjam registration …`).
 - Password reset: single-use 1 h token; e-mailed if `SMTP_URL` is set, otherwise the admin issues a 24 h link.
 - Rate limits: in-process per-IP on auth (30/15 min), plus nginx `limit_req` zones.
 - Transport: HTTPS only (Let's Encrypt via certbot); app port bound to `127.0.0.1`.

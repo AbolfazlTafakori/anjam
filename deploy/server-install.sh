@@ -40,7 +40,7 @@ chown -R anjam:anjam "$ANJAM_DATA"
 
 # service
 install -m 644 /opt/anjam/app/deploy/anjam.service /etc/systemd/system/anjam.service
-systemctl daemon-reload && systemctl enable --now anjam
+systemctl daemon-reload && systemctl enable anjam && systemctl restart anjam
 sleep 1 && curl -fsS http://127.0.0.1:8787/api/health && echo
 
 # nginx (own vhost + own zones file)
