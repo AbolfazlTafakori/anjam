@@ -73,7 +73,7 @@ sync       { server, token, email, name, role, cursor, lastSync }
 
 - Passwords: `scrypt` (N=16384) with a per-user salt; never logged.
 - Tokens: HMAC-SHA256 signed `{sub, v, exp}` (90 days). `token_version` on the user invalidates all sessions on password change/reset/disable.
-- **Administrators are not users.** They live in a separate `admins` table, are created only by the installer / `anjam admin reset` (random username + generated password printed once), sign in at a random panel path (`ADMIN_PATH`, e.g. `/panel-a68…`; `/admin` is 404), get 12 h sessions, and face a tarpit (exponential delay per failed attempt) plus rate limits. App users can never reach `/api/admin/*`.
+- **Administrator = one user with `role='admin'`**, granted only by the installer / `anjam admin reset <email>` (never by sign-up). The same e-mail/password uses the app normally; the panel issues its own short-lived admin token and sits at a random panel path (`ADMIN_PATH`, e.g. `/panel-a68…`; `/admin` is 404), get 12 h sessions, and face a tarpit (exponential delay per failed attempt) plus rate limits. App users can never reach `/api/admin/*`.
 - Registration modes: **open / invite / closed** (panel or `anjam registration …`).
 - Password reset: single-use 1 h token; e-mailed if `SMTP_URL` is set, otherwise the admin issues a 24 h link.
 - Rate limits: in-process per-IP on auth (30/15 min), plus nginx `limit_req` zones.
@@ -95,7 +95,7 @@ The host runs other projects (their own Node 20, nginx sites, Postgres). Anjam n
 /etc/nginx/conf.d/anjam-zones.conf     limit_req zones prefixed anjam_
 ```
 
-Deploy = `bash deploy/push.sh` (git push → `server-deploy.sh`: pull, `npm ci`, build web, restart). Backups: admin panel → *Database backup* (a `VACUUM INTO` copy), or `cp /var/lib/anjam/anjam.sqlite`.
+Install = `bash <(curl -fsSL …/install.sh)` (interactive; `-y` unattended). Deploy = `bash deploy/push.sh` (git push → `server-deploy.sh`: pull, `npm ci`, build web, restart). Backups: admin panel → *Database backup* (a `VACUUM INTO` copy), or `cp /var/lib/anjam/anjam.sqlite`.
 
 ## 6. Repository map
 

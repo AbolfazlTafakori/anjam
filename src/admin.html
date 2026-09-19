@@ -48,7 +48,7 @@
   <div class="login" id="login">
     <div class="brand"><span class="brand-seal"><svg><use href="#i-check"/></svg></span><span class="brand-name">انجام</span></div>
     <h1 data-i18n="adminTitle">پنل مدیریت</h1>
-    <input id="l-user" type="text" class="field-input" dir="ltr" data-i18n-ph="username" placeholder="نام کاربری" autocomplete="username" />
+    <input id="l-user" type="email" class="field-input" dir="ltr" placeholder="email@example.com" autocomplete="username" />
     <input id="l-pass" type="password" class="field-input" dir="ltr" data-i18n-ph="password" placeholder="رمز عبور" autocomplete="current-password" />
     <button class="btn primary" id="l-go" data-i18n="signIn">ورود</button>
     <div class="msg err" id="l-err"></div>
@@ -142,26 +142,26 @@
     $('#inv-table tbody').innerHTML = inv.invites.map((i) => `<tr><td><code>${esc(i.code)}</code></td><td dir="auto">${esc(i.note)}</td><td>${i.used_by ? `<span class="badge">${t('used')} · ${when(i.used_at)}</span>` : `<span class="badge admin">${t('unused')}</span>`}</td><td class="actions">${i.used_by ? '' : `<button class="btn ghost" data-copy="${esc(i.code)}">${t('copy')}</button>`}<button class="btn ghost danger" data-inv-del="${esc(i.code)}">${t('del')}</button></td></tr>`).join('');
     $('#users tbody').innerHTML = us.users.map((u) => `<tr>
       <td><strong dir="auto">${esc(u.name)}</strong><span class="email">${esc(u.email)}</span></td>
-      <td>${u.disabled ? `<span class="badge off">${t('disabled')}</span>` : `<span class="badge">${t('active')}</span>`}</td>
+      <td>${u.role === 'admin' ? `<span class="badge admin">${t('admin')}</span>` : u.disabled ? `<span class="badge off">${t('disabled')}</span>` : `<span class="badge">${t('active')}</span>`}</td>
       <td class="num">${num(u.tasks)}</td><td class="num">${num(u.lists)}</td><td class="num">${when(u.last_sync_at)}</td><td class="num">${when(u.created_at)}</td>
-      <td class="actions">
+      <td class="actions">${u.role === 'admin' ? '' : `
         <button class="btn ghost" data-act="${u.disabled ? 'enable' : 'disable'}" data-id="${u.id}">${u.disabled ? t('enable') : t('disable')}</button>
         <button class="btn ghost" data-act="reset_link" data-id="${u.id}">${t('resetLink')}</button>
         <button class="btn ghost danger" data-act="wipe_data" data-id="${u.id}">${t('wipe')}</button>
-        <button class="btn ghost danger" data-act="delete" data-id="${u.id}">${t('delete')}</button>
+        <button class="btn ghost danger" data-act="delete" data-id="${u.id}">${t('delete')}</button>`}
       </td></tr>`).join('');
     $('#audit').innerHTML = au.audit.map((a) => `<span class="ts">${when(a.ts)}</span><span>${esc(a.action)}</span><span dir="auto">${esc(a.target)}</span><span class="ts">${esc(a.ip)}</span>`).join('');
   }
   async function enter() {
     try {
       const me = await api('/api/admin/me');
-      $('#who').textContent = me.admin.username;
+      $('#who').textContent = `${me.admin.name} · ${me.admin.email}`;
       $('#login').hidden = true; $('#panel').hidden = false; await load();
     } catch (e) { token = ''; localStorage.removeItem('anjam-admin-token'); $('#login').hidden = false; $('#panel').hidden = true; }
   }
   $('#l-go').onclick = async () => {
     $('#l-err').textContent = ''; $('#l-go').disabled = true;
-    try { const r = await api('/api/admin/login', { username: $('#l-user').value.trim(), password: $('#l-pass').value }); token = r.token; localStorage.setItem('anjam-admin-token', token); $('#l-pass').value = ''; enter(); }
+    try { const r = await api('/api/admin/login', { email: $('#l-user').value.trim(), password: $('#l-pass').value }); token = r.token; localStorage.setItem('anjam-admin-token', token); $('#l-pass').value = ''; enter(); }
     catch (e) { $('#l-err').textContent = e.code === 'bad_credentials' ? t('errCreds') : e.code === 'too_many_requests' ? t('errMany') : t('errNet'); }
     finally { $('#l-go').disabled = false; }
   };

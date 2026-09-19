@@ -25,7 +25,7 @@ case "${1:-menu}" in
     cat <<M
   Anjam  ${PUBLIC_URL:-}   panel: /${ADMIN_PATH:-admin}
   ┌──────────────────────────────────────────────────────────────────┐
-  │ anjam status                anjam admin reset [user]  new password │
+  │ anjam status                anjam admin reset <email> [password]   │
   │ anjam start|stop|restart    anjam registration open|invite|closed  │
   │ anjam log                   anjam invite create [note]             │
   │ anjam update                anjam users · user disable|enable|delete <email> │

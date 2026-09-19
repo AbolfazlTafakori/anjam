@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /* Anjam CLI — administrative tasks straight on the database (run on the server as root):
-     anjam admin reset [username]      new administrator (or new password for an existing one), printed once
-     anjam admin list | admin delete <username>
+     anjam admin reset <email> [password]   make this account the administrator (created if missing); password printed once
+     anjam admin list | admin remove <email>
      anjam registration [open|invite|closed]
      anjam invite create [note]        one-time sign-up code   ·   anjam invite list
      anjam users                       list app users
@@ -19,7 +19,8 @@ const ADMIN_PATH = process.env.ADMIN_PATH || 'admin';
 fs.mkdirSync(DATA_DIR, { recursive: true });
 const db = new DatabaseSync(path.join(DATA_DIR, 'anjam.sqlite'));
 db.exec(`CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT NOT NULL);
-  CREATE TABLE IF NOT EXISTS admins (username TEXT PRIMARY KEY, pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at INTEGER NOT NULL, token_version INTEGER NOT NULL DEFAULT 0, last_login_at INTEGER NOT NULL DEFAULT 0);
+  CREATE TABLE IF NOT EXISTS users (id TEXT PRIMARY KEY, email TEXT UNIQUE NOT NULL, name TEXT NOT NULL DEFAULT '', pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at INTEGER NOT NULL,
+    role TEXT NOT NULL DEFAULT 'user', disabled INTEGER NOT NULL DEFAULT 0, last_sync_at INTEGER NOT NULL DEFAULT 0, last_ip TEXT NOT NULL DEFAULT '', token_version INTEGER NOT NULL DEFAULT 0);
   CREATE TABLE IF NOT EXISTS invites (code TEXT PRIMARY KEY, created_at INTEGER NOT NULL, used_by TEXT, used_at INTEGER, note TEXT NOT NULL DEFAULT '');
   CREATE TABLE IF NOT EXISTS resets (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL, used INTEGER NOT NULL DEFAULT 0);`);
 const scrypt = (pw, salt) => crypto.scryptSync(pw, salt, 64).toString('hex');
@@ -32,16 +33,18 @@ const regMode = () => (db.prepare("SELECT v FROM settings WHERE k = 'registratio
 
 switch (`${cmd || ''} ${sub || ''}`.trim()) {
   case 'admin reset': {
-    const username = rest[0] || (db.prepare('SELECT username FROM admins ORDER BY created_at LIMIT 1').get() || {}).username || 'admin_' + crypto.randomBytes(3).toString('hex');
+    const email = (rest[0] || (db.prepare("SELECT email FROM users WHERE role = 'admin' ORDER BY created_at LIMIT 1").get() || {}).email || '').toLowerCase();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { console.error('usage: anjam admin reset <email> [password]'); process.exit(1); }
     const password = rest[1] || randPass(); const salt = crypto.randomBytes(16).toString('hex');
-    db.prepare(`INSERT INTO admins (username, pass_hash, salt, created_at) VALUES (?, ?, ?, ?)
-      ON CONFLICT(username) DO UPDATE SET pass_hash = excluded.pass_hash, salt = excluded.salt, token_version = token_version + 1`).run(username, scrypt(password, salt), salt, Date.now());
-    if (process.env.ANJAM_QUIET) { console.log(`${username}\n${password}`); break; }
-    console.log(`\n  Administrator\n  Username: ${username}\n  Password: ${password}\n\n  Panel:    ${PUBLIC_URL || 'https://<host>'}/${ADMIN_PATH}\n  (shown once; every session of this administrator has been signed out)\n`);
+    const existing = db.prepare('SELECT id FROM users WHERE email = ?').get(email);
+    if (existing) db.prepare("UPDATE users SET pass_hash = ?, salt = ?, role = 'admin', disabled = 0, token_version = token_version + 1 WHERE id = ?").run(scrypt(password, salt), salt, existing.id);
+    else db.prepare("INSERT INTO users (id, email, name, pass_hash, salt, created_at, role) VALUES (?, ?, ?, ?, ?, ?, 'admin')").run(crypto.randomUUID(), email, rest[2] || 'Admin', scrypt(password, salt), salt, Date.now());
+    if (process.env.ANJAM_QUIET) { console.log(`${email}\n${password}`); break; }
+    console.log(`\n  Administrator\n  E-mail:   ${email}\n  Password: ${password}\n\n  Panel:    ${PUBLIC_URL || 'https://<host>'}/${ADMIN_PATH}\n  The same e-mail and password also sign in to the app itself.\n  (shown once; every session of this account has been signed out)\n`);
     break;
   }
-  case 'admin list': out(db.prepare('SELECT username, created_at, last_login_at FROM admins').all().map((a) => `${a.username}\tcreated ${when(a.created_at)}\tlast login ${when(a.last_login_at)}`).join('\n') || '(none)'); break;
-  case 'admin delete': { const r = db.prepare('DELETE FROM admins WHERE username = ?').run(rest[0] || ''); out(r.changes ? 'deleted' : 'no such admin'); break; }
+  case 'admin list': out(db.prepare("SELECT email, name, created_at FROM users WHERE role = 'admin'").all().map((a) => `${a.email}\t${a.name}\tsince ${when(a.created_at)}`).join('\n') || '(none)'); break;
+  case 'admin remove': { const r = db.prepare("UPDATE users SET role = 'user', token_version = token_version + 1 WHERE email = ? AND role = 'admin'").run((rest[0] || '').toLowerCase()); out(r.changes ? 'now an ordinary user' : 'no such admin'); break; }
   case 'registration': out(`registration: ${regMode()}`); break;
   case 'registration open': case 'registration invite': case 'registration closed':
     db.prepare("INSERT INTO settings (k, v) VALUES ('registration', ?) ON CONFLICT(k) DO UPDATE SET v = excluded.v").run(sub); out(`registration: ${sub}`); break;
@@ -52,6 +55,6 @@ switch (`${cmd || ''} ${sub || ''}`.trim()) {
   case 'user delete': { const u = db.prepare('SELECT id FROM users WHERE email = ?').get((rest[0] || '').toLowerCase()); if (!u) { out('no such user'); break; } db.prepare('DELETE FROM items WHERE user_id = ?').run(u.id); db.prepare('DELETE FROM users WHERE id = ?').run(u.id); out('deleted'); break; }
   case 'user reset-link': { const u = db.prepare('SELECT id FROM users WHERE email = ?').get((rest[0] || '').toLowerCase()); if (!u) { out('no such user'); break; } const token = crypto.randomBytes(24).toString('base64url'); db.prepare('INSERT INTO resets (token, user_id, expires_at) VALUES (?, ?, ?)').run(token, u.id, Date.now() + 24 * 3600e3); out(`${PUBLIC_URL}/?reset=${token}`); break; }
   case 'backup': case `backup ${sub || ''}`.trim(): { const f = sub || path.join(process.env.ANJAM_BACKUP_DIR || DATA_DIR, `anjam-backup-${new Date().toISOString().slice(0, 19).replace(/[:T]/g, '-')}.sqlite`); db.exec(`VACUUM INTO '${f.replace(/'/g, "''")}'`); out(f); break; }
-  case 'stats': { const n = (s) => (db.prepare(s).get() || {}).n || 0; out({ users: has('users') ? n('SELECT COUNT(*) n FROM users') : 0, tasks: has('items') ? n("SELECT COUNT(*) n FROM items WHERE type='task' AND deleted=0") : 0, admins: n('SELECT COUNT(*) n FROM admins'), registration: regMode(), db: fs.statSync(path.join(DATA_DIR, 'anjam.sqlite')).size }); break; }
+  case 'stats': { const n = (s) => (db.prepare(s).get() || {}).n || 0; out({ users: has('users') ? n('SELECT COUNT(*) n FROM users') : 0, tasks: has('items') ? n("SELECT COUNT(*) n FROM items WHERE type='task' AND deleted=0") : 0, admins: has('users') ? n("SELECT COUNT(*) n FROM users WHERE role='admin'") : 0, registration: regMode(), db: fs.statSync(path.join(DATA_DIR, 'anjam.sqlite')).size }); break; }
   default: console.log(fs.readFileSync(__filename, 'utf8').split('*/')[0].split('\n').slice(1).join('\n')); process.exitCode = cmd ? 1 : 0;
 }

@@ -40,7 +40,6 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS items_user_seq ON items(user_id, server_seq);
   CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT NOT NULL);
-  CREATE TABLE IF NOT EXISTS admins (username TEXT PRIMARY KEY, pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at INTEGER NOT NULL, token_version INTEGER NOT NULL DEFAULT 0, last_login_at INTEGER NOT NULL DEFAULT 0);
   CREATE TABLE IF NOT EXISTS invites (code TEXT PRIMARY KEY, created_at INTEGER NOT NULL, used_by TEXT, used_at INTEGER, note TEXT NOT NULL DEFAULT '');
   CREATE TABLE IF NOT EXISTS resets (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL, used INTEGER NOT NULL DEFAULT 0);
   CREATE TABLE IF NOT EXISTS audit (ts INTEGER NOT NULL, actor TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '');
@@ -85,12 +84,10 @@ const q = {
   useReset: db.prepare('UPDATE resets SET used = 1 WHERE token = ?'),
   audit: db.prepare('INSERT INTO audit (ts, actor, action, target, ip) VALUES (?, ?, ?, ?, ?)'),
   auditList: db.prepare('SELECT * FROM audit ORDER BY ts DESC LIMIT 100'),
-  adminByName: db.prepare('SELECT * FROM admins WHERE username = ?'),
-  adminCount: db.prepare('SELECT COUNT(*) AS n FROM admins'),
-  adminTouch: db.prepare('UPDATE admins SET last_login_at = ? WHERE username = ?'),
+  adminCount: db.prepare("SELECT COUNT(*) AS n FROM users WHERE role = 'admin'"),
 };
 // Administrators are separate from app users: created by the installer / `anjam admin reset`, never by sign-up.
-if (q.adminCount.get().n === 0) console.warn('No administrator yet — run: anjam admin reset');
+if (q.adminCount.get().n === 0) console.warn('No administrator yet — run: anjam admin reset <email>');
 const setting = (k, dflt) => { const r = q.getSetting.get(k); return r ? r.v : dflt; };
 const registration = () => setting('registration', process.env.REGISTRATION || 'invite'); // open | invite | closed (default: invite; changed from the panel or `anjam registration`)
 const audit = (actor, action, target, ip) => q.audit.run(Date.now(), actor, action, target || '', ip || '');
@@ -227,6 +224,7 @@ app.post('/api/me', auth, (req, res) => {
 app.post('/api/me/delete', auth, (req, res) => {
   const { password } = req.body || {};
   if (typeof password !== 'string' || !safeEq(scrypt(password, req.user.salt), req.user.pass_hash)) return fail(res, 401, 'bad_credentials');
+  if (req.user.role === 'admin') return fail(res, 400, 'is_admin'); // remove the role first: anjam admin remove <email>
   q.deleteItems.run(req.user.id); q.deleteUser.run(req.user.id); audit(req.user.id, 'account_deleted', '', req.ip);
   res.json({ ok: true });
 });
@@ -255,15 +253,18 @@ app.post('/api/sync', auth, (req, res) => {
 });
 
 // ---------- admin ----------
-function signAdminToken(a) {
-  const payload = b64u(JSON.stringify({ adm: a.username, v: a.token_version || 0, exp: Date.now() + 12 * 3600e3 })); // 12 h sessions
+// Admin sessions are separate, short-lived tokens (12 h) for accounts whose role is 'admin'.
+// The role is granted only by the installer / `anjam admin reset`, never by sign-up. The same
+// e-mail + password also works as an ordinary app account.
+function signAdminToken(u) {
+  const payload = b64u(JSON.stringify({ adm: u.id, v: u.token_version || 0, exp: Date.now() + 12 * 3600e3 }));
   return `${payload}.${crypto.createHmac('sha256', SECRET).update(payload).digest('base64url')}`;
 }
 function adminFromToken(token) {
   if (!token || !token.includes('.')) return null;
   const [payload, sig] = token.split('.');
   if (!safeEq(sig, crypto.createHmac('sha256', SECRET).update(payload).digest('base64url'))) return null;
-  try { const p = JSON.parse(Buffer.from(payload, 'base64url').toString()); if (!p.adm || p.exp < Date.now()) return null; const a = q.adminByName.get(p.adm); return a && (a.token_version || 0) === (p.v || 0) ? a : null; } catch { return null; }
+  try { const p = JSON.parse(Buffer.from(payload, 'base64url').toString()); if (!p.adm || p.exp < Date.now()) return null; const u = q.userById.get(p.adm); return u && u.role === 'admin' && !u.disabled && (u.token_version || 0) === (p.v || 0) ? u : null; } catch { return null; }
 }
 // Tarpit: each failed admin login from an IP adds a delay, so guessing is slow even before the limiter trips.
 const adminFails = new Map();
@@ -271,27 +272,27 @@ app.post('/api/admin/login', async (req, res) => {
   if (limited('admin:' + req.ip, 20)) return fail(res, 429, 'too_many_requests');
   const fails = adminFails.get(req.ip) || 0;
   if (fails) await new Promise((r) => setTimeout(r, Math.min(8000, 500 * 2 ** (fails - 1))));
-  const { username, password } = req.body || {};
-  const a = typeof username === 'string' && q.adminByName.get(username.trim());
-  if (!a || typeof password !== 'string' || !safeEq(scrypt(password, a.salt), a.pass_hash)) { adminFails.set(req.ip, fails + 1); audit('-', 'admin_login_failed', String(username || '').slice(0, 40), req.ip); return fail(res, 401, 'bad_credentials'); }
-  adminFails.delete(req.ip); q.adminTouch.run(Date.now(), a.username); audit(a.username, 'admin_login', '', req.ip);
-  res.json({ token: signAdminToken(a), admin: { username: a.username } });
+  const { email, password } = req.body || {};
+  const a = validEmail(email) && q.userByEmail.get(email.toLowerCase());
+  if (!a || a.role !== 'admin' || a.disabled || typeof password !== 'string' || !safeEq(scrypt(password, a.salt), a.pass_hash)) { adminFails.set(req.ip, fails + 1); audit('-', 'admin_login_failed', String(email || '').slice(0, 60), req.ip); return fail(res, 401, 'bad_credentials'); }
+  adminFails.delete(req.ip); audit(a.id, 'admin_login', '', req.ip);
+  res.json({ token: signAdminToken(a), admin: { email: a.email, name: a.name } });
 });
 const admin = (req, res, next) => {
   const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
   const a = m && adminFromToken(m[1]);
   if (!a) return fail(res, 401, 'unauthorized');
-  req.admin = a; req.user = { id: 'admin:' + a.username }; next();
+  req.admin = a; next();
 };
-app.get('/api/admin/me', admin, (req, res) => res.json({ admin: { username: req.admin.username } }));
+app.get('/api/admin/me', admin, (req, res) => res.json({ admin: { email: req.admin.email, name: req.admin.name } }));
 app.post('/api/admin/password', admin, (req, res) => {
   const { currentPassword, newPassword } = req.body || {};
   if (typeof currentPassword !== 'string' || !safeEq(scrypt(currentPassword, req.admin.salt), req.admin.pass_hash)) return fail(res, 401, 'bad_credentials');
   const pp = passwordProblem(newPassword); if (pp) return fail(res, 400, pp);
   const salt = crypto.randomBytes(16).toString('hex');
-  db.prepare('UPDATE admins SET pass_hash = ?, salt = ?, token_version = token_version + 1 WHERE username = ?').run(scrypt(newPassword, salt), salt, req.admin.username);
-  audit(req.admin.username, 'admin_password_change', '', req.ip);
-  res.json({ ok: true, token: signAdminToken(q.adminByName.get(req.admin.username)) });
+  q.setPassword.run(scrypt(newPassword, salt), salt, req.admin.id);
+  audit(req.admin.id, 'admin_password_change', '', req.ip);
+  res.json({ ok: true, token: signAdminToken(q.userById.get(req.admin.id)) });
 });
 app.get('/api/admin/overview', admin, (_req, res) => {
   const week = Date.now() - 7 * 864e5;
@@ -302,29 +303,30 @@ app.get('/api/admin/users', admin, (_req, res) => res.json({ users: q.allUsers.a
 app.post('/api/admin/users/:id', admin, (req, res) => {
   const u = q.userById.get(req.params.id); if (!u) return fail(res, 404, 'not_found');
   const { action, value } = req.body || {};
+  if (u.role === 'admin' && ['disable', 'delete', 'wipe_data'].includes(action)) return fail(res, 400, 'is_admin');
   switch (action) {
     case 'disable': q.setDisabled.run(1, u.id); break;
     case 'enable': q.setDisabled.run(0, u.id); break;
     case 'rename': q.setName.run(String(value || '').trim().slice(0, 80), u.id); break;
     case 'delete': q.deleteItems.run(u.id); q.deleteUser.run(u.id); break;
-    case 'reset_link': { const token = crypto.randomBytes(24).toString('base64url'); q.addReset.run(token, u.id, Date.now() + 24 * 60 * 60e3); audit(req.admin.username, 'admin_' + action, u.email, req.ip); return res.json({ ok: true, link: `${PUBLIC_URL || ''}/?reset=${token}`, expiresIn: '24h' }); }
+    case 'reset_link': { const token = crypto.randomBytes(24).toString('base64url'); q.addReset.run(token, u.id, Date.now() + 24 * 60 * 60e3); audit(req.admin.id, 'admin_' + action, u.email, req.ip); return res.json({ ok: true, link: `${PUBLIC_URL || ''}/?reset=${token}`, expiresIn: '24h' }); }
     case 'wipe_data': q.deleteItems.run(u.id); break;
     default: return fail(res, 400, 'bad_action');
   }
-  audit(req.admin.username, 'admin_' + action, u.email, req.ip);
+  audit(req.admin.id, 'admin_' + action, u.email, req.ip);
   res.json({ ok: true });
 });
 app.get('/api/admin/settings', admin, (_req, res) => res.json({ registration: registration() }));
 app.post('/api/admin/settings', admin, (req, res) => {
   const { registration: r } = req.body || {};
   if (!['open', 'invite', 'closed'].includes(r)) return fail(res, 400, 'bad_request');
-  q.setSetting.run('registration', r); audit(req.admin.username, 'settings_registration', r, req.ip);
+  q.setSetting.run('registration', r); audit(req.admin.id, 'settings_registration', r, req.ip);
   res.json({ registration: r });
 });
 app.get('/api/admin/invites', admin, (_req, res) => res.json({ invites: q.invites.all() }));
 app.post('/api/admin/invites', admin, (req, res) => {
   const code = crypto.randomBytes(4).toString('hex').toUpperCase();
-  q.addInvite.run(code, Date.now(), String((req.body || {}).note || '').slice(0, 80)); audit(req.admin.username, 'invite_create', code, req.ip);
+  q.addInvite.run(code, Date.now(), String((req.body || {}).note || '').slice(0, 80)); audit(req.admin.id, 'invite_create', code, req.ip);
   res.json({ code });
 });
 app.post('/api/admin/invites/:code/delete', admin, (req, res) => { q.delInvite.run(req.params.code); res.json({ ok: true }); });
