@@ -1,0 +1,33 @@
+# /etc/systemd/system/anjam.service — Anjam runs as its own user with its own Node runtime.
+# Nothing here is shared with other services on the host.
+[Unit]
+Description=Anjam sync server
+After=network.target
+Documentation=https://github.com/AbolfazlTafakori/anjam
+
+[Service]
+Type=simple
+User=anjam
+Group=anjam
+WorkingDirectory=/opt/anjam/app/server
+EnvironmentFile=/etc/anjam/anjam.env
+ExecStart=/opt/anjam/node/bin/node server.js
+Restart=always
+RestartSec=3
+# hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+ReadWritePaths=/var/lib/anjam
+CapabilityBoundingSet=
+AmbientCapabilities=
+MemoryMax=512M
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,46 @@
+{
+  "name": "anjam",
+  "version": "1.0.0",
+  "description": "Anjam - a simple, bilingual (فارسی/English) to-do list for Windows",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win",
+    "web": "node scripts/build-web.js",
+    "server": "node server/server.js"
+  },
+  "keywords": [],
+  "author": "Abolfazl Tafakori",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "electron": "^44.4.3",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "vazirmatn": "^33.0.3"
+  },
+  "build": {
+    "appId": "ir.abolfazl.anjam",
+    "productName": "Anjam",
+    "files": [
+      "src/**/*",
+      "build/icon.png"
+    ],
+    "directories": {
+      "output": "dist"
+    },
+    "win": {
+      "target": [
+        "nsis"
+      ],
+      "icon": "build/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "shortcutName": "Anjam"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "anjam-server",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Anjam sync server (accounts + item sync)",
+  "main": "server.js",
+  "engines": {
+    "node": ">=22.13"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "nodemailer": "^10.0.10"
+  }
+}
