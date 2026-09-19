@@ -61,6 +61,7 @@ function createWindow() {
   });
 }
 
+if (process.env.ANJAM_USERDATA) app.setPath('userData', process.env.ANJAM_USERDATA); // dev: isolated profile for visual checks
 // One running copy per user: a second launch just focuses the existing window
 if (!app.requestSingleInstanceLock()) app.quit();
 app.on('second-instance', () => { if (win) { if (win.isMinimized()) win.restore(); win.show(); win.focus(); } });

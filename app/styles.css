@@ -27,17 +27,17 @@
   --hover: rgba(30, 26, 27, .055);
   --active: rgba(30, 26, 27, .09);
 
-  --ruby: #9e1b34;
-  --ruby-hover: #861529;
-  --ruby-soft: rgba(158, 27, 52, .10);
-  --ruby-ring: rgba(158, 27, 52, .28);
-  --ruby-text: #8a1b30;
+  --ruby: #8a0f22;            /* royal red: deep, saturated, no pink */
+  --ruby-hover: #6f0b1b;
+  --ruby-soft: rgba(138, 15, 34, .10);
+  --ruby-ring: rgba(138, 15, 34, .30);
+  --ruby-text: #7a0d1e;
   --on-ruby: #ffffff;
 
-  --danger: #b3132f;
+  --danger: #a30f28;
   --ok: #1b7a45;
 
-  --chip-red: #fbe4e7;     --chip-red-t: #8a1b30;
+  --chip-red: #f7dfe2;     --chip-red-t: #7a0d1e;
   --chip-amber: #fbebd3;   --chip-amber-t: #7a4a00;
   --chip-blue: #dfeaf7;    --chip-blue-t: #1f4e86;
   --chip-green: #ddf1e4;   --chip-green-t: #1b5e36;
@@ -76,17 +76,17 @@
   --hover: rgba(239, 232, 230, .06);
   --active: rgba(239, 232, 230, .10);
 
-  --ruby: #e24a64;
-  --ruby-hover: #ea6076;
-  --ruby-soft: rgba(226, 74, 100, .16);
-  --ruby-ring: rgba(226, 74, 100, .4);
-  --ruby-text: #f08a9b;
+  --ruby: #c8102e;
+  --ruby-hover: #de1a3a;
+  --ruby-soft: rgba(200, 16, 46, .18);
+  --ruby-ring: rgba(200, 16, 46, .45);
+  --ruby-text: #ff4d5e;
   --on-ruby: #ffffff;
 
-  --danger: #f08a9b;
+  --danger: #ff5a68;
   --ok: #8fd7a9;
 
-  --chip-red: rgba(226, 74, 100, .22);    --chip-red-t: #f4a4b2;
+  --chip-red: rgba(200, 16, 46, .26);     --chip-red-t: #ff8a95;
   --chip-amber: rgba(224, 160, 60, .20);  --chip-amber-t: #f1c77e;
   --chip-blue: rgba(90, 150, 230, .20);   --chip-blue-t: #9fc2f0;
   --chip-green: rgba(80, 190, 120, .18);  --chip-green-t: #8fd7a9;
@@ -208,13 +208,13 @@ kbd { font-family: var(--font); font-size: 11px; color: var(--text-3); }
 /* ---------- page ---------- */
 .app.peek-open .scroller { margin-inline-end: var(--peek-w); }
 .scroller { flex: 1; overflow-y: auto; overflow-x: hidden; min-height: 0; scrollbar-gutter: stable; }
-.page { max-width: 960px; margin: 0 auto; padding: 48px 96px 120px; }
-.page.wide { max-width: 1280px; padding-inline: 48px; }
+.page { max-width: 1320px; margin: 0 auto; padding: 32px 56px 96px; }
+.page.wide { max-width: none; padding-inline: 40px; }
 .page-head { display: flex; flex-direction: column; }
 .page-icon { width: 56px; height: 56px; border-radius: var(--r-xl); background: var(--ruby-soft); color: var(--ruby); display: flex; align-items: center; justify-content: center; }
 .page-icon svg { width: 32px; height: 32px; stroke-width: 1.5; }
 .page-icon .dot { width: 22px; height: 22px; border-radius: 7px; }
-.page-title { margin: 14px 0 0; font-size: 40px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.page-title { margin: 12px 0 0; font-size: 34px; font-weight: 800; line-height: 1.2; letter-spacing: -.01em; overflow-wrap: anywhere; }
 .page-sub { margin: 6px 0 0; color: var(--text-2); font-size: 14px; }
 
 /* ---------- database bar ---------- */
@@ -399,7 +399,7 @@ button.chip:hover { background: var(--active); color: var(--text); }
 .cal-more { font-size: 11px; color: var(--text-3); padding: 0 6px; }
 
 /* ---------- empty / skeleton ---------- */
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 56px 12px; text-align: center; }
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 36px 12px; text-align: center; }
 .empty-glyph { width: 40px; height: 40px; color: var(--text-4); stroke-width: 1.4; }
 .empty-text { margin: 4px 0 0; font-size: 16px; font-weight: 600; }
 .empty-hint { margin: 0; color: var(--text-3); font-size: 13px; max-width: 360px; }
