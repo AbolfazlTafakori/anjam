@@ -3,6 +3,7 @@
 ; file name and store https://<host> so the app connects without asking the user.
 !include "StrFunc.nsh"
 ${StrStr}
+!pragma warning disable 6010 ; the uninstaller pass includes this file without using StrStr
 !macro customInstall
   Push $R0
   Push $R1
