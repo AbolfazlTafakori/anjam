@@ -1,6 +1,6 @@
 {
   "name": "anjam",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Anjam - a simple, bilingual (فارسی/English) to-do list for Windows",
   "main": "desktop/main.js",
   "scripts": {
@@ -16,10 +16,16 @@
   "license": "MIT",
   "type": "commonjs",
   "devDependencies": {
+    "@capacitor/cli": "^8.5.2",
     "electron": "^44.4.3",
     "electron-builder": "^26.15.3"
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/local-notifications": "^8.3.1",
     "electron-updater": "^6.8.9",
     "vazirmatn": "^33.0.3"
   },

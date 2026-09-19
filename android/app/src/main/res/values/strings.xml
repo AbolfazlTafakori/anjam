@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">انجام</string>
+    <string name="title_activity_main">Anjam</string>
+    <string name="package_name">ir.abolfazl.anjam</string>
+    <string name="custom_url_scheme">ir.abolfazl.anjam</string>
+</resources>

@@ -18,6 +18,7 @@ function fetchJson(url) {
 }
 
 const PLATFORMS = [
+  { id: 'android', test: (n) => /\.apk$/i.test(n), label: 'Android', arch: 'arm64+x86', kind: 'apk' },
   { id: 'windows', test: (n) => /\.exe$/i.test(n) && !/blockmap/i.test(n), label: 'Windows', arch: 'x64', kind: 'installer' },
   { id: 'linux-appimage', test: (n) => /\.AppImage$/i.test(n), label: 'Linux', arch: 'x64', kind: 'AppImage' },
   { id: 'linux-deb', test: (n) => /\.deb$/i.test(n), label: 'Linux (Debian/Ubuntu)', arch: 'x64', kind: 'deb' },

@@ -986,7 +986,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     const params = new URLSearchParams(location.search);
     if (params.get('reset')) { history.replaceState(null, '', location.pathname); openAuth('reset', { token: params.get('reset') }); }
     else if (params.get('invite')) { history.replaceState(null, '', location.pathname); openAuth('signup', { firstRun: !signedIn() }); $('#au-invite').value = params.get('invite').toUpperCase(); }
-    else if (window.anjam.defaultServer && !signedIn() && !localStorage.getItem('anjam-auth-skipped') && !state.data.tasks.length) openAuth('signin', { firstRun: true });
+    else if ((window.anjam.defaultServer || window.anjam.isNative) && !signedIn() && !localStorage.getItem('anjam-auth-skipped') && !state.data.tasks.length) openAuth('signin', { firstRun: true });
   }
 
   // ---------- Updates (desktop) ----------

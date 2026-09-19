@@ -1,9 +1,62 @@
-/* window.anjam for the browser / PWA build (replaces the Electron preload bridge). */
+/* window.anjam for the browser / PWA build and for the Android (Capacitor) shell.
+   Same renderer as the desktop; only this bridge differs. */
 (() => {
   const KEY = 'anjam-data';
+  const cap = window.Capacitor;
+  const native = !!(cap && cap.isNativePlatform && cap.isNativePlatform());
+  const plugin = (name) => (cap && cap.Plugins && cap.Plugins[name]) || null;
+  const version = (document.querySelector('meta[name="anjam-version"]') || {}).content || 'web';
+
   const download = (name, blob) => { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
+  const openUrl = (url) => { const b = plugin('Browser'); if (b) b.open({ url }); else window.open(url, '_blank'); };
+
+  // ---- notifications: native local notifications on Android, Web Notifications elsewhere ----
+  async function notify({ title, body, id }) {
+    const ln = plugin('LocalNotifications');
+    if (ln) {
+      try {
+        const perm = await ln.checkPermissions();
+        if (perm.display !== 'granted' && (await ln.requestPermissions()).display !== 'granted') return false;
+        await ln.schedule({ notifications: [{ id: Math.abs(hash(id || title)) % 2147483647, title, body, smallIcon: 'ic_stat_anjam' }] });
+        return true;
+      } catch { return false; }
+    }
+    if (!('Notification' in window)) return false;
+    if (Notification.permission === 'default') await Notification.requestPermission();
+    if (Notification.permission !== 'granted') return false;
+    new Notification(title, { body, icon: 'icon.png' }); return true;
+  }
+  const hash = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return h; };
+
+  // ---- updates (Android): compare the server's latest APK with this build ----
+  let updStatus = { state: 'idle', version: '', percent: 0, message: '' };
+  let updUrl = '';
+  const listeners = [];
+  const emit = (s) => { updStatus = { ...updStatus, ...s }; listeners.forEach((cb) => cb(updStatus)); };
+  const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) > (y[i] || 0)) return true; if ((x[i] || 0) < (y[i] || 0)) return false; } return false; };
+  async function checkUpdate() {
+    let server = '';
+    try { server = (JSON.parse(localStorage.getItem(KEY) || '{}').sync || {}).server || ''; } catch {}
+    if (!server) { emit({ state: 'idle' }); return updStatus; }
+    emit({ state: 'checking' });
+    try {
+      const r = await fetch(server.replace(/\/+$/, '') + '/api/releases'); const j = await r.json();
+      const apk = j.release && j.release.files.find((f) => f.platform === 'android');
+      if (apk && newer(j.release.version, version)) { updUrl = apk.url; emit({ state: 'ready', version: j.release.version, percent: 100 }); }
+      else emit({ state: 'uptodate', version });
+    } catch (e) { emit({ state: 'error', message: 'offline' }); }
+    return updStatus;
+  }
+  const update = native ? {
+    status: async () => updStatus,
+    check: checkUpdate,
+    install: async () => { if (updUrl) openUrl(updUrl); },
+    onStatus: (cb) => listeners.push(cb),
+  } : undefined;
+
   window.anjam = {
-    defaultServer: location.origin,
+    defaultServer: native ? '' : location.origin,
+    isNative: native,
     load: async () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch { return null; } },
     save: async (d) => { try { localStorage.setItem(KEY, JSON.stringify(d)); return true; } catch { return false; } },
     exportFile: async ({ defaultName, content }) => { download(defaultName, new Blob([defaultName.endsWith('.csv') ? '﻿' + content : content], { type: 'text/plain;charset=utf-8' })); return { ok: true, filePath: defaultName }; },
@@ -18,14 +71,12 @@
       i.onchange = () => { const f = i.files[0]; if (!f) return resolve({ ok: false }); const r = new FileReader(); r.onload = () => { try { resolve({ ok: true, data: JSON.parse(r.result) }); } catch (e) { resolve({ ok: false, error: String(e) }); } }; r.readAsText(f); };
       i.click();
     }),
-    notify: async ({ title, body }) => {
-      if (!('Notification' in window)) return false;
-      if (Notification.permission === 'default') await Notification.requestPermission();
-      if (Notification.permission !== 'granted') return false;
-      new Notification(title, { body, icon: 'icon.png' }); return true;
-    },
+    notify,
+    openExternal: (u) => openUrl(u),
     onOpenTask: () => {},
-    version: async () => (document.querySelector('meta[name="anjam-version"]') || {}).content || 'web',
+    version: async () => version,
+    update,
   };
-  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+  if (native) setTimeout(checkUpdate, 6000);
+  if (!native && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 })();

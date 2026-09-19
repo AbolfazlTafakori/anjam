@@ -1,0 +1,8 @@
+{
+  "appId": "ir.abolfazl.anjam",
+  "appName": "Anjam",
+  "webDir": "web",
+  "android": { "allowMixedContent": false, "backgroundColor": "#160a0d" },
+  "server": { "androidScheme": "https" },
+  "plugins": { "LocalNotifications": { "smallIcon": "ic_stat_anjam", "iconColor": "#e2b45a" } }
+}

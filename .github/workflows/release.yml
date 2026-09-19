@@ -25,3 +25,29 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ELECTRON_BUILDER_ALLOW_UNRESOLVED_DEPENDENCIES: 'true'
+  android:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm }
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '21' }
+      - run: npm ci
+      - run: node scripts/build-web.js && npx cap sync android
+      - name: Restore signing key
+        run: echo "${{ secrets.ANJAM_KEYSTORE_B64 }}" | base64 -d > "$RUNNER_TEMP/anjam.keystore"
+      - name: Build signed APK
+        working-directory: android
+        env:
+          ANJAM_KEYSTORE: ${{ runner.temp }}/anjam.keystore
+          ANJAM_KEYSTORE_PASSWORD: ${{ secrets.ANJAM_KEYSTORE_PASSWORD }}
+          ANJAM_KEY_ALIAS: ${{ secrets.ANJAM_KEY_ALIAS }}
+          ANJAM_KEY_PASSWORD: ${{ secrets.ANJAM_KEY_PASSWORD }}
+        run: chmod +x gradlew && ./gradlew assembleRelease --no-daemon -q
+      - name: Rename
+        run: VERSION=${GITHUB_REF_NAME#v}; cp android/app/build/outputs/apk/release/app-release.apk "Anjam-$VERSION.apk"
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: Anjam-*.apk

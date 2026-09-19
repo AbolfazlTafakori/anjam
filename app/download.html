@@ -43,8 +43,8 @@
 <script>
 (() => {
   const L = {
-    fa: { win: 'ویندوز', and: 'اندروید', lin: 'لینوکس', web: 'وب', get: 'دانلود', open: 'باز کردن', steps: ['آدرس سرور را در Chrome باز کنید', 'منوی ⋮ → Add to Home screen', 'آیکون «انجام» به صفحه‌ی گوشی اضافه می‌شود؛ آفلاین هم کار می‌کند'], webText: 'همیشه آخرین نسخه؛ نیازی به نصب ندارد.', none: 'هنوز نسخه‌ی نصبی منتشر نشده.', auto: 'نسخه‌های ویندوز و لینوکس خودشان به‌روزرسانی می‌گیرند و داخل برنامه اعلام می‌کنند.', dl: 'دانلود', copied: 'کپی شد' },
-    en: { win: 'Windows', and: 'Android', lin: 'Linux', web: 'Web', get: 'Download', open: 'Open', steps: ['Open the server address in Chrome', 'Menu ⋮ → Add to Home screen', 'An "Anjam" icon appears on your phone; it works offline too'], webText: 'Always the latest version; nothing to install.', none: 'No installer published yet.', auto: 'Windows and Linux builds update themselves and announce it inside the app.', dl: 'downloads', copied: 'Copied' },
+    fa: { win: 'ویندوز', and: 'اندروید', lin: 'لینوکس', web: 'وب', get: 'دانلود', open: 'باز کردن', pwa: 'بدون نصب هم می‌شود: همین آدرس را در Chrome باز کنید → ⋮ → Add to Home screen.', webText: 'همیشه آخرین نسخه؛ نیازی به نصب ندارد.', none: 'هنوز نسخه‌ی نصبی منتشر نشده.', auto: 'نسخه‌های ویندوز، لینوکس و اندروید خودشان به‌روزرسانی می‌گیرند و داخل برنامه اعلام می‌کنند.', dl: 'دانلود', copied: 'کپی شد' },
+    en: { win: 'Windows', and: 'Android', lin: 'Linux', web: 'Web', get: 'Download', open: 'Open', pwa: 'No install needed either: open this address in Chrome → ⋮ → Add to Home screen.', webText: 'Always the latest version; nothing to install.', none: 'No installer published yet.', auto: 'Windows, Linux and Android builds update themselves and announce it inside the app.', dl: 'downloads', copied: 'Copied' },
   };
   let lang = localStorage.getItem('anjam-dl-lang') || 'fa';
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -62,7 +62,7 @@
     const fb = (f) => f ? `<div class="dl-meta">v${esc(rel.version)} · ${bytes(f.size)}</div><a class="btn primary" href="${esc(f.url)}">${icon('download')}<span>${t.get}</span></a>` : `<p class="hint">${t.none}</p>`;
     const a = file('linux-appimage'), d = file('linux-deb');
     document.getElementById('grid').innerHTML = card('windows', t.win, fb(file('windows')))
-      + card('android', t.and, `<ol>${t.steps.map((s) => `<li>${esc(s)}</li>`).join('')}</ol><a class="btn ghost" href="/">${icon('web')}<span>${t.open}</span></a>`)
+      + card('android', t.and, (file('android') ? `<div class="dl-meta">v${esc(rel.version)} · ${bytes(file('android').size)} · APK</div><a class="btn primary" href="${esc(file('android').url)}">${icon('download')}<span>${t.get}</span></a>` : `<p class="hint">${t.none}</p>`) + `<p class="hint">${t.pwa}</p>`)
       + card('linux', t.lin, a || d ? `<div class="dl-meta">v${esc(rel.version)}</div>${a ? `<a class="btn primary" href="${esc(a.url)}">${icon('download')}<span>AppImage · ${bytes(a.size)}</span></a>` : ''}${d ? `<a class="btn ghost" href="${esc(d.url)}">${icon('download')}<span>.deb · ${bytes(d.size)}</span></a>` : ''}` : `<p class="hint">${t.none}</p>`)
       + card('web', t.web, `<p class="hint">${t.webText}</p><a class="btn ghost" href="/">${icon('web')}<span>${t.open}</span></a>`);
     document.getElementById('foot').textContent = t.auto;

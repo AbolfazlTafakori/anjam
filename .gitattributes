@@ -3,3 +3,4 @@
 *.service text eol=lf
 *.conf text eol=lf
 *.example text eol=lf
+gradlew text eol=lf
