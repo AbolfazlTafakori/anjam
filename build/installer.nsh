@@ -1,6 +1,8 @@
 ; Anjam — server stamping for the Windows installer.
 ; The download server names the installer  Anjam-Setup-1.3.0.srv-<host>.exe ; we read our own
 ; file name and store https://<host> so the app connects without asking the user.
+!include "StrFunc.nsh"
+${Using:StrFunc} StrStr
 !macro customInstall
   Push $R0
   Push $R1
