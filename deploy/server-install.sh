@@ -20,7 +20,7 @@ fi
 /opt/anjam/node/bin/node -v
 
 # code
-if [[ -d /opt/anjam/app/.git ]]; then git -C /opt/anjam/app pull --ff-only; else git clone --depth 1 "$REPO" /opt/anjam/app; fi
+if [[ -d /opt/anjam/app/.git ]]; then git -c safe.directory=/opt/anjam/app -C /opt/anjam/app pull --ff-only; else git clone --depth 1 "$REPO" /opt/anjam/app; fi
 [[ -f /etc/anjam/anjam.env ]] || { sed "s#https://anjam.abolfazltafakori.com#https://$DOMAIN#" /opt/anjam/app/deploy/anjam.env.example > /etc/anjam/anjam.env; chmod 600 /etc/anjam/anjam.env; }
 bash /opt/anjam/app/deploy/server-deploy.sh --no-restart
 
