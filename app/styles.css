@@ -121,9 +121,13 @@ kbd { font-family: var(--font); font-size: 11px; color: var(--text-3); }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
 /* ---------- shell ---------- */
-.app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; height: 100dvh; position: relative; }
+.app { display: grid; grid-template-columns: var(--sidebar-w) 1fr; height: 100vh; height: 100dvh; position: relative; overflow: hidden; transition: grid-template-columns var(--t-slow) var(--ease); }
 .app.rail-collapsed { grid-template-columns: 0 1fr; }
-.app.rail-collapsed .sidebar { transform: translateX(var(--side-hide)); pointer-events: none; }
+.app > .sidebar { grid-column: 1; grid-row: 1; }
+.app > main, .app > .main { grid-column: 2; grid-row: 1; min-width: 0; }
+/* Collapsed: the sidebar keeps its real width, leaves the grid (absolute) and slides fully off-screen —
+   never squeezed into a 0px column. */
+.app.rail-collapsed .sidebar { position: absolute; top: 0; bottom: 0; inset-inline-start: 0; transform: translateX(var(--side-hide)); visibility: hidden; pointer-events: none; }
 [dir="rtl"] { --side-hide: 100%; }
 [dir="ltr"] { --side-hide: -100%; }
 .app.rail-collapsed .topbar-expand { display: inline-flex; }
@@ -131,8 +135,8 @@ kbd { font-family: var(--font); font-size: 11px; color: var(--text-3); }
 /* ---------- sidebar ---------- */
 .sidebar {
   background: var(--bg-side); border-inline-end: 1px solid var(--line);
-  display: flex; flex-direction: column; padding: 8px; min-width: 0;
-  transition: transform var(--t-slow) var(--ease); position: relative; z-index: 30;
+  display: flex; flex-direction: column; padding: 8px; min-width: 0; width: var(--sidebar-w);
+  transition: transform var(--t-slow) var(--ease), visibility 0s linear var(--t-slow); position: relative; z-index: 30;
 }
 .ws { display: flex; align-items: center; gap: 8px; height: 36px; padding: 0 8px; border-radius: var(--r-md); width: 100%; text-align: start; }
 .ws:hover { background: var(--hover); }
