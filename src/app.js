@@ -913,7 +913,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       if (au.mode === 'signin') res = await api(v.server, '/api/auth/login', { email: v.email, password: v.pass });
       else if (au.mode === 'signup') res = await api(v.server, '/api/auth/register', { email: v.email, password: v.pass, name: v.name, invite: v.invite.toUpperCase() });
       else res = await api(v.server, '/api/auth/reset', { token: au.resetToken, password: v.pass });
-      state.data.sync = { server: v.server, token: res.token, email: res.user.email, name: res.user.name, role: res.user.role, cursor: 0, lastSync: 0 };
+      state.data.sync = { server: v.server, token: res.token, email: res.user.email, name: res.user.name, cursor: 0, lastSync: 0 };
       for (const x of state.data.tasks) dirty.add(x.id); for (const x of state.data.lists) dirty.add(x.id); dirty.add('settings');
       window.anjam.save(state.data); renderAccount(); syncNow();
       if (au.mode === 'signin') closeAuth(); else showAuthDone(t(au.mode === 'signup' ? 'doneSignup' : 'doneReset'));
@@ -945,7 +945,6 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || window.anjam.defaultServer || 'https://anjam.abolfazltafakori.com'; }
     else {
       $('#acc-who').textContent = `${state.data.sync.name ? state.data.sync.name + ' · ' : ''}${state.data.sync.email}`;
-      $('#acc-admin').hidden = state.data.sync.role !== 'admin'; $('#acc-admin').href = state.data.sync.server + '/admin';
       $('#acc-last').textContent = `${t('lastSync')}: ${state.data.sync.lastSync ? fmtDateTime(state.data.sync.lastSync) : t('never')}` + (syncUI.error ? ` · ${syncUI.error}` : '');
     }
     $('#sync-status').textContent = !on ? '' : syncUI.status === 'busy' ? t('syncing') : syncUI.status === 'err' ? t('syncErr') : syncUI.status === 'ok' ? t('synced') : '';
@@ -979,7 +978,6 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#acc-profile').onclick = () => { $('#pr-name').value = state.data.sync.name || ''; $('#pr-cur').value = ''; $('#pr-new').value = ''; $('#pr-err').textContent = ''; $('#profile').hidden = false; };
     $('#profile-close').onclick = () => { $('#profile').hidden = true; };
     $('#pr-save').onclick = saveProfile; $('#pr-delete').onclick = deleteAccount;
-    $('#acc-admin').onclick = (e) => { if (window.anjam.openExternal) { e.preventDefault(); window.anjam.openExternal($('#acc-admin').href); } };
     window.addEventListener('online', () => scheduleSync(500));
     bindAuth(); renderAccount();
     // Web: password-reset link (?reset=TOKEN) and first-run sign-in prompt

@@ -48,7 +48,7 @@
   <div class="login" id="login">
     <div class="brand"><span class="brand-seal"><svg><use href="#i-check"/></svg></span><span class="brand-name">انجام</span></div>
     <h1 data-i18n="adminTitle">پنل مدیریت</h1>
-    <input id="l-email" type="email" class="field-input" dir="ltr" placeholder="email@example.com" autocomplete="username" />
+    <input id="l-user" type="text" class="field-input" dir="ltr" data-i18n-ph="username" placeholder="نام کاربری" autocomplete="username" />
     <input id="l-pass" type="password" class="field-input" dir="ltr" data-i18n-ph="password" placeholder="رمز عبور" autocomplete="current-password" />
     <button class="btn primary" id="l-go" data-i18n="signIn">ورود</button>
     <div class="msg err" id="l-err"></div>
@@ -61,7 +61,12 @@
       <span class="who" id="who"></span>
       <button class="ibtn" id="lang" title="فارسی / English"><svg><use href="#i-lang"/></svg></button>
       <a class="btn ghost" id="backup" href="#"><svg><use href="#i-download"/></svg><span data-i18n="backup">پشتیبان دیتابیس</span></a>
+      <button class="btn ghost" id="pw-btn" data-i18n="changePw">تغییر رمز</button>
       <button class="btn ghost" id="logout" data-i18n="signOut">خروج</button>
+    </div>
+    <div class="panel" id="pw-panel" hidden>
+      <h2 data-i18n="changePw">تغییر رمز</h2>
+      <div class="row-inline"><input id="pw-cur" type="password" class="field-input" dir="ltr" data-i18n-ph="curPw" placeholder="رمز فعلی" /><input id="pw-new" type="password" class="field-input" dir="ltr" data-i18n-ph="newPw" placeholder="رمز جدید" /><button class="btn primary" id="pw-save" data-i18n="save">ذخیره</button><span class="msg" id="pw-msg"></span></div>
     </div>
 
     <div class="stat-line" id="stats"></div>
@@ -100,12 +105,12 @@
 <script>
 (() => {
   const I = {
-    fa: { adminTitle: 'پنل مدیریت', password: 'رمز عبور', signIn: 'ورود', signOut: 'خروج', backup: 'پشتیبان دیتابیس', registration: 'ثبت‌نام', regOpen: 'باز', regInvite: 'فقط با کد دعوت', regClosed: 'بسته',
+    fa: { adminTitle: 'پنل مدیریت', password: 'رمز عبور', username: 'نام کاربری', changePw: 'تغییر رمز', curPw: 'رمز فعلی', newPw: 'رمز جدید', active: 'فعال', errMany: 'تلاش زیاد؛ کمی بعد', errWeak: 'رمز ضعیف است (≥۸، حرف و عدد)', signIn: 'ورود', signOut: 'خروج', backup: 'پشتیبان دیتابیس', registration: 'ثبت‌نام', regOpen: 'باز', regInvite: 'فقط با کد دعوت', regClosed: 'بسته',
       invites: 'کدهای دعوت', invNote: 'یادداشت (مثلاً برای خانم)', invCreate: 'ساخت کد', code: 'کد', note: 'یادداشت', status: 'وضعیت', used: 'استفاده‌شده', unused: 'آزاد', users: 'کاربران', user: 'کاربر', role: 'نقش', tasks: 'کارها', lists: 'لیست‌ها', lastSync: 'آخرین همگام‌سازی', joined: 'عضویت', audit: 'رویدادها',
       admin: 'مدیر', disabled: 'غیرفعال', never: 'هرگز', disable: 'غیرفعال', enable: 'فعال', makeAdmin: 'مدیر کن', removeAdmin: 'مدیر نباشد', resetLink: 'لینک بازیابی رمز', wipe: 'پاک‌کردن داده‌ها', del: 'حذف', delete: 'حذف',
       confirmDel: 'کاربر و همه‌ی داده‌هایش حذف شود؟', confirmWipe: 'همه‌ی کارهای این کاربر پاک شود؟', linkMade: 'لینک ساخته شد (۲۴ ساعت اعتبار) — برای کاربر بفرستید:', saved: 'ذخیره شد', errCreds: 'ایمیل یا رمز اشتباه است', errForbidden: 'این حساب مدیر نیست', errNet: 'اتصال برقرار نشد',
       sUsers: 'کاربر', sAdmins: 'مدیر', sTasks: 'کار', sSignups: 'ثبت‌نام ۷ روز', sActive: 'فعال ۷ روز', sDb: 'دیتابیس', sMail: 'ایمیل', on: 'روشن', off: 'خاموش', copy: 'کپی' },
-    en: { adminTitle: 'Admin panel', password: 'Password', signIn: 'Sign in', signOut: 'Sign out', backup: 'Database backup', registration: 'Registration', regOpen: 'Open', regInvite: 'Invite only', regClosed: 'Closed',
+    en: { adminTitle: 'Admin panel', password: 'Password', username: 'Username', changePw: 'Change password', curPw: 'Current password', newPw: 'New password', active: 'active', errMany: 'Too many attempts', errWeak: 'Weak password (≥8, letters + digits)', signIn: 'Sign in', signOut: 'Sign out', backup: 'Database backup', registration: 'Registration', regOpen: 'Open', regInvite: 'Invite only', regClosed: 'Closed',
       invites: 'Invite codes', invNote: 'Note (e.g. for my wife)', invCreate: 'Create code', code: 'Code', note: 'Note', status: 'Status', used: 'used', unused: 'free', users: 'Users', user: 'User', role: 'Role', tasks: 'Tasks', lists: 'Lists', lastSync: 'Last sync', joined: 'Joined', audit: 'Events',
       admin: 'admin', disabled: 'disabled', never: 'never', disable: 'Disable', enable: 'Enable', makeAdmin: 'Make admin', removeAdmin: 'Remove admin', resetLink: 'Password reset link', wipe: 'Wipe data', del: 'Delete', delete: 'Delete',
       confirmDel: 'Delete this user and all their data?', confirmWipe: 'Wipe all tasks of this user?', linkMade: 'Link created (valid 24h) — send it to the user:', saved: 'Saved', errCreds: 'Wrong email or password', errForbidden: 'This account is not an admin', errNet: 'Could not connect',
@@ -131,17 +136,16 @@
   }
   async function load() {
     const [ov, us, inv, au] = await Promise.all([api('/api/admin/overview'), api('/api/admin/users'), api('/api/admin/invites'), api('/api/admin/audit')]);
-    $('#stats').innerHTML = [[ov.users, 'sUsers'], [ov.admins, 'sAdmins'], [ov.tasks, 'sTasks'], [ov.signups7, 'sSignups'], [ov.active7, 'sActive']].map(([v, k]) => `<div><b>${num(v)}</b> <span>${t(k)}</span></div>`).join('')
+    $('#stats').innerHTML = [[ov.users, 'sUsers'], [ov.tasks, 'sTasks'], [ov.signups7, 'sSignups'], [ov.active7, 'sActive']].map(([v, k]) => `<div><b>${num(v)}</b> <span>${t(k)}</span></div>`).join('')
       + `<div><b>${(ov.dbBytes / 1024).toFixed(0)} KB</b> <span>${t('sDb')}</span></div><div><b>${ov.mail ? t('on') : t('off')}</b> <span>${t('sMail')}</span></div>`;
     document.querySelectorAll('#reg button').forEach((b) => b.classList.toggle('active', b.dataset.v === ov.registration));
     $('#inv-table tbody').innerHTML = inv.invites.map((i) => `<tr><td><code>${esc(i.code)}</code></td><td dir="auto">${esc(i.note)}</td><td>${i.used_by ? `<span class="badge">${t('used')} · ${when(i.used_at)}</span>` : `<span class="badge admin">${t('unused')}</span>`}</td><td class="actions">${i.used_by ? '' : `<button class="btn ghost" data-copy="${esc(i.code)}">${t('copy')}</button>`}<button class="btn ghost danger" data-inv-del="${esc(i.code)}">${t('del')}</button></td></tr>`).join('');
     $('#users tbody').innerHTML = us.users.map((u) => `<tr>
       <td><strong dir="auto">${esc(u.name)}</strong><span class="email">${esc(u.email)}</span></td>
-      <td>${u.role === 'admin' ? `<span class="badge admin">${t('admin')}</span>` : ''}${u.disabled ? ` <span class="badge off">${t('disabled')}</span>` : ''}</td>
+      <td>${u.disabled ? `<span class="badge off">${t('disabled')}</span>` : `<span class="badge">${t('active')}</span>`}</td>
       <td class="num">${num(u.tasks)}</td><td class="num">${num(u.lists)}</td><td class="num">${when(u.last_sync_at)}</td><td class="num">${when(u.created_at)}</td>
       <td class="actions">
         <button class="btn ghost" data-act="${u.disabled ? 'enable' : 'disable'}" data-id="${u.id}">${u.disabled ? t('enable') : t('disable')}</button>
-        <button class="btn ghost" data-act="${u.role === 'admin' ? 'remove_admin' : 'make_admin'}" data-id="${u.id}">${u.role === 'admin' ? t('removeAdmin') : t('makeAdmin')}</button>
         <button class="btn ghost" data-act="reset_link" data-id="${u.id}">${t('resetLink')}</button>
         <button class="btn ghost danger" data-act="wipe_data" data-id="${u.id}">${t('wipe')}</button>
         <button class="btn ghost danger" data-act="delete" data-id="${u.id}">${t('delete')}</button>
@@ -150,16 +154,22 @@
   }
   async function enter() {
     try {
-      const me = await api('/api/me');
-      if (me.user.role !== 'admin') throw Object.assign(new Error('forbidden'), { code: 'forbidden' });
-      $('#who').textContent = `${me.user.name} · ${me.user.email}`;
+      const me = await api('/api/admin/me');
+      $('#who').textContent = me.admin.username;
       $('#login').hidden = true; $('#panel').hidden = false; await load();
-    } catch (e) { token = ''; localStorage.removeItem('anjam-admin-token'); $('#login').hidden = false; $('#panel').hidden = true; if (e.code === 'forbidden') $('#l-err').textContent = t('errForbidden'); }
+    } catch (e) { token = ''; localStorage.removeItem('anjam-admin-token'); $('#login').hidden = false; $('#panel').hidden = true; }
   }
   $('#l-go').onclick = async () => {
-    $('#l-err').textContent = '';
-    try { const r = await api('/api/auth/login', { email: $('#l-email').value.trim(), password: $('#l-pass').value }); token = r.token; localStorage.setItem('anjam-admin-token', token); $('#l-pass').value = ''; enter(); }
-    catch (e) { $('#l-err').textContent = e.code === 'bad_credentials' ? t('errCreds') : t('errNet'); }
+    $('#l-err').textContent = ''; $('#l-go').disabled = true;
+    try { const r = await api('/api/admin/login', { username: $('#l-user').value.trim(), password: $('#l-pass').value }); token = r.token; localStorage.setItem('anjam-admin-token', token); $('#l-pass').value = ''; enter(); }
+    catch (e) { $('#l-err').textContent = e.code === 'bad_credentials' ? t('errCreds') : e.code === 'too_many_requests' ? t('errMany') : t('errNet'); }
+    finally { $('#l-go').disabled = false; }
+  };
+  $('#pw-btn').onclick = () => { $('#pw-panel').hidden = !$('#pw-panel').hidden; };
+  $('#pw-save').onclick = async () => {
+    $('#pw-msg').textContent = '';
+    try { const r = await api('/api/admin/password', { currentPassword: $('#pw-cur').value, newPassword: $('#pw-new').value }); token = r.token; localStorage.setItem('anjam-admin-token', token); $('#pw-cur').value = $('#pw-new').value = ''; $('#pw-msg').textContent = t('saved'); }
+    catch (e) { $('#pw-msg').textContent = e.code === 'bad_credentials' ? t('errCreds') : e.code === 'weak_password' ? t('errWeak') : t('errNet'); }
   };
   $('#l-pass').onkeydown = (e) => { if (e.key === 'Enter') $('#l-go').click(); };
   $('#logout').onclick = () => { token = ''; localStorage.removeItem('anjam-admin-token'); location.reload(); };

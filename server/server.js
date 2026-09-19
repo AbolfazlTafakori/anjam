@@ -14,7 +14,7 @@ const BIND = process.env.BIND || '0.0.0.0'; // behind nginx set BIND=127.0.0.1 s
 const DATA_DIR = process.env.ANJAM_DATA || path.join(__dirname, 'data');
 const SECRET_FILE = path.join(DATA_DIR, 'secret.key');
 const PUBLIC_URL = (process.env.PUBLIC_URL || '').replace(/\/+$/, ''); // e.g. https://anjam.example.com — used in reset links
-const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || '').toLowerCase();     // this email becomes admin on sign-up (else: the first user)
+const ADMIN_PATH = (process.env.ADMIN_PATH || 'admin').replace(/^\/+|\/+$/g, ''); // panel URL path; the installer picks a random one
 const SMTP_URL = process.env.SMTP_URL || '';                            // smtp://user:pass@host:587 — optional, enables reset e-mails
 const MAIL_FROM = process.env.MAIL_FROM || 'Anjam <no-reply@localhost>';
 const TOKEN_DAYS = 90;
@@ -40,6 +40,7 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS items_user_seq ON items(user_id, server_seq);
   CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT NOT NULL);
+  CREATE TABLE IF NOT EXISTS admins (username TEXT PRIMARY KEY, pass_hash TEXT NOT NULL, salt TEXT NOT NULL, created_at INTEGER NOT NULL, token_version INTEGER NOT NULL DEFAULT 0, last_login_at INTEGER NOT NULL DEFAULT 0);
   CREATE TABLE IF NOT EXISTS invites (code TEXT PRIMARY KEY, created_at INTEGER NOT NULL, used_by TEXT, used_at INTEGER, note TEXT NOT NULL DEFAULT '');
   CREATE TABLE IF NOT EXISTS resets (token TEXT PRIMARY KEY, user_id TEXT NOT NULL, expires_at INTEGER NOT NULL, used INTEGER NOT NULL DEFAULT 0);
   CREATE TABLE IF NOT EXISTS audit (ts INTEGER NOT NULL, actor TEXT NOT NULL, action TEXT NOT NULL, target TEXT NOT NULL DEFAULT '', ip TEXT NOT NULL DEFAULT '');
@@ -53,7 +54,6 @@ const q = {
   userById: db.prepare('SELECT * FROM users WHERE id = ?'),
   insertUser: db.prepare('INSERT INTO users (id, email, name, pass_hash, salt, created_at, role) VALUES (?, ?, ?, ?, ?, ?, ?)'),
   countUsers: db.prepare('SELECT COUNT(*) AS n FROM users'),
-  countAdmins: db.prepare("SELECT COUNT(*) AS n FROM users WHERE role = 'admin'"),
   allUsers: db.prepare(`SELECT u.id, u.email, u.name, u.created_at, u.role, u.disabled, u.last_sync_at, u.last_ip,
       (SELECT COUNT(*) FROM items i WHERE i.user_id = u.id AND i.type = 'task' AND i.deleted = 0) AS tasks,
       (SELECT COUNT(*) FROM items i WHERE i.user_id = u.id AND i.type = 'list' AND i.deleted = 0) AS lists
@@ -85,12 +85,14 @@ const q = {
   useReset: db.prepare('UPDATE resets SET used = 1 WHERE token = ?'),
   audit: db.prepare('INSERT INTO audit (ts, actor, action, target, ip) VALUES (?, ?, ?, ?, ?)'),
   auditList: db.prepare('SELECT * FROM audit ORDER BY ts DESC LIMIT 100'),
+  adminByName: db.prepare('SELECT * FROM admins WHERE username = ?'),
+  adminCount: db.prepare('SELECT COUNT(*) AS n FROM admins'),
+  adminTouch: db.prepare('UPDATE admins SET last_login_at = ? WHERE username = ?'),
 };
-// Make sure there is always an admin: ADMIN_EMAIL if set, else the oldest account.
-if (ADMIN_EMAIL && q.userByEmail.get(ADMIN_EMAIL)) q.setRole.run('admin', q.userByEmail.get(ADMIN_EMAIL).id);
-if (!ADMIN_EMAIL && q.countAdmins.get().n === 0) { const first = db.prepare('SELECT id FROM users ORDER BY created_at LIMIT 1').get(); if (first) q.setRole.run('admin', first.id); }
+// Administrators are separate from app users: created by the installer / `anjam admin reset`, never by sign-up.
+if (q.adminCount.get().n === 0) console.warn('No administrator yet — run: anjam admin reset');
 const setting = (k, dflt) => { const r = q.getSetting.get(k); return r ? r.v : dflt; };
-const registration = () => setting('registration', process.env.REGISTRATION || 'invite'); // open | invite | closed (default: invite; the admin opens it from the panel)
+const registration = () => setting('registration', process.env.REGISTRATION || 'invite'); // open | invite | closed (default: invite; changed from the panel or `anjam registration`)
 const audit = (actor, action, target, ip) => q.audit.run(Date.now(), actor, action, target || '', ip || '');
 
 // ---------- auth helpers ----------
@@ -112,7 +114,7 @@ function userFromToken(token) {
     return u && !u.disabled && (u.token_version || 0) === (p.v || 0) ? u : null;
   } catch { return null; }
 }
-const publicUser = (u) => ({ id: u.id, email: u.email, name: u.name, role: u.role, created_at: u.created_at });
+const publicUser = (u) => ({ id: u.id, email: u.email, name: u.name, created_at: u.created_at });
 const validEmail = (e) => typeof e === 'string' && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e) && e.length < 200;
 const passwordProblem = (p) => typeof p !== 'string' ? 'weak_password' : p.length < 8 ? 'weak_password' : p.length > 200 ? 'weak_password' : !/[0-9]/.test(p) || !/[a-zA-Z؀-ۿ]/.test(p) ? 'weak_password' : null;
 
@@ -145,15 +147,14 @@ app.use((req, res, next) => {
 });
 const fail = (res, code, error) => res.status(code).json({ error });
 
-app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'anjam', version: 2, registration: registration(), mail: !!mailer, users: q.countUsers.get().n }));
+app.get('/api/health', (_req, res) => res.json({ ok: true, name: 'anjam', version: 3, registration: registration(), mail: !!mailer }));
 
 // ---------- auth ----------
 app.post('/api/auth/register', (req, res) => {
   if (limited(req.ip)) return fail(res, 429, 'too_many_requests');
   const { email, password, name, invite } = req.body || {};
   if (!validEmail(email)) return fail(res, 400, 'invalid_email');
-  const isPinnedAdmin = ADMIN_EMAIL && email.toLowerCase() === ADMIN_EMAIL;
-  const mode = isPinnedAdmin ? 'open' : registration(); // the pinned admin can always sign up
+  const mode = registration();
   if (mode === 'closed') return fail(res, 403, 'registration_closed');
   const pp = passwordProblem(password); if (pp) return fail(res, 400, pp);
   if (!String(name || '').trim()) return fail(res, 400, 'name_required');
@@ -162,8 +163,7 @@ app.post('/api/auth/register', (req, res) => {
   let inv = null;
   if (mode === 'invite') { inv = typeof invite === 'string' && q.invite.get(invite.trim().toUpperCase()); if (!inv || inv.used_by) return fail(res, 403, 'invite_required'); }
   const id = crypto.randomUUID(); const salt = crypto.randomBytes(16).toString('hex');
-  const role = ADMIN_EMAIL ? (isPinnedAdmin ? 'admin' : 'user') : (q.countUsers.get().n === 0 ? 'admin' : 'user');
-  q.insertUser.run(id, lower, String(name).trim().slice(0, 80), scrypt(password, salt), salt, Date.now(), role);
+  q.insertUser.run(id, lower, String(name).trim().slice(0, 80), scrypt(password, salt), salt, Date.now(), 'user');
   if (inv) q.useInvite.run(id, Date.now(), inv.code);
   audit(id, 'register', lower, req.ip);
   const u = q.userById.get(id);
@@ -227,7 +227,6 @@ app.post('/api/me', auth, (req, res) => {
 app.post('/api/me/delete', auth, (req, res) => {
   const { password } = req.body || {};
   if (typeof password !== 'string' || !safeEq(scrypt(password, req.user.salt), req.user.pass_hash)) return fail(res, 401, 'bad_credentials');
-  if (req.user.role === 'admin' && q.countAdmins.get().n <= 1) return fail(res, 400, 'last_admin');
   q.deleteItems.run(req.user.id); q.deleteUser.run(req.user.id); audit(req.user.id, 'account_deleted', '', req.ip);
   res.json({ ok: true });
 });
@@ -256,42 +255,76 @@ app.post('/api/sync', auth, (req, res) => {
 });
 
 // ---------- admin ----------
-const admin = [auth, (req, res, next) => (req.user.role === 'admin' ? next() : fail(res, 403, 'forbidden'))];
+function signAdminToken(a) {
+  const payload = b64u(JSON.stringify({ adm: a.username, v: a.token_version || 0, exp: Date.now() + 12 * 3600e3 })); // 12 h sessions
+  return `${payload}.${crypto.createHmac('sha256', SECRET).update(payload).digest('base64url')}`;
+}
+function adminFromToken(token) {
+  if (!token || !token.includes('.')) return null;
+  const [payload, sig] = token.split('.');
+  if (!safeEq(sig, crypto.createHmac('sha256', SECRET).update(payload).digest('base64url'))) return null;
+  try { const p = JSON.parse(Buffer.from(payload, 'base64url').toString()); if (!p.adm || p.exp < Date.now()) return null; const a = q.adminByName.get(p.adm); return a && (a.token_version || 0) === (p.v || 0) ? a : null; } catch { return null; }
+}
+// Tarpit: each failed admin login from an IP adds a delay, so guessing is slow even before the limiter trips.
+const adminFails = new Map();
+app.post('/api/admin/login', async (req, res) => {
+  if (limited('admin:' + req.ip, 20)) return fail(res, 429, 'too_many_requests');
+  const fails = adminFails.get(req.ip) || 0;
+  if (fails) await new Promise((r) => setTimeout(r, Math.min(8000, 500 * 2 ** (fails - 1))));
+  const { username, password } = req.body || {};
+  const a = typeof username === 'string' && q.adminByName.get(username.trim());
+  if (!a || typeof password !== 'string' || !safeEq(scrypt(password, a.salt), a.pass_hash)) { adminFails.set(req.ip, fails + 1); audit('-', 'admin_login_failed', String(username || '').slice(0, 40), req.ip); return fail(res, 401, 'bad_credentials'); }
+  adminFails.delete(req.ip); q.adminTouch.run(Date.now(), a.username); audit(a.username, 'admin_login', '', req.ip);
+  res.json({ token: signAdminToken(a), admin: { username: a.username } });
+});
+const admin = (req, res, next) => {
+  const m = /^Bearer (.+)$/.exec(req.headers.authorization || '');
+  const a = m && adminFromToken(m[1]);
+  if (!a) return fail(res, 401, 'unauthorized');
+  req.admin = a; req.user = { id: 'admin:' + a.username }; next();
+};
+app.get('/api/admin/me', admin, (req, res) => res.json({ admin: { username: req.admin.username } }));
+app.post('/api/admin/password', admin, (req, res) => {
+  const { currentPassword, newPassword } = req.body || {};
+  if (typeof currentPassword !== 'string' || !safeEq(scrypt(currentPassword, req.admin.salt), req.admin.pass_hash)) return fail(res, 401, 'bad_credentials');
+  const pp = passwordProblem(newPassword); if (pp) return fail(res, 400, pp);
+  const salt = crypto.randomBytes(16).toString('hex');
+  db.prepare('UPDATE admins SET pass_hash = ?, salt = ?, token_version = token_version + 1 WHERE username = ?').run(scrypt(newPassword, salt), salt, req.admin.username);
+  audit(req.admin.username, 'admin_password_change', '', req.ip);
+  res.json({ ok: true, token: signAdminToken(q.adminByName.get(req.admin.username)) });
+});
 app.get('/api/admin/overview', admin, (_req, res) => {
   const week = Date.now() - 7 * 864e5;
-  res.json({ users: q.countUsers.get().n, admins: q.countAdmins.get().n, tasks: q.countItems.get().n, signups7: q.signups7.get(week).n, active7: q.active7.get(week).n,
+  res.json({ users: q.countUsers.get().n, tasks: q.countItems.get().n, signups7: q.signups7.get(week).n, active7: q.active7.get(week).n,
     registration: registration(), mail: !!mailer, publicUrl: PUBLIC_URL, dbBytes: fs.statSync(path.join(DATA_DIR, 'anjam.sqlite')).size, uptime: Math.round(process.uptime()) });
 });
 app.get('/api/admin/users', admin, (_req, res) => res.json({ users: q.allUsers.all() }));
 app.post('/api/admin/users/:id', admin, (req, res) => {
   const u = q.userById.get(req.params.id); if (!u) return fail(res, 404, 'not_found');
   const { action, value } = req.body || {};
-  const self = u.id === req.user.id;
   switch (action) {
-    case 'disable': if (self) return fail(res, 400, 'cannot_self'); q.setDisabled.run(1, u.id); break;
+    case 'disable': q.setDisabled.run(1, u.id); break;
     case 'enable': q.setDisabled.run(0, u.id); break;
-    case 'make_admin': q.setRole.run('admin', u.id); break;
-    case 'remove_admin': if (self && q.countAdmins.get().n <= 1) return fail(res, 400, 'last_admin'); q.setRole.run('user', u.id); break;
     case 'rename': q.setName.run(String(value || '').trim().slice(0, 80), u.id); break;
-    case 'delete': if (self) return fail(res, 400, 'cannot_self'); q.deleteItems.run(u.id); q.deleteUser.run(u.id); break;
-    case 'reset_link': { const token = crypto.randomBytes(24).toString('base64url'); q.addReset.run(token, u.id, Date.now() + 24 * 60 * 60e3); audit(req.user.id, 'admin_' + action, u.email, req.ip); return res.json({ ok: true, link: `${PUBLIC_URL || ''}/?reset=${token}`, expiresIn: '24h' }); }
+    case 'delete': q.deleteItems.run(u.id); q.deleteUser.run(u.id); break;
+    case 'reset_link': { const token = crypto.randomBytes(24).toString('base64url'); q.addReset.run(token, u.id, Date.now() + 24 * 60 * 60e3); audit(req.admin.username, 'admin_' + action, u.email, req.ip); return res.json({ ok: true, link: `${PUBLIC_URL || ''}/?reset=${token}`, expiresIn: '24h' }); }
     case 'wipe_data': q.deleteItems.run(u.id); break;
     default: return fail(res, 400, 'bad_action');
   }
-  audit(req.user.id, 'admin_' + action, u.email, req.ip);
+  audit(req.admin.username, 'admin_' + action, u.email, req.ip);
   res.json({ ok: true });
 });
 app.get('/api/admin/settings', admin, (_req, res) => res.json({ registration: registration() }));
 app.post('/api/admin/settings', admin, (req, res) => {
   const { registration: r } = req.body || {};
   if (!['open', 'invite', 'closed'].includes(r)) return fail(res, 400, 'bad_request');
-  q.setSetting.run('registration', r); audit(req.user.id, 'settings_registration', r, req.ip);
+  q.setSetting.run('registration', r); audit(req.admin.username, 'settings_registration', r, req.ip);
   res.json({ registration: r });
 });
 app.get('/api/admin/invites', admin, (_req, res) => res.json({ invites: q.invites.all() }));
 app.post('/api/admin/invites', admin, (req, res) => {
   const code = crypto.randomBytes(4).toString('hex').toUpperCase();
-  q.addInvite.run(code, Date.now(), String((req.body || {}).note || '').slice(0, 80)); audit(req.user.id, 'invite_create', code, req.ip);
+  q.addInvite.run(code, Date.now(), String((req.body || {}).note || '').slice(0, 80)); audit(req.admin.username, 'invite_create', code, req.ip);
   res.json({ code });
 });
 app.post('/api/admin/invites/:code/delete', admin, (req, res) => { q.delInvite.run(req.params.code); res.json({ ok: true }); });
@@ -306,11 +339,12 @@ app.get('/api/admin/backup', admin, (_req, res) => {
 // ---------- static web app (PWA) + admin page ----------
 const WEB_DIR = path.join(__dirname, '..', 'web');
 if (fs.existsSync(WEB_DIR)) {
-  app.get('/admin', (_req, res) => res.sendFile(path.join(WEB_DIR, 'admin.html')));
+  app.get('/' + ADMIN_PATH, (_req, res) => res.sendFile(path.join(WEB_DIR, 'admin.html')));
+  if (ADMIN_PATH !== 'admin') app.get('/admin', (_req, res) => res.status(404).send('Not found'));
   // Everything revalidates (ETag) so updates land on the next load; only the font is cached long-term.
   app.use(express.static(WEB_DIR, { index: 'index.html', etag: true, setHeaders: (res, p) => { res.setHeader('Cache-Control', p.endsWith('.woff2') ? 'public, max-age=31536000, immutable' : 'no-cache'); } }));
 }
 app.use('/api', (_req, res) => fail(res, 404, 'not_found'));
 app.use((err, _req, res, _next) => { console.error(err); res.status(err.type === 'entity.too.large' ? 413 : 500).json({ error: 'server_error' }); });
 
-http.createServer(app).listen(PORT, BIND, () => console.log(`Anjam server on http://${BIND}:${PORT}  data=${DATA_DIR}  registration=${registration()}  mail=${!!mailer}`));
+http.createServer(app).listen(PORT, BIND, () => console.log(`Anjam server on http://${BIND}:${PORT}  data=${DATA_DIR}  registration=${registration()}  mail=${!!mailer}  panel=/${ADMIN_PATH}`));

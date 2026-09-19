@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# /usr/local/bin/anjam — management command (installed by deploy/server-install.sh). `anjam` alone shows the menu.
+set -euo pipefail
+APP=/opt/anjam/app; NODE=/opt/anjam/node/bin/node; ENV=/etc/anjam/anjam.env
+[[ $EUID -eq 0 ]] || { echo "run as root"; exit 1; }
+set -a; . "$ENV"; set +a
+cli() { "$NODE" "$APP/server/cli.js" "$@"; }
+case "${1:-menu}" in
+  status)   systemctl status anjam --no-pager | head -12; curl -fsS "http://127.0.0.1:${PORT:-8787}/api/health" && echo ;;
+  start|stop|restart) systemctl "$1" anjam; echo "anjam: $1" ;;
+  log|logs) journalctl -u anjam -n "${2:-100}" -f ;;
+  update)   bash "$APP/deploy/server-deploy.sh" ;;
+  admin|registration|invite|users|user|backup|stats) cli "$@" ;;
+  creds)    cat /etc/anjam/install-result.env 2>/dev/null || echo "no install-result.env (use: anjam admin reset)" ;;
+  env)      "${EDITOR:-nano}" "$ENV" && systemctl restart anjam ;;
+  uninstall)
+    read -rp "Remove Anjam (a backup is kept in /root)? [y/N] " a; [[ $a == y ]] || exit 0
+    cli backup /root/anjam-last-backup.sqlite
+    systemctl disable --now anjam
+    rm -f /etc/systemd/system/anjam.service /etc/nginx/sites-enabled/anjam /etc/nginx/sites-available/anjam /etc/nginx/conf.d/anjam-zones.conf /usr/local/bin/anjam
+    systemctl daemon-reload; nginx -t && systemctl reload nginx
+    rm -rf /opt/anjam /etc/anjam
+    echo "removed; data left in /var/lib/anjam and /root/anjam-last-backup.sqlite" ;;
+  menu|*)
+    cat <<M
+  Anjam  ${PUBLIC_URL:-}   panel: /${ADMIN_PATH:-admin}
+  ┌──────────────────────────────────────────────────────────────────┐
+  │ anjam status                anjam admin reset [user]  new password │
+  │ anjam start|stop|restart    anjam registration open|invite|closed  │
+  │ anjam log                   anjam invite create [note]             │
+  │ anjam update                anjam users · user disable|enable|delete <email> │
+  │ anjam backup                anjam user reset-link <email>          │
+  │ anjam env · anjam creds     anjam stats · anjam uninstall          │
+  └──────────────────────────────────────────────────────────────────┘
+M
+  ;;
+esac
