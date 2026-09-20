@@ -16,7 +16,7 @@ case "${1:-menu}" in
     "$BIN" backup /root/anjam-last-backup.sqlite || true
     systemctl disable --now anjam
     rm -f /etc/systemd/system/anjam.service /etc/nginx/sites-enabled/anjam /etc/nginx/sites-available/anjam /etc/nginx/conf.d/anjam-zones.conf /usr/local/bin/anjam
-    systemctl daemon-reload; nginx -t && systemctl reload nginx
+    systemctl daemon-reload; nginx -t -q && systemctl reload nginx   # graceful; other sites keep serving
     rm -rf /opt/anjam /etc/anjam
     echo "removed; data left in /var/lib/anjam and /root/anjam-last-backup.sqlite" ;;
   menu)

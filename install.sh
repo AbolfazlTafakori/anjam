@@ -11,6 +11,10 @@
 # What it installs: one static Go binary + the web bundle from GitHub Releases, its own system user,
 # data dir, env file, hardened systemd unit, nginx vhost with its own rate-limit zones, Let's Encrypt.
 # Nothing is shared with other apps on the host — no runtime, no global packages.
+# Isolation rules: never upgrades or restarts a package that is already installed (nginx keeps serving other sites),
+# refuses a port or domain that something else already uses, only ever writes files named anjam*, never edits
+# another vhost (certbot runs in certonly mode; the TLS block lives in our own file), and if our vhost would break
+# `nginx -t` it is removed again before anything is reloaded.
 set -euo pipefail
 
 REPO="AbolfazlTafakori/anjam"
@@ -46,6 +50,12 @@ ask DOMAIN "Domain for Anjam (DNS must already point to $IP)" "$DOMAIN"
 [[ -n $DOMAIN ]] || { echo "A domain is required (for HTTPS)."; exit 1; }
 DOMAIN=${DOMAIN#https://}; DOMAIN=${DOMAIN#http://}; DOMAIN=${DOMAIN%%/*}
 ask PORT "Internal port (behind nginx, not public)" "${PORT:-8787}"
+# Refuse a port that another program already listens on (our own service may hold it on an upgrade).
+holder=$(ss -ltnpH "sport = :$PORT" 2>/dev/null | grep -o 'users:(("[^"]*"' | head -1 | cut -d'"' -f2 || true)
+if [[ -n $holder && $holder != anjam ]]; then echo "Port $PORT is already used by '$holder'. Pick another with --port."; exit 1; fi
+# Refuse a domain that another enabled nginx site already answers for.
+other=$(grep -lsE "^\s*server_name\s+.*$DOMAIN" /etc/nginx/sites-enabled/* /etc/nginx/conf.d/*.conf 2>/dev/null | grep -v '/anjam' || true)
+if [[ -n $other ]]; then echo "$DOMAIN is already served by: $other. Anjam will not touch it — choose another domain."; exit 1; fi
 if [[ $UPGRADE -eq 0 ]]; then
   ask ADMIN_EMAIL "Administrator e-mail (also signs in to the app)" "admin@$DOMAIN"
   ask ADMIN_NAME  "Administrator display name" "Admin"
@@ -56,8 +66,10 @@ fi
 
 say "1/5  Packages"
 export DEBIAN_FRONTEND=noninteractive
-apt-get update -qq
-apt-get install -y -qq curl nginx certbot python3-certbot-nginx >/dev/null
+# Install only what is missing; an already-installed nginx/certbot is never upgraded or restarted here.
+missing=(); for pkg in curl nginx certbot; do dpkg -s "$pkg" >/dev/null 2>&1 || missing+=("$pkg"); done
+if ((${#missing[@]})); then apt-get update -qq; apt-get install -y -qq --no-upgrade "${missing[@]}" >/dev/null; echo "  installed: ${missing[*]}"; else echo "  nginx, certbot, curl: already present (left untouched)"; fi
+systemctl is-active -q nginx || systemctl start nginx
 
 say "2/5  Anjam ($TAG)"
 id -u anjam >/dev/null 2>&1 || useradd --system --home /opt/anjam --shell /usr/sbin/nologin anjam
@@ -100,13 +112,58 @@ systemctl daemon-reload; systemctl enable -q anjam; systemctl restart anjam
 sleep 1; curl -fsS "http://127.0.0.1:$PORT/api/health" >/dev/null && echo "  service: running"
 
 say "5/5  nginx + HTTPS"
-install -m 644 /opt/anjam/deploy/nginx-anjam-zones.conf /etc/nginx/conf.d/anjam-zones.conf
-sed "s/anjam.abolfazltafakori.com/$DOMAIN/; s/127.0.0.1:8787/127.0.0.1:$PORT/g" /opt/anjam/deploy/nginx-anjam.conf > /etc/nginx/sites-available/anjam
-ln -sf /etc/nginx/sites-available/anjam /etc/nginx/sites-enabled/anjam
-nginx -t -q && systemctl reload nginx
-if [[ ! -d /etc/letsencrypt/live/$DOMAIN ]]; then
-  certbot --nginx -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email --redirect -q || echo "  certbot failed (is DNS for $DOMAIN pointing here?). Later: certbot --nginx -d $DOMAIN"
-else certbot --nginx -d "$DOMAIN" --non-interactive --redirect -q 2>/dev/null || true; fi
+# Everything nginx-related lives in three files of our own: conf.d/anjam-zones.conf, sites-available/anjam and its
+# symlink. nginx is only ever *reloaded* (graceful, other sites keep serving), and only after `nginx -t` passes
+# with our files in place — otherwise they are withdrawn so nothing else on the host is affected.
+SITE=/etc/nginx/sites-available/anjam
+nginx_apply() {
+  local tls=$1
+  install -m 644 /opt/anjam/deploy/nginx-anjam-zones.conf /etc/nginx/conf.d/anjam-zones.conf
+  sed "s/anjam.abolfazltafakori.com/$DOMAIN/g; s/127.0.0.1:8787/127.0.0.1:$PORT/g" /opt/anjam/deploy/nginx-anjam.conf > "$SITE"
+  # ACME answers come from our own webroot, so certbot never has to edit nginx.
+  sed -i 's|    location /api/auth/ {|    location /.well-known/acme-challenge/ { root /var/lib/anjam/acme; }\n    location /api/auth/ {|' "$SITE"
+  if [[ $tls -eq 1 ]]; then
+    # Serve on 443 with the certificate, and redirect plain http for our host name only.
+    sed -i "/^    listen 80;$/d; /^    listen \[::\]:80;$/d" "$SITE"
+    sed -i "s|^    server_name $DOMAIN;$|    server_name $DOMAIN;\n    listen 443 ssl;\n    listen [::]:443 ssl;\n    http2 on;\n    ssl_certificate /etc/letsencrypt/live/$DOMAIN/fullchain.pem;\n    ssl_certificate_key /etc/letsencrypt/live/$DOMAIN/privkey.pem;\n    ssl_session_timeout 1d; ssl_session_cache shared:anjam_ssl:2m; ssl_session_tickets off;\n    ssl_protocols TLSv1.2 TLSv1.3; ssl_prefer_server_ciphers off;|" "$SITE"
+    cat >> "$SITE" <<NGX
+
+server {
+    listen 80;
+    listen [::]:80;
+    server_name $DOMAIN;
+    location /.well-known/acme-challenge/ { root /var/lib/anjam/acme; }
+    location / { return 301 https://\$host\$request_uri; }
+}
+NGX
+  fi
+  ln -sf "$SITE" /etc/nginx/sites-enabled/anjam
+  if nginx -t -q 2>/dev/null; then systemctl reload nginx; return 0; fi
+  rm -f /etc/nginx/sites-enabled/anjam; echo "  nginx rejected our vhost — withdrawn, other sites untouched:"; nginx -t 2>&1 | tail -3; return 1
+}
+mkdir -p /var/lib/anjam/acme; chown anjam:anjam /var/lib/anjam/acme
+if [[ -f /etc/letsencrypt/live/$DOMAIN/fullchain.pem ]]; then
+  nginx_apply 1
+  # An older install let certbot's nginx plugin renew (it edits vhosts); switch our domain's renewal to webroot.
+  RC=/etc/letsencrypt/renewal/$DOMAIN.conf
+  if [[ -f $RC ]] && grep -q '^authenticator = nginx' "$RC"; then
+    sed -i '/^installer = /d; s/^authenticator = nginx/authenticator = webroot/' "$RC"
+    grep -q '^webroot_path' "$RC" || printf 'webroot_path = /var/lib/anjam/acme,
+[[webroot_map]]
+%s = /var/lib/anjam/acme
+' "$DOMAIN" >> "$RC"
+    grep -q '^renew_hook' "$RC" || sed -i '/^\[renewalparams\]/a renew_hook = systemctl reload nginx' "$RC"
+    certbot renew --cert-name "$DOMAIN" --dry-run -q 2>/dev/null && echo "  certificate renewal: webroot (no nginx edits)" || echo "  note: renewal dry-run failed; check: certbot renew --cert-name $DOMAIN --dry-run"
+  fi
+else
+  nginx_apply 0 || exit 1
+  # certonly + webroot: certbot never edits any nginx file; renewals reload nginx gracefully through the deploy hook.
+  if certbot certonly --webroot -w /var/lib/anjam/acme -d "$DOMAIN" --non-interactive --agree-tos --register-unsafely-without-email        --deploy-hook "systemctl reload nginx" -q; then
+    nginx_apply 1
+  else
+    echo "  certbot failed (is DNS for $DOMAIN pointing at $IP?). Anjam is up on http://$DOMAIN; re-run this installer once DNS is right."
+  fi
+fi
 
 . /etc/anjam/install-result.env 2>/dev/null || true
 echo
