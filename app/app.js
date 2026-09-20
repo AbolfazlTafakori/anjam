@@ -491,13 +491,13 @@
     $('#tab-lists').classList.toggle('active', $('#app').classList.contains('sidebar-open'));
     $('#ws-name').textContent = signedIn() && state.data.sync.name ? state.data.sync.name : t('appName');
 
-    // Favorites (starred lists), like Notion's Favorites section
+    // Favorites (starred lists), starred lists on top
     const fw = $('#fav-items'); fw.innerHTML = '';
     const favs = sortedLists().filter((l) => l.favorite);
     $('#side-fav-sec').hidden = !favs.length;
     favs.forEach((l) => { const b = document.createElement('button'); b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : ''); b.innerHTML = `${listMark(l)}<span class="nav-label" dir="auto">${esc(l.name)}</span>`; b.onclick = () => setView('list', { listId: l.id }); fw.appendChild(b); });
     applySideCfg();
-    // Upcoming: the next three dated tasks, like Notion's "Upcoming events"
+    // Upcoming: the next three dated tasks, shown as a small agenda
     const up = $('#side-upcoming'); up.innerHTML = '';
     const soon = open.filter((x) => x.due && x.due >= today).sort((a, b) => (a.due + (a.time || '')).localeCompare(b.due + (b.time || ''))).slice(0, 3);
     $('#side-upcoming-sec').hidden = !soon.length;
@@ -528,7 +528,7 @@
       b.innerHTML = `${listMark(l)}<span class="nav-label" dir="auto">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn xs rail-edit" role="button" title="${esc(t('more'))}">${icon('more')}</span>`;
       b.onclick = (e) => { if (e.target.closest('.rail-edit')) return listRailMenu(l, e.target.closest('.rail-edit')); setView('list', { listId: l.id }); };
       b.oncontextmenu = (e) => { e.preventDefault(); listRailMenu(l, e); };
-      // drag to reorder, like Notion's sidebar
+      // drag to reorder
       b.draggable = canWriteList(l);
       b.ondragstart = (e) => { drag.listId = l.id; e.dataTransfer.effectAllowed = 'move'; b.classList.add('dragging'); };
       b.ondragend = () => { drag.listId = null; b.classList.remove('dragging'); $$('.rail-item.drop-after,.rail-item.drop-before').forEach((x) => x.classList.remove('drop-after', 'drop-before')); };
@@ -579,7 +579,7 @@
     state.data.tasks.filter((x) => x.listId === id && !x.done).forEach((x) => state.data.tasks.push({ ...x, id: uid(), listId: nid, createdAt: Date.now(), updatedAt: Date.now(), subtasks: x.subtasks.map((s) => ({ ...s, id: uid() })), tags: x.tags.slice() }));
     save(); setView('list', { listId: nid });
   }
-  // Home: list cards (like the link columns on a Notion home page), then this week's tasks below
+  // Home: list cards (link columns), then this week's tasks below
   function renderHomeCards() {
     const w = $('#home-cards'); w.innerHTML = '';
     const open = liveTasks().filter((x) => !x.done);
@@ -626,7 +626,7 @@
       if (i) { const s = document.createElement('span'); s.className = 'sep'; s.textContent = '/'; c.appendChild(s); }
       const b = document.createElement('button'); b.innerHTML = `${cr.icon || ''}<span dir="auto">${esc(cr.label)}</span>`; if (cr.run) b.onclick = cr.run; c.appendChild(b);
     });
-    // Notion page chrome: hover actions (icon / cover / description), cover strip, editable description, star + link in the topbar
+    // Page chrome: hover actions (icon / cover / description), cover strip, editable description, star + link in the topbar
     const l = state.view === 'list' && getList(state.listId);
     const editable = l && canWriteWS(workspaceOfList(l));
     $('#page-actions').hidden = !editable;
@@ -1102,7 +1102,7 @@
     };
   }
   function deleteList() { if (!listDlg.id) return; $('#list-dialog').hidden = true; trashList(listDlg.id); }
-  // Notion's Trash: a list keeps its tasks and disappears from everywhere until restored or deleted forever
+  // Trash: a list keeps its tasks and disappears from everywhere until restored or deleted forever
   function trashList(id) {
     const l = getList(id); if (!l) return;
     l.trashedAt = Date.now(); l.favorite = false;
@@ -1628,7 +1628,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     const opts = [['due', 'calendar', 'sortDue'], ['priority', 'flag', 'sortPriority'], ['title', 'notes', 'sortTitle'], ['created', 'clock', 'sortCreated']];
     openMenu(a, opts.map(([k, ic, lb]) => ({ label: t(lb), icon: ic, on: s.sort === k, run: () => { s.sort = k; save(); render(); } })), { title: t('sort') });
   }
-  // Settings window (Notion's form): nav on the start side, one pane at a time
+  // Settings window: nav on the start side, one pane at a time
   function showPane(name) {
     $$('.stw-item').forEach((b) => b.classList.toggle('active', b.dataset.pane === name));
     $$('.stw-pane').forEach((p) => { p.hidden = p.dataset.pane !== name; });

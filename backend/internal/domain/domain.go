@@ -43,7 +43,7 @@ type User struct {
 	LastIP       string
 }
 
-// ---------- workspaces (the "Notion" part) ----------
+// ---------- workspaces ----------
 
 // A Workspace is the unit of sharing. Every user owns a personal one; more can be
 // created and members added with a role. Databases and items belong to a workspace.

@@ -1,5 +1,5 @@
 /* ============================================================
-   Anjam — Notion-style workspace, ruby accent
+   Anjam — workspace layout, ruby accent
    One family (Vazirmatn), fixed px scale, 4px spacing grid,
    radii 4/6/8/12, light + dark themes (system / forced).
    ============================================================ */
@@ -754,7 +754,7 @@ select.field-input { appearance: auto; }
 @media print { .sidebar, .topbar, .tabbar, .fab, .db-bar, .peek, .scrim { display: none !important; } .page { max-width: none; padding: 0; } }
 
 /* ============================================================
-   Sidebar in Notion's form: icon row · search · tab strip · sections · account footer
+   Sidebar: icon row · search · tab strip · sections · account footer
    ============================================================ */
 .side-top { display: flex; align-items: center; gap: 2px; height: 32px; margin-bottom: 6px; }
 .side-top .spacer { flex: 1; }
@@ -796,7 +796,7 @@ select.field-input { appearance: auto; }
 .home-link-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-bottom: 1px solid var(--line); padding-bottom: 1px; }
 .home-link .count { font-size: 12px; color: var(--text-3); font-weight: 400; }
 
-/* Type and spacing scale with the page, like Notion */
+/* Type and spacing scale with the page width */
 .page-title { font-size: 40px; }
 @media (max-width: 1280px) { .page { padding-inline: 48px; } }
 @media (max-width: 1100px) { .page { padding-inline: 40px; } .page-title { font-size: 34px; } .page-icon { width: 48px; height: 48px; } .page-icon svg { width: 28px; height: 28px; } }
@@ -819,7 +819,7 @@ select.field-input { appearance: auto; }
 .home-link .count { margin-inline-start: auto; }
 
 /* ============================================================
-   Settings window — Notion's form: search + grouped nav on the start side, one pane of titled rows
+   Settings window: search + grouped nav on the start side, one pane of titled rows
    ============================================================ */
 .stw { width: min(1150px, calc(100vw - 32px)); height: min(720px, calc(100vh - 32px)); background: var(--bg); border-radius: var(--r-xl); box-shadow: var(--shadow-lg); display: grid; grid-template-columns: 240px 1fr; overflow: hidden; animation: dialog-in var(--t-slow) var(--ease) both; }
 .stw-nav { background: var(--bg-side); border-inline-end: 1px solid var(--line); padding: 10px 8px; overflow-y: auto; display: flex; flex-direction: column; gap: 1px; }
@@ -864,7 +864,7 @@ select.field-input { appearance: auto; }
 }
 
 /* ============================================================
-   Notion page chrome: cover · hover actions · icon/cover pickers · description
+   Page chrome: cover · hover actions · icon/cover pickers · description
    ============================================================ */
 .page-cover { position: relative; height: 200px; margin: -32px -56px 0; border-radius: 0; background: var(--bg-side); }
 .page.wide .page-cover { margin-inline: -40px; }
@@ -907,7 +907,7 @@ select.field-input { appearance: auto; }
 #fav-btn.on svg { fill: currentColor; animation: star-pop var(--t-slow) var(--ease); }
 @keyframes star-pop { 0% { transform: scale(.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
 
-/* Popovers (Notion's 160ms scale-in) */
+/* Popovers (160ms scale-in) */
 .pop { position: fixed; z-index: 60; width: 320px; background: var(--bg); border-radius: var(--r-lg); box-shadow: var(--shadow-md); padding: 8px; animation: pop var(--t-mid) var(--ease) both; }
 .pop-tabs { display: flex; align-items: center; gap: 12px; padding: 2px 6px 8px; font-size: 13px; }
 .pop-tabs .spacer { flex: 1; }

@@ -1,4 +1,4 @@
-/* Admin panel — builds on ../styles.css (Notion-style, ruby). The aliases below map the panel's older
+/* Admin panel — builds on ../styles.css (workspace style, ruby). The aliases below map the panel's older
    token names and shell classes onto the current system so the panel matches the app. */
 :root {
   --lac-0: var(--bg-side); --lac-1: var(--bg); --lac-2: var(--bg-2);

@@ -23,7 +23,7 @@ A single Persian-speaking user (also fluent in English) who wants to capture tas
 - Quick capture with inline tokens (`!3`, `#tag`, `فردا`, `1405/07/05`) parsed live.
 - Truly bilingual: full RTL/LTR switch, Persian/English UI, Jalali or Gregorian calendar chosen independently of language.
 - Reports and exports (PDF/CSV/Markdown/JSON) built in.
-- Positioned against Notion-style complexity: no databases, no workspaces; against bare checklists: has lists, subtasks, recurrence, reminders.
+- Positioned against heavyweight workspace tools: lists and shared spaces without a database builder; against bare checklists: has lists, subtasks, recurrence, reminders.
 
 ## Capabilities (confirmed)
 
