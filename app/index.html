@@ -24,6 +24,14 @@
     <symbol id="i-tag" viewBox="0 0 24 24"><path d="M4 5.5V11l8.5 8.5 6-6L10 5H4.5a.5.5 0 0 0-.5.5z"/><circle cx="8" cy="9" r="1.2"/></symbol>
     <symbol id="i-compose" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17z"/><path d="M13.5 6.5l3 3"/></symbol>
     <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4l10.5-10.5a2.1 2.1 0 0 0-3-3L5 17z"/></symbol>
+    <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3.5 2.6 5.4 5.9.8-4.3 4.1 1.1 5.9L12 16.9l-5.3 2.8 1.1-5.9-4.3-4.1 5.9-.8z"/></symbol>
+    <symbol id="i-link" viewBox="0 0 24 24"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1.5 1.5"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1.5-1.5"/></symbol>
+    <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></symbol>
+    <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 7.5-2"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10" r="1.5"/><path d="m21 15-5-5-8 8"/></symbol>
+    <symbol id="i-smile" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8.5 14.5a4.5 4.5 0 0 0 7 0"/><path d="M9 10h.01M15 10h.01"/></symbol>
+    <symbol id="i-restore" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 2.3 5.7"/><path d="M4 4v6h6"/></symbol>
+    <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h4M12 17h8"/><circle cx="16" cy="7" r="2"/><circle cx="10" cy="17" r="2"/></symbol>
     <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
     <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4 4"/></symbol>
     <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9M4 12h13"/><circle cx="15" cy="7" r="2"/><circle cx="9" cy="17" r="2"/><circle cx="19" cy="12" r="2"/></symbol>
@@ -85,6 +93,10 @@
     </div>
 
     <div class="sidebar-scroll">
+      <div class="side-section" id="side-fav-sec" hidden>
+        <div class="side-head"><span data-i18n="favorites">علاقه‌مندی‌ها</span></div>
+        <div class="nav" id="fav-items"></div>
+      </div>
       <div class="side-section" id="side-upcoming-sec">
         <div class="side-head"><span data-i18n="upcomingSide">پیش‌رو</span></div>
         <div class="nav" id="side-upcoming"></div>
@@ -118,6 +130,8 @@
 
     <div class="sidebar-bottom">
       <button class="update-pill" id="update-pill" hidden><svg><use href="#i-sparkle"/></svg><span class="nav-label" id="update-pill-text"></span></button>
+      <button class="nav-item" id="trash-btn"><svg><use href="#i-trash"/></svg><span class="nav-label" data-i18n="trash">سطل زباله</span><span class="count" id="count-trash"></span></button>
+      <button class="nav-item" id="customize-btn"><svg><use href="#i-sliders"/></svg><span class="nav-label" data-i18n="customizeSidebar">شخصی‌سازی نوار کناری</span></button>
       <button class="nav-item" id="settings-btn"><svg><use href="#i-settings"/></svg><span class="nav-label" data-i18n="settings">تنظیمات</span></button>
       <button class="btn primary new-task" id="new-task-btn"><svg><use href="#i-plus"/></svg><span data-i18n="aNewTask">کار جدید</span></button>
     </div>
@@ -137,15 +151,24 @@
       <div class="topbar-spacer"></div>
       <button class="sync-pill" id="sync-pill" hidden><svg><use href="#i-sync"/></svg><span id="sync-pill-text"></span></button>
       <button class="tbtn" id="share-btn" hidden><span data-i18n="share">اشتراک‌گذاری</span></button>
+      <button class="ibtn" id="link-btn" data-i18n-title="copyLink" title="کپی پیوند" hidden><svg><use href="#i-link"/></svg></button>
+      <button class="ibtn" id="fav-btn" data-i18n-title="favorite" title="علاقه‌مندی" hidden><svg><use href="#i-star"/></svg></button>
       <button class="ibtn" id="palette-btn" data-i18n-title="scPalette" title="فرمان‌ها (Ctrl+K)"><svg><use href="#i-command"/></svg></button>
       <button class="ibtn" id="more-btn" data-i18n-title="more" title="بیشتر"><svg><use href="#i-more"/></svg></button>
     </header>
 
     <div class="scroller" id="scroller">
       <div class="page" id="page">
+        <div class="page-cover" id="page-cover" hidden><button class="cover-btn" id="cover-change" data-i18n="changeCover">تغییر کاور</button><button class="cover-btn" id="cover-remove" data-i18n="removeCover">حذف</button></div>
         <div class="page-head">
           <div class="page-icon" id="page-icon"></div>
+          <div class="page-actions" id="page-actions" hidden>
+            <button class="pa-btn" id="pa-icon"><svg><use href="#i-smile"/></svg><span data-i18n="addIcon">افزودن آیکون</span></button>
+            <button class="pa-btn" id="pa-cover"><svg><use href="#i-image"/></svg><span data-i18n="addCover">افزودن کاور</span></button>
+            <button class="pa-btn" id="pa-desc"><svg><use href="#i-notes"/></svg><span data-i18n="addDesc">افزودن توضیح</span></button>
+          </div>
           <h1 class="page-title" id="view-title">امروز</h1>
+          <div class="page-desc" id="view-desc" contenteditable="true" dir="auto" data-i18n-ph="descPh" hidden></div>
           <p class="page-sub" id="view-sub"></p>
         </div>
 
@@ -328,6 +351,33 @@
     <button id="tab-lists"><svg><use href="#i-menu"/></svg><span data-i18n="more">بیشتر</span></button>
   </nav>
   <button class="fab" id="fab" aria-label="کار جدید"><svg><use href="#i-plus"/></svg></button>
+</div>
+
+<!-- Icon picker (Notion: Emoji · Remove, filter) -->
+<div class="pop" id="icon-pop" hidden>
+  <div class="pop-tabs"><span class="pop-tab active" data-i18n="emoji">ایموجی</span><span class="spacer"></span><button class="pop-link" id="icon-remove" data-i18n="remove">حذف</button></div>
+  <label class="pop-search"><svg><use href="#i-search"/></svg><input id="icon-q" type="search" data-i18n-ph="filterPh" placeholder="فیلتر…" /></label>
+  <div class="emoji-grid" id="emoji-grid"></div>
+</div>
+<!-- Cover picker: colour & gradient presets -->
+<div class="pop" id="cover-pop" hidden>
+  <div class="pop-tabs"><span class="pop-tab active" data-i18n="gallery">گالری</span><span class="spacer"></span><button class="pop-link" id="cover-clear" data-i18n="remove">حذف</button></div>
+  <div class="cover-grid" id="cover-grid"></div>
+</div>
+<!-- Trash (Notion: search · rows with restore / delete forever · 30-day note) -->
+<div class="pop trash-pop" id="trash-pop" hidden>
+  <label class="pop-search"><svg><use href="#i-search"/></svg><input id="trash-q" type="search" data-i18n-ph="trashSearch" placeholder="جستجو در سطل زباله" /></label>
+  <div class="trash-list" id="trash-list"></div>
+  <div class="pop-foot" data-i18n="trashNote">لیست‌های داخل سطل زباله بعد از ۳۰ روز خودکار حذف می‌شوند.</div>
+</div>
+<!-- Customize sidebar -->
+<div class="pop customize-pop" id="customize-pop" hidden>
+  <div class="pop-title" data-i18n="customizeSidebar">شخصی‌سازی نوار کناری</div>
+  <label class="cz-row"><span data-i18n="upcomingSide">پیش‌رو</span><label class="switch"><input type="checkbox" data-sec="upcoming" /><span class="switch-track"></span></label></label>
+  <label class="cz-row"><span data-i18n="recents">اخیر</span><label class="switch"><input type="checkbox" data-sec="recents" /><span class="switch-track"></span></label></label>
+  <label class="cz-row"><span data-i18n="views">نماها</span><label class="switch"><input type="checkbox" data-sec="views" /><span class="switch-track"></span></label></label>
+  <label class="cz-row"><span data-i18n="tags">برچسب‌ها</span><label class="switch"><input type="checkbox" data-sec="tags" /><span class="switch-track"></span></label></label>
+  <button class="btn primary cz-done" id="customize-done" data-i18n="done2">تمام</button>
 </div>
 
 <!-- Generic popover menu -->

@@ -143,6 +143,8 @@ Three shadows: `shadow-sm` (buttons, cards, 1px ring + 2px drop), `shadow-md` (m
 - **Inline capture**: a highlighted row with the quick-add parser (date words, `!1-3`, `#tag`, `@list`, `HH:MM`) and live token pills.
 - **Peek**: close / expand / delete bar → 24px checkbox + 30px editable title → property rows (Due, Time + reminder switch, Repeat, Priority segmented, List, Tags, Created) → subtasks with a progress bar → notes.
 - **Settings window**: Notion's form — 1150×720 dialog, 240px nav on the start side (search, groups Account · Workspace · App), one pane at a time with a 24px title, subtitle, section rules and label/description rows with the control on the end side; on phones the nav becomes a horizontal strip.
+- **Page chrome (lists)**: optional cover strip (12 gradient presets, hover → Change/Remove), emoji icon (picker: Emoji tab · filter · Remove), hover row above the title (Add icon · Add cover · Add description), inline editable description; star (favorites) and copy-link in the topbar; "…" menu adds Full width, Lock, Move to Trash.
+- **Sidebar extras**: Favorites section on top; right-click / "…" on a list → Favorite · Copy link · Duplicate · Rename · Move to · Move to Trash; drag to reorder; bottom: Trash popover (search · restore · delete forever · 30-day note) and Customize sidebar (toggle sections).
 - **Menus**: 8px radius, 30px items, group titles, active dot; date picker with quick chips + month grid (Jalali starts Saturday, Fridays red; Gregorian starts Sunday).
 - **Skeleton**: shown during boot only; four shimmering rows.
 - **Toast**: bottom center, dark, with Undo.

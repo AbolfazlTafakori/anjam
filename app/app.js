@@ -7,6 +7,7 @@
   // ============================================================
   const I18N = {
     fa: {
+      favorites: 'علاقه‌مندی‌ها', favorite: 'افزودن به علاقه‌مندی‌ها', unfavorite: 'حذف از علاقه‌مندی‌ها', copyLink: 'کپی پیوند', linkCopied: 'پیوند کپی شد', trash: 'سطل زباله', moveToTrash: 'انتقال به سطل زباله', restore: 'بازگردانی', deleteForever: 'حذف برای همیشه', confirmForever: 'این لیست و کارهایش برای همیشه حذف شود؟', trashSearch: 'جستجو در سطل زباله', trashEmpty: 'سطل زباله خالی است', trashNote: 'لیست‌های داخل سطل زباله بعد از ۳۰ روز خودکار حذف می‌شوند.', movedToTrash: 'به سطل زباله منتقل شد', restored: 'بازگردانده شد', customizeSidebar: 'شخصی‌سازی نوار کناری', done2: 'تمام', addIcon: 'افزودن آیکون', addCover: 'افزودن کاور', addDesc: 'افزودن توضیح', changeCover: 'تغییر کاور', removeCover: 'حذف', descPh: 'توضیحی برای این لیست بنویسید…', emoji: 'ایموجی', gallery: 'گالری', filterPh: 'فیلتر…', lockDb: 'قفل لیست', unlockDb: 'باز کردن قفل', locked: 'قفل', fullWidth: 'تمام‌عرض', lockedHint: 'این لیست قفل است؛ برای ویرایش قفل را باز کنید.',
       searchSettings: 'جستجوی تنظیمات', spAccount: 'حساب', spAccountSub: 'پروفایل، ورود و همگام‌سازی', spPrefs: 'ترجیحات', spPrefsSub: 'ظاهر و رفتار انجام را انتخاب کنید', spGeneral: 'عمومی', spGeneralSub: 'فضاهای کاری شما و تنظیمات آن‌ها', spPeople: 'اعضا', spPeopleSub: 'اعضای فضاهای کاری مشترک و نقش‌هایشان', spData: 'داده و پشتیبان', spDataSub: 'خروجی بگیرید یا از پشتیبان بازیابی کنید', spApp: 'برنامه', spAbout: 'درباره', aboutSub: 'انجام — کارها، ساده و دقیق', spProfile: 'پروفایل', spSync: 'همگام‌سازی', spSyncState: 'وضعیت', spSession: 'نشست', signOutHint: 'از حساب روی این دستگاه خارج می‌شوید؛ داده‌های محلی می‌ماند.', serverHint: 'نشانی سروری که حساب شما روی آن است.', themeHint: 'پوستهٔ برنامه روی این دستگاه', spLangTime: 'زبان و زمان', langHint: 'زبان رابط کاربری و اعداد', showDone: 'نمایش انجام‌شده‌ها', showDoneHint: 'کارهای انجام‌شده در نماها هم دیده شوند', notifySub: 'تعیین کنید کی و چطور خبردار شوید', spInApp: 'اعلان‌های دستگاه', expPdfHint: 'گزارش چاپی از وضعیت کارها', expCsvHint: 'برای اکسل و گوگل‌شیت', expMdHint: 'فهرست متنی کارها', spBackup: 'پشتیبان', expJsonHint: 'همهٔ کارها، لیست‌ها و تنظیمات', impJsonHint: 'داده‌های فعلی با فایل پشتیبان جایگزین می‌شود', export: 'خروجی', updatesSub: 'نسخهٔ برنامه و دریافت نسخهٔ تازه', spVersion: 'نسخه', shortcutsSub: 'با صفحه‌کلید سریع‌تر کار کنید', spDownloads: 'دانلود نسخه‌ها', spWsName: 'نام فضای کاری', spWsPersonal: 'فضای شخصی شما؛ فقط خودتان می‌بینید.', spWsShared: '{n} لیست · نقش شما: {r}', spManage: 'مدیریت', spNoWs: 'هنوز فضای مشترکی ندارید.', spNoSignIn: 'برای فضاهای مشترک باید وارد حساب شوید.', spMembersOf: 'اعضای {w}',
       home: 'خانه', calendarView: 'تقویم', searchAsk: 'جستجو', upcomingSide: 'پیش‌رو', recents: 'اخیر', sharedSec: 'مشترک', privateSec: 'شخصی', startCollab: 'شروع همکاری', noShared: 'هنوز لیست مشترکی ندارید', accountMenu: 'حساب و فضای کاری',
       gMorning: 'صبح بخیر', gAfternoon: 'ظهر بخیر', gEvening: 'عصر بخیر', gNight: 'شب بخیر', subHome: '{a} کار برای امروز · {b} کار این هفته', subCalendar: '{n} کار با تاریخ', emptyHome: 'این هفته کاری نمانده', emptyCalendar: 'کاری با تاریخ ندارید', yourLists: 'لیست‌ها', tasksOpen: '{n} باز',
@@ -61,6 +62,7 @@
       repeatShort: { daily: 'روزانه', weekdays: 'روزهای کاری', weekly: 'هفتگی', monthly: 'ماهانه', yearly: 'سالانه' },
     },
     en: {
+      favorites: 'Favorites', favorite: 'Add to Favorites', unfavorite: 'Remove from Favorites', copyLink: 'Copy link', linkCopied: 'Link copied', trash: 'Trash', moveToTrash: 'Move to Trash', restore: 'Restore', deleteForever: 'Delete forever', confirmForever: 'Delete this list and its tasks forever?', trashSearch: 'Search lists in Trash', trashEmpty: 'Trash is empty', trashNote: 'Once a list has been in Trash for 30 days, it will be deleted automatically.', movedToTrash: 'Moved to Trash', restored: 'Restored', customizeSidebar: 'Customize sidebar', done2: 'Done', addIcon: 'Add icon', addCover: 'Add cover', addDesc: 'Add description', changeCover: 'Change cover', removeCover: 'Remove', descPh: 'Write a description for this list…', emoji: 'Emoji', gallery: 'Gallery', filterPh: 'Filter…', lockDb: 'Lock list', unlockDb: 'Unlock list', locked: 'Locked', fullWidth: 'Full width', lockedHint: 'This list is locked; unlock it to edit.',
       searchSettings: 'Search settings', spAccount: 'Account', spAccountSub: 'Profile, sign-in and sync', spPrefs: 'Preferences', spPrefsSub: 'Choose how Anjam looks and behaves', spGeneral: 'General', spGeneralSub: 'Your workspaces and their settings', spPeople: 'People', spPeopleSub: 'Members of your shared workspaces and their roles', spData: 'Data & backup', spDataSub: 'Export, or restore from a backup', spApp: 'App', spAbout: 'About', aboutSub: 'Anjam — tasks, simple and precise', spProfile: 'Profile', spSync: 'Sync', spSyncState: 'Status', spSession: 'Session', signOutHint: 'Signs out on this device; local data stays.', serverHint: 'The server your account lives on.', themeHint: 'Theme for Anjam on this device', spLangTime: 'Language & time', langHint: 'Interface language and digits', showDone: 'Show completed', showDoneHint: 'Completed tasks stay visible in views', notifySub: 'Decide when and how you want to be notified', spInApp: 'Device notifications', expPdfHint: 'A printable status report', expCsvHint: 'For Excel and Google Sheets', expMdHint: 'A plain-text task list', spBackup: 'Backup', expJsonHint: 'All tasks, lists and settings', impJsonHint: 'Replaces current data with the backup file', export: 'Export', updatesSub: 'App version and getting the latest one', spVersion: 'Version', shortcutsSub: 'Work faster with the keyboard', spDownloads: 'Downloads', spWsName: 'Workspace name', spWsPersonal: 'Your personal space; only you see it.', spWsShared: '{n} lists · your role: {r}', spManage: 'Manage', spNoWs: 'No shared workspaces yet.', spNoSignIn: 'Sign in to use shared workspaces.', spMembersOf: 'Members of {w}',
       home: 'Home', calendarView: 'Calendar', searchAsk: 'Search', upcomingSide: 'Upcoming', recents: 'Recents', sharedSec: 'Shared', privateSec: 'Private', startCollab: 'Start collaborating', noShared: 'No shared lists yet', accountMenu: 'Account & workspace',
       gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', gNight: 'Good night', subHome: '{a} tasks today · {b} this week', subCalendar: '{n} dated tasks', emptyHome: 'Nothing left this week', emptyCalendar: 'No dated tasks yet', yourLists: 'Lists', tasksOpen: '{n} open',
@@ -256,7 +258,7 @@
       if (data.tombstones && typeof data.tombstones === 'object') for (const [id, v] of Object.entries(data.tombstones)) d.tombstones[id] = typeof v === 'object' ? v : { at: Number(v) || Date.now(), kind: 'item', workspaceId: '' };
       if (data.sync && typeof data.sync === 'object') { d.sync = { ...d.sync, ...data.sync }; if (!d.sync.cursors || typeof d.sync.cursors !== 'object') d.sync.cursors = {}; delete d.sync.cursor; }
       if (Array.isArray(data.workspaces)) d.workspaces = data.workspaces.filter((w) => w && w.id).map((w) => ({ id: String(w.id), name: String(w.name || ''), personal: !!w.personal, role: w.role || 'owner', ownerId: w.ownerId || '' }));
-      if (Array.isArray(data.lists)) d.lists = data.lists.filter((l) => l && typeof l.name === 'string' && l.name.trim()).map((l, i) => ({ id: String(l.id || uid()), name: l.name.trim(), color: /^#[0-9a-f]{6}$/i.test(l.color || '') ? l.color : LIST_COLORS[i % LIST_COLORS.length], order: Number.isFinite(l.order) ? l.order : i, updatedAt: Number(l.updatedAt) || 0, workspaceId: typeof l.workspaceId === 'string' ? l.workspaceId : '' }));
+      if (Array.isArray(data.lists)) d.lists = data.lists.filter((l) => l && typeof l.name === 'string' && l.name.trim()).map((l, i) => ({ id: String(l.id || uid()), name: l.name.trim(), color: /^#[0-9a-f]{6}$/i.test(l.color || '') ? l.color : LIST_COLORS[i % LIST_COLORS.length], order: Number.isFinite(l.order) ? l.order : i, updatedAt: Number(l.updatedAt) || 0, workspaceId: typeof l.workspaceId === 'string' ? l.workspaceId : '', icon: typeof l.icon === 'string' ? l.icon : '', cover: typeof l.cover === 'string' ? l.cover : '', desc: typeof l.desc === 'string' ? l.desc : '', favorite: !!l.favorite, locked: !!l.locked, trashedAt: Number(l.trashedAt) || 0 }));
       const listIds = new Set(d.lists.map((l) => l.id));
       if (Array.isArray(data.tasks)) d.tasks = data.tasks.filter((x) => x && typeof x.title === 'string').map((x, i) => ({
         id: String(x.id || uid()), title: x.title, notes: typeof x.notes === 'string' ? x.notes : '',
@@ -276,14 +278,17 @@
   }
   const getTask = (id) => state.data.tasks.find((x) => x.id === id);
   const getList = (id) => state.data.lists.find((x) => x.id === id);
-  const sortedLists = () => state.data.lists.slice().sort((a, b) => a.order - b.order);
+  const sortedLists = () => state.data.lists.filter((l) => !l.trashedAt).sort((a, b) => a.order - b.order);
+  const trashedLists = () => state.data.lists.filter((l) => l.trashedAt).sort((a, b) => b.trashedAt - a.trashedAt);
+  const inTrash = (x) => { const l = x.listId && getList(x.listId); return !!(l && l.trashedAt); };
+  const liveTasks = () => state.data.tasks.filter((x) => !inTrash(x));
   const personalWS = () => state.data.workspaces.find((w) => w.personal) || null;
   const getWS = (id) => state.data.workspaces.find((w) => w.id === id);
   // Every list lives in a workspace; tasks inherit it from their list (Inbox = personal workspace).
   const workspaceOfList = (l) => (l && l.workspaceId) || (personalWS() ? personalWS().id : '');
   const workspaceOfTask = (x) => (x && x.listId && getList(x.listId) ? workspaceOfList(getList(x.listId)) : (personalWS() ? personalWS().id : ''));
   const canWriteWS = (id) => { const w = getWS(id); return !w || w.role === 'owner' || w.role === 'editor'; };
-  const canWriteList = (l) => canWriteWS(workspaceOfList(l));
+  const canWriteList = (l) => !l.locked && canWriteWS(workspaceOfList(l));
 
   // ============================================================
   // Task operations
@@ -346,7 +351,7 @@
   }
   function clearCompleted() {
     const done = state.data.tasks.filter((x) => x.done); if (!done.length) return;
-    state.data.tasks = state.data.tasks.filter((x) => !x.done);
+    state.data.tasks = liveTasks().filter((x) => !x.done);
     state.undo = { tasks: done, idx: 0 };
     if (done.some((x) => x.id === state.selectedId)) state.selectedId = null;
     save(); render(); showToast(`${num(done.length)} ${t('cleared')}`, true);
@@ -363,7 +368,7 @@
   // ============================================================
   function visibleTasks() {
     const today = todayIso(); const q = state.query.trim().toLowerCase();
-    let list = state.data.tasks.slice();
+    let list = liveTasks();
     if (q) list = list.filter((x) => x.title.toLowerCase().includes(q) || x.notes.toLowerCase().includes(q) || x.tags.some((g) => g.toLowerCase().includes(q)) || x.subtasks.some((s) => s.title.toLowerCase().includes(q)));
     else { const sd = state.data.settings.showDone; const od = (x) => sd || !x.done; switch (state.view) {
       case 'inbox': list = list.filter((x) => od(x) && !x.listId); break;
@@ -447,7 +452,7 @@
     $('#report').hidden = !isReport;
     $('#db').hidden = isReport;
     const mode = isReport ? null : modeOf();
-    $('#page').classList.toggle('wide', mode === 'board' || mode === 'table' || mode === 'calendar');
+    $('#page').classList.toggle('wide', mode === 'board' || mode === 'table' || mode === 'calendar' || (state.view === 'list' && !!wideCfg()[state.listId]));
     $$('#view-tabs button').forEach((b) => b.setAttribute('aria-selected', b.dataset.mode === mode));
     $('#view-tabs').hidden = !!state.query || ['done', 'home', 'calendar'].includes(state.view);
     const isHome = state.view === 'home' && !state.query;
@@ -473,18 +478,25 @@
 
   function renderRail() {
     const today = todayIso();
-    const open = state.data.tasks.filter((x) => !x.done);
+    const open = liveTasks().filter((x) => !x.done);
     const set = (id, n) => { $(id).textContent = n ? num(n) : ''; };
     set('#count-inbox', open.filter((x) => !x.listId).length);
     set('#count-today', open.filter((x) => x.due && x.due <= today).length);
     set('#count-upcoming', open.filter((x) => x.due && x.due > today).length);
     set('#count-all', open.length);
-    set('#count-done', state.data.tasks.length - open.length);
+    set('#count-done', liveTasks().length - open.length);
+    set('#count-trash', trashedLists().length);
     const activeView = state.query ? null : state.view;
     $$('.nav-item[data-view], .tabbar button[data-view], .side-tab[data-view], .side-inbox').forEach((b) => b.classList.toggle('active', b.dataset.view === activeView));
     $('#tab-lists').classList.toggle('active', $('#app').classList.contains('sidebar-open'));
     $('#ws-name').textContent = signedIn() && state.data.sync.name ? state.data.sync.name : t('appName');
 
+    // Favorites (starred lists), like Notion's Favorites section
+    const fw = $('#fav-items'); fw.innerHTML = '';
+    const favs = sortedLists().filter((l) => l.favorite);
+    $('#side-fav-sec').hidden = !favs.length;
+    favs.forEach((l) => { const b = document.createElement('button'); b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : ''); b.innerHTML = `${listMark(l)}<span class="nav-label" dir="auto">${esc(l.name)}</span>`; b.onclick = () => setView('list', { listId: l.id }); fw.appendChild(b); });
+    applySideCfg();
     // Upcoming: the next three dated tasks, like Notion's "Upcoming events"
     const up = $('#side-upcoming'); up.innerHTML = '';
     const soon = open.filter((x) => x.due && x.due >= today).sort((a, b) => (a.due + (a.time || '')).localeCompare(b.due + (b.time || ''))).slice(0, 3);
@@ -513,8 +525,16 @@
       const b = document.createElement('button');
       b.className = 'rail-item' + (activeView === 'list' && state.listId === l.id ? ' active' : '');
       b.title = l.name;
-      b.innerHTML = `<span class="dot" style="background:${l.color}"></span><span class="nav-label" dir="auto">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn xs rail-edit" role="button" title="${esc(t('editList'))}">${icon('more')}</span>`;
-      b.onclick = (e) => { if (e.target.closest('.rail-edit')) return openListDialog(l.id); setView('list', { listId: l.id }); };
+      b.innerHTML = `${listMark(l)}<span class="nav-label" dir="auto">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><span class="ibtn xs rail-edit" role="button" title="${esc(t('more'))}">${icon('more')}</span>`;
+      b.onclick = (e) => { if (e.target.closest('.rail-edit')) return listRailMenu(l, e.target.closest('.rail-edit')); setView('list', { listId: l.id }); };
+      b.oncontextmenu = (e) => { e.preventDefault(); listRailMenu(l, e); };
+      // drag to reorder, like Notion's sidebar
+      b.draggable = canWriteList(l);
+      b.ondragstart = (e) => { drag.listId = l.id; e.dataTransfer.effectAllowed = 'move'; b.classList.add('dragging'); };
+      b.ondragend = () => { drag.listId = null; b.classList.remove('dragging'); $$('.rail-item.drop-after,.rail-item.drop-before').forEach((x) => x.classList.remove('drop-after', 'drop-before')); };
+      b.ondragover = (e) => { if (!drag.listId || drag.listId === l.id) return; e.preventDefault(); const r = b.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; b.classList.toggle('drop-after', after); b.classList.toggle('drop-before', !after); };
+      b.ondragleave = () => b.classList.remove('drop-after', 'drop-before');
+      b.ondrop = (e) => { e.preventDefault(); if (!drag.listId || drag.listId === l.id) return; const r = b.getBoundingClientRect(); const after = e.clientY > r.top + r.height / 2; const ids = sortedLists().map((x) => x.id).filter((id) => id !== drag.listId); const at = ids.indexOf(l.id) + (after ? 1 : 0); ids.splice(at, 0, drag.listId); ids.forEach((id, i) => { const x = getList(id); if (x.order !== i) x.order = i; }); save(); render(); };
       return b;
     };
     const sw = $('#shared-items'); sw.innerHTML = '';
@@ -562,7 +582,7 @@
   // Home: list cards (like the link columns on a Notion home page), then this week's tasks below
   function renderHomeCards() {
     const w = $('#home-cards'); w.innerHTML = '';
-    const open = state.data.tasks.filter((x) => !x.done);
+    const open = liveTasks().filter((x) => !x.done);
     const lists = sortedLists();
     if (!lists.length) return;
     const groups = [{ name: t('yourLists'), items: lists.filter((l) => { const ws = getWS(workspaceOfList(l)); return !ws || ws.personal; }) }, ...state.data.workspaces.filter((x) => !x.personal).map((ws) => ({ name: ws.name, items: lists.filter((l) => workspaceOfList(l) === ws.id) }))].filter((g) => g.items.length);
@@ -582,7 +602,7 @@
   const VIEW_ICON = { home: 'home', calendar: 'calendar', inbox: 'inbox', today: 'sun', upcoming: 'calendar', all: 'layers', done: 'check-circle', report: 'chart', tag: 'tag' };
   function renderHead() {
     const today = todayIso();
-    const open = state.data.tasks.filter((x) => !x.done);
+    const open = liveTasks().filter((x) => !x.done);
     let title, sub, ico = icon(VIEW_ICON[state.view] || 'layers');
     const crumbs = [];
     if (state.query) { title = t('search'); sub = fmt('subSearch', { q: state.query }); ico = icon('search'); }
@@ -595,7 +615,7 @@
       case 'all': title = t('all'); sub = fmt('subAll', { n: num(open.length) }); break;
       case 'done': title = t('completed'); sub = fmt('subDone', { n: num(state.data.tasks.length - open.length) }); break;
       case 'report': title = t('report'); sub = t('subReport'); break;
-      case 'list': { const l = getList(state.listId); title = l ? l.name : ''; sub = fmt('subList', { n: num(open.filter((x) => x.listId === state.listId).length) }); if (l) { ico = `<span class="dot" style="background:${l.color}"></span>`; const w = getWS(workspaceOfList(l)); if (w && !w.personal) { crumbs.push({ label: w.name, icon: icon('users'), run: () => openShareDialog(w.id) }); sub += ` · ${esc(t('shared'))}`; } else crumbs.push({ label: t('lists') }); } break; }
+      case 'list': { const l = getList(state.listId); title = l ? l.name : ''; sub = fmt('subList', { n: num(open.filter((x) => x.listId === state.listId).length) }); if (l) { ico = l.icon ? `<span class="emoji-icon">${esc(l.icon)}</span>` : `<span class="dot" style="background:${l.color}"></span>`; if (l.locked) sub += ` · ${icon('lock')} ${esc(t('locked'))}`; const w = getWS(workspaceOfList(l)); if (w && !w.personal) { crumbs.push({ label: w.name, icon: icon('users'), run: () => openShareDialog(w.id) }); sub += ` · ${esc(t('shared'))}`; } else crumbs.push({ label: t('lists') }); } break; }
       case 'tag': title = '#' + state.tag; sub = fmt('subTag', { n: num(open.filter((x) => x.tags.includes(state.tag)).length) }); crumbs.push({ label: t('tags') }); break;
     }
     crumbs.push({ label: title, icon: ico });
@@ -606,8 +626,19 @@
       if (i) { const s = document.createElement('span'); s.className = 'sep'; s.textContent = '/'; c.appendChild(s); }
       const b = document.createElement('button'); b.innerHTML = `${cr.icon || ''}<span dir="auto">${esc(cr.label)}</span>`; if (cr.run) b.onclick = cr.run; c.appendChild(b);
     });
-    // share: only for a list inside a workspace (signed in)
+    // Notion page chrome: hover actions (icon / cover / description), cover strip, editable description, star + link in the topbar
     const l = state.view === 'list' && getList(state.listId);
+    const editable = l && canWriteWS(workspaceOfList(l));
+    $('#page-actions').hidden = !editable;
+    if (editable) { $('#pa-icon').hidden = !!l.icon; $('#pa-cover').hidden = !!l.cover; $('#pa-desc').hidden = !!l.desc || state.descOpen === l.id; }
+    const cov = $('#page-cover'); cov.hidden = !(l && l.cover); cov.className = 'page-cover' + (l && l.cover ? ' cover-' + l.cover : ''); cov.querySelectorAll('.cover-btn').forEach((b) => { b.hidden = !editable; });
+    $('#page').classList.toggle('has-cover', !!(l && l.cover));
+    const desc = $('#view-desc'); const showDesc = l && (l.desc || state.descOpen === l.id);
+    desc.hidden = !showDesc; if (showDesc && document.activeElement !== desc) desc.textContent = l.desc || ''; desc.contentEditable = editable ? 'true' : 'false';
+    $('#page-icon').classList.toggle('clickable', !!editable);
+    $('#fav-btn').hidden = !l; $('#link-btn').hidden = !!state.query || state.view === 'report';
+    if (l) { $('#fav-btn').classList.toggle('on', !!l.favorite); $('#fav-btn').title = t(l.favorite ? 'unfavorite' : 'favorite'); }
+    // share: only for a list inside a workspace (signed in)
     const ws = l && signedIn() ? getWS(workspaceOfList(l)) : null;
     $('#share-btn').hidden = !ws;
     $('#share-btn').onclick = () => { if (ws.personal) openListDialog(l.id); else openShareDialog(ws.id); };
@@ -633,7 +664,7 @@
     }
     $('#list-actions').hidden = !(state.view === 'done' && list.length && !state.query);
   }
-  const canEdit = (task) => canWriteWS(workspaceOfTask(task));
+  const canEdit = (task) => { const l = task.listId && getList(task.listId); return !(l && l.locked) && canWriteWS(workspaceOfTask(task)); };
 
   // ---- list view ----
   function renderRows() {
@@ -715,7 +746,7 @@
     });
     return el;
   }
-  const drag = { id: null };
+  const drag = { id: null, listId: null };
 
   // ---- table view ----
   function renderTable() {
@@ -1070,15 +1101,71 @@
       catch (e) { $('#share-error').textContent = errText(e); }
     };
   }
-  function deleteList() {
-    if (!listDlg.id) return;
-    const id = listDlg.id; const list = getList(id); const moved = state.data.tasks.filter((x) => x.listId === id).map((x) => x.id);
-    moved.forEach((tid) => { getTask(tid).listId = null; });
-    state.data.lists = state.data.lists.filter((l) => l.id !== id);
-    if (state.view === 'list' && state.listId === id) { state.view = 'inbox'; state.listId = null; }
-    state.undo = { restore: () => { state.data.lists.push(list); moved.forEach((tid) => { const x = getTask(tid); if (x) x.listId = id; }); } };
-    $('#list-dialog').hidden = true; save(); render(); showToast(t('listDeleted'), true);
+  function deleteList() { if (!listDlg.id) return; $('#list-dialog').hidden = true; trashList(listDlg.id); }
+  // Notion's Trash: a list keeps its tasks and disappears from everywhere until restored or deleted forever
+  function trashList(id) {
+    const l = getList(id); if (!l) return;
+    l.trashedAt = Date.now(); l.favorite = false;
+    if (state.view === 'list' && state.listId === id) { state.view = 'home'; state.listId = null; }
+    state.undo = { restore: () => { l.trashedAt = 0; } };
+    save(); render(); showToast(t('movedToTrash'), true);
   }
+  function restoreList(id) { const l = getList(id); if (!l) return; l.trashedAt = 0; save(); render(); renderTrash(); showToast(t('restored')); }
+  function deleteListForever(id) {
+    if (!confirm(t('confirmForever'))) return;
+    state.data.tasks = state.data.tasks.filter((x) => x.listId !== id);
+    state.data.lists = state.data.lists.filter((l) => l.id !== id);
+    save(); render(); renderTrash();
+  }
+  function purgeTrash() { const cut = Date.now() - 30 * 864e5; const gone = state.data.lists.filter((l) => l.trashedAt && l.trashedAt < cut).map((l) => l.id); if (!gone.length) return; state.data.tasks = state.data.tasks.filter((x) => !gone.includes(x.listId)); state.data.lists = state.data.lists.filter((l) => !gone.includes(l.id)); }
+  function renderTrash() {
+    const q = $('#trash-q').value.trim().toLowerCase();
+    const box = $('#trash-list'); box.innerHTML = '';
+    const items = trashedLists().filter((l) => !q || l.name.toLowerCase().includes(q));
+    if (!items.length) { box.innerHTML = `<div class="trash-empty">${esc(t('trashEmpty'))}</div>`; return; }
+    items.forEach((l) => {
+      const n = state.data.tasks.filter((x) => x.listId === l.id).length;
+      const row = document.createElement('div'); row.className = 'trash-row';
+      row.innerHTML = `${listMark(l)}<span class="trash-name" dir="auto">${esc(l.name)}</span><span class="count">${n ? num(n) : ''}</span><button class="ibtn xs" data-act="restore" title="${esc(t('restore'))}">${icon('restore')}</button><button class="ibtn xs danger" data-act="forever" title="${esc(t('deleteForever'))}">${icon('trash')}</button>`;
+      row.querySelector('[data-act=restore]').onclick = () => restoreList(l.id);
+      row.querySelector('[data-act=forever]').onclick = () => deleteListForever(l.id);
+      box.appendChild(row);
+    });
+  }
+  function toggleFavorite(id) { const l = getList(id); if (!l) return; l.favorite = !l.favorite; save(); render(); }
+  const listMark = (l) => l.icon ? `<span class="emoji-mark">${esc(l.icon)}</span>` : `<span class="dot" style="background:${l.color}"></span>`;
+  function copyLink(view, opts = {}) {
+    const hash = view === 'list' ? '#/list/' + opts.listId : view === 'tag' ? '#/tag/' + encodeURIComponent(opts.tag) : '#/' + view;
+    const base = state.data.sync.server || DEFAULT_SERVER || (location.protocol.startsWith('http') ? location.origin : '');
+    const url = (base ? base.replace(/\/$/, '') + '/' : '') + hash;
+    try { navigator.clipboard.writeText(url); showToast(t('linkCopied')); } catch { showToast(url); }
+  }
+  // Generic anchored popover (icon picker, cover picker, trash, customize)
+  const pop = { el: null };
+  function openPop(id, anchor, opts = {}) {
+    closePop(); const el = $(id); el.hidden = false; pop.el = el;
+    const r = anchor.getBoundingClientRect(); const w = el.offsetWidth, hgt = el.offsetHeight;
+    let left = opts.align === 'end' ? r.right - w : r.left; if (document.documentElement.dir === 'rtl' && opts.align !== 'end') left = r.right - w;
+    left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+    let top = opts.above ? r.top - hgt - 6 : r.bottom + 6; if (top + hgt > window.innerHeight - 8) top = Math.max(8, r.top - hgt - 6); if (top < 8) top = 8;
+    el.style.left = left + 'px'; el.style.top = top + 'px';
+    const inp = el.querySelector('input[type=search]'); if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 20); }
+  }
+  function closePop() { if (pop.el) { pop.el.hidden = true; pop.el = null; } }
+  document.addEventListener('mousedown', (e) => { if (pop.el && !e.target.closest('.pop') && !e.target.closest('#trash-btn,#customize-btn,#page-icon,#pa-icon,#pa-cover,#cover-change')) closePop(); });
+  const EMOJI = '📋 ✅ 📝 📌 🎯 ⭐ 🔥 💡 🧠 📚 📖 ✏️ 🖊️ 📁 🗂️ 🗓️ ⏰ ⏳ 🔔 💼 🏢 🏠 🏡 🛒 🧺 🍎 🥗 🍳 ☕ 🧘 🏃 🚴 ⚽ 🏋️ 💊 🩺 🧾 💳 💰 📈 📊 🧮 🛠️ ⚙️ 🧰 💻 🖥️ 📱 🌐 🔐 🚀 ✈️ 🚗 🗺️ 🧳 🎒 🎁 🎉 🎂 🎓 🎨 🎵 🎬 📷 🌱 🌿 🌳 🌸 🌞 🌙 ❤️ 💜 💙 💚 🧡 🐱 🐶 🐟 🦋 👶 👪 🧑‍💻 🤝 🙏 ✨ 🔖 🧩 🏆 🥇 🧹 🧼 🪴 🛏️ 🍽️ 🧯 🔑 📦 🚚 🏪 🏦 🏥 🏫'.split(' ');
+  function renderEmoji(q = '') {
+    const g = $('#emoji-grid'); g.innerHTML = '';
+    EMOJI.forEach((e) => { const b = document.createElement('button'); b.className = 'emoji-btn'; b.textContent = e; b.onclick = () => { const l = getList(state.listId); if (l) { l.icon = e; save(); render(); } closePop(); }; g.appendChild(b); });
+  }
+  const COVERS = ['ruby', 'gold', 'forest', 'ocean', 'violet', 'rose', 'slate', 'sunset', 'dawn', 'night', 'mint', 'sand'];
+  function renderCovers() {
+    const g = $('#cover-grid'); g.innerHTML = '';
+    COVERS.forEach((c) => { const b = document.createElement('button'); b.className = 'cover-swatch cover-' + c; b.onclick = () => { const l = getList(state.listId); if (l) { l.cover = c; save(); render(); } closePop(); }; g.appendChild(b); });
+  }
+  const SIDE_SECS = ['upcoming', 'recents', 'views', 'tags'];
+  const sideCfg = () => { try { return { upcoming: true, recents: true, views: true, tags: true, ...JSON.parse(localStorage.getItem('anjam.sidebar') || '{}') }; } catch { return { upcoming: true, recents: true, views: true, tags: true }; } };
+  function applySideCfg() { const c = sideCfg(); $('#side-upcoming-sec').classList.toggle('cz-hidden', !c.upcoming); $('#side-recents-sec').classList.toggle('cz-hidden', !c.recents); $('#nav').closest('.side-section').classList.toggle('cz-hidden', !c.views); $('#side-tags-sec').classList.toggle('cz-hidden', !c.tags); }
 
   // ---------- Report ----------
   function computeStats() {
@@ -1271,7 +1358,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       for (const id of dirty) {
         if (id === 'settings') continue;
         const task = getTask(id); const list = getList(id);
-        if (list) { if (!list.workspaceId && pws) list.workspaceId = pws.id; changes.push({ kind: 'database', id, workspaceId: workspaceOfList(list), data: { name: list.name, color: list.color, order: list.order }, updatedAt: list.updatedAt }); }
+        if (list) { if (!list.workspaceId && pws) list.workspaceId = pws.id; changes.push({ kind: 'database', id, workspaceId: workspaceOfList(list), data: { name: list.name, color: list.color, order: list.order, icon: list.icon || '', cover: list.cover || '', desc: list.desc || '', favorite: !!list.favorite, locked: !!list.locked, trashedAt: list.trashedAt || 0 }, updatedAt: list.updatedAt }); }
         else if (task) changes.push({ kind: 'item', id, workspaceId: workspaceOfTask(task), data: { ...task, databaseId: task.listId || '' }, updatedAt: task.updatedAt });
         else if (state.data.tombstones[id]) { const tb = state.data.tombstones[id]; changes.push({ kind: tb.kind || 'item', id, workspaceId: tb.workspaceId || (pws ? pws.id : ''), updatedAt: tb.at, deleted: true }); }
       }
@@ -1293,7 +1380,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
         if (!c.data) continue;
         if (!local || local.updatedAt < c.updatedAt) {
           const d = c.data;
-          const item = isList ? { id: c.id, name: d.name, color: d.color, order: d.order, workspaceId: c.workspaceId, updatedAt: c.updatedAt }
+          const item = isList ? { id: c.id, name: d.name, color: d.color, order: d.order, workspaceId: c.workspaceId, updatedAt: c.updatedAt, icon: d.icon || '', cover: d.cover || '', desc: d.desc || '', favorite: !!d.favorite, locked: !!d.locked, trashedAt: Number(d.trashedAt) || 0 }
             : { ...d, id: c.id, listId: d.databaseId || d.listId || null, updatedAt: c.updatedAt };
           delete item.databaseId;
           if (i >= 0) arr[i] = item; else arr.push(item);
@@ -1509,6 +1596,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
   function setView(view, opts = {}) {
     state.view = view; state.listId = opts.listId || null; state.tag = opts.tag || null;
     if (view === 'list' || view === 'tag') pushRecent({ view, listId: state.listId, tag: state.tag });
+    try { const want = view === 'list' ? '#/list/' + state.listId : view === 'tag' ? '#/tag/' + encodeURIComponent(state.tag) : '#/' + view; if (location.hash !== want) history.replaceState(null, '', want); } catch {}
     state.query = ''; $('#search').value = ''; $('#search-wrap').classList.remove('has-q'); $('#search-clear').hidden = true;
     $('#app').classList.remove('sidebar-open');
     closeCapture(); closeMenu();
@@ -1591,15 +1679,37 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     }
   }
 
+  const wideCfg = () => { try { return JSON.parse(localStorage.getItem('anjam.wide') || '{}'); } catch { return {}; } };
+  function listRailMenu(l, a) {
+    const w = canWriteList(l);
+    openMenu(a, [
+      { label: t(l.favorite ? 'unfavorite' : 'favorite'), icon: 'star', on: l.favorite, run: () => toggleFavorite(l.id) },
+      '-',
+      { label: t('copyLink'), icon: 'link', run: () => copyLink('list', { listId: l.id }) },
+      ...(w ? [
+        { label: t('mDuplicate'), icon: 'file', run: () => duplicateList(l.id) },
+        { label: t('mRename'), icon: 'edit', run: () => openListDialog(l.id) },
+        { label: t('mMove'), icon: 'arrow', run: () => openListDialog(l.id) },
+        '-',
+        { label: t('moveToTrash'), icon: 'trash', danger: true, run: () => trashList(l.id) },
+      ] : []),
+    ], { title: t('list') });
+  }
   function moreMenu(a) {
     const l = state.view === 'list' && !state.query ? getList(state.listId) : null;
     const listItems = l && canWriteWS(workspaceOfList(l)) ? [
-      { label: t('mRename'), icon: 'notes', run: () => openListDialog(l.id) },
-      { label: t('mDuplicate'), icon: 'file', run: () => duplicateList(l.id) },
-      { label: t('mMove'), icon: 'users', run: () => openListDialog(l.id) },
-      { label: t('mDeleteList'), icon: 'trash', danger: true, run: () => { openListDialog(l.id); $('#list-delete').click(); } },
+      { label: t(l.favorite ? 'unfavorite' : 'favorite'), icon: 'star', on: l.favorite, run: () => toggleFavorite(l.id) },
+      { label: t('copyLink'), icon: 'link', run: () => copyLink('list', { listId: l.id }) },
       '-',
-    ] : [];
+      { label: t('mRename'), icon: 'edit', run: () => openListDialog(l.id) },
+      { label: t('mDuplicate'), icon: 'file', run: () => duplicateList(l.id) },
+      { label: t('mMove'), icon: 'arrow', run: () => openListDialog(l.id) },
+      { label: t('fullWidth'), icon: 'expand', on: !!wideCfg()[l.id], run: () => { const c = wideCfg(); c[l.id] = !c[l.id]; try { localStorage.setItem('anjam.wide', JSON.stringify(c)); } catch {} render(); } },
+      { label: t(l.locked ? 'unlockDb' : 'lockDb'), icon: l.locked ? 'unlock' : 'lock', on: l.locked, run: () => { l.locked = !l.locked; save(); render(); } },
+      '-',
+      { label: t('moveToTrash'), icon: 'trash', danger: true, run: () => trashList(l.id) },
+      '-',
+    ] : l ? [{ label: t('copyLink'), icon: 'link', run: () => copyLink('list', { listId: l.id }) }, '-'] : [{ label: t('copyLink'), icon: 'link', run: () => copyLink(state.view, { tag: state.tag }) }, '-'];
     openMenu(a, [
       ...listItems,
       { label: t('aNewList'), icon: 'list', run: () => openListDialog() },
@@ -1616,6 +1726,14 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       { label: t('aSettings'), icon: 'settings', run: () => openSettings() },
     ]);
   }
+  function routeFromHash() {
+    const m = /^#\/(list|tag|home|calendar|today|upcoming|all|done|inbox|report)(?:\/(.+))?$/.exec(location.hash || '');
+    if (!m) return false;
+    if (m[1] === 'list') { const l = getList(m[2]); if (!l || l.trashedAt) return false; if (state.view === 'list' && state.listId === l.id) return true; setView('list', { listId: l.id }); }
+    else if (m[1] === 'tag') { const tg = decodeURIComponent(m[2] || ''); if (state.view === 'tag' && state.tag === tg) return true; setView('tag', { tag: tg }); }
+    else { if (state.view === m[1]) return true; setView(m[1]); }
+    return true;
+  }
   function setQuery(q) {
     state.query = q; $('#search-wrap').classList.toggle('has-q', !!q); $('#search-clear').hidden = !q; render();
   }
@@ -1627,10 +1745,12 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     if (window.anjam.ready) { try { await window.anjam.ready; } catch {} }
     DEFAULT_SERVER = window.anjam.getDefaultServer ? (await window.anjam.getDefaultServer()) || '' : (window.anjam.defaultServer || '');
     state.data = normalize(await window.anjam.load());
+    purgeTrash();
     snapshotSeen();
     applyLang();
 
     $$('.nav-item[data-view], .tabbar button[data-view], .side-tab[data-view]').forEach((b) => b.onclick = () => setView(b.dataset.view));
+    routeFromHash();
     const toggleDrawer = () => { $('#app').classList.toggle('sidebar-open'); updateScrim(); };
     $('#tab-lists').onclick = toggleDrawer;
     $('#tab-search').onclick = () => { $('#scroller').scrollTop = 0; $('#search').focus(); };
@@ -1648,6 +1768,25 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       signedIn() ? { label: t('mLogout'), icon: 'arrow', run: () => { signOut(); render(); } } : { label: t('mSignIn'), icon: 'user', run: () => openAuth('signin') },
     ]);
     $('#side-inbox').onclick = () => setView('inbox');
+    $('#fav-btn').onclick = () => { if (state.view === 'list') toggleFavorite(state.listId); };
+    $('#link-btn').onclick = () => copyLink(state.view, { listId: state.listId, tag: state.tag });
+    $('#trash-btn').onclick = (e) => { renderTrash(); openPop('#trash-pop', e.currentTarget, { above: true }); };
+    $('#trash-q').oninput = renderTrash;
+    $('#customize-btn').onclick = (e) => { const c = sideCfg(); $$('#customize-pop input[data-sec]').forEach((i) => { i.checked = !!c[i.dataset.sec]; }); openPop('#customize-pop', e.currentTarget, { above: true }); };
+    $$('#customize-pop input[data-sec]').forEach((i) => i.onchange = () => { const c = sideCfg(); c[i.dataset.sec] = i.checked; try { localStorage.setItem('anjam.sidebar', JSON.stringify(c)); } catch {} applySideCfg(); });
+    $('#customize-done').onclick = closePop;
+    const openIconPop = (e) => { if (state.view !== 'list') return; const l = getList(state.listId); if (!l || !canWriteWS(workspaceOfList(l))) return; renderEmoji(); $('#icon-remove').hidden = !l.icon; openPop('#icon-pop', e.currentTarget); };
+    $('#page-icon').onclick = openIconPop; $('#pa-icon').onclick = openIconPop;
+    $('#icon-q').oninput = (e) => { const q = e.target.value.trim(); $$('#emoji-grid .emoji-btn').forEach((b) => { b.hidden = !!q && !b.textContent.includes(q); }); };
+    $('#icon-remove').onclick = () => { const l = getList(state.listId); if (l) { l.icon = ''; save(); render(); } closePop(); };
+    const openCoverPop = (e) => { renderCovers(); openPop('#cover-pop', e.currentTarget, { align: 'end' }); };
+    $('#pa-cover').onclick = openCoverPop; $('#cover-change').onclick = openCoverPop;
+    $('#cover-clear').onclick = () => { const l = getList(state.listId); if (l) { l.cover = ''; save(); render(); } closePop(); };
+    $('#cover-remove').onclick = () => { const l = getList(state.listId); if (l) { l.cover = ''; save(); render(); } };
+    $('#pa-desc').onclick = () => { state.descOpen = state.listId; render(); setTimeout(() => $('#view-desc').focus(), 20); };
+    $('#view-desc').onblur = () => { const l = getList(state.listId); if (!l) return; const v = $('#view-desc').textContent.trim(); if (v !== (l.desc || '')) { l.desc = v; save(); } state.descOpen = null; render(); };
+    $('#view-desc').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#view-desc').blur(); } if (e.key === 'Escape') { $('#view-desc').blur(); } };
+    window.addEventListener('hashchange', routeFromHash);
     $('#side-compose').onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {});
     $('#shared-add').onclick = startCollab;
     $('#backdrop').onclick = () => { $('#app').classList.remove('sidebar-open'); if (state.selectedId) state.selectedId = null; render(); };
