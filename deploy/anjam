@@ -1,36 +1,879 @@
 #!/usr/bin/env bash
-# /usr/local/bin/anjam — management command. `anjam` alone shows the menu; everything else is passed to the binary.
-set -euo pipefail
-BIN=/opt/anjam/bin/anjam; ENV=/etc/anjam/anjam.env
-[[ $EUID -eq 0 ]] || { echo "run as root"; exit 1; }
-set -a; . "$ENV"; set +a
-case "${1:-menu}" in
-  status)   systemctl status anjam --no-pager | head -12; curl -fsS "http://127.0.0.1:${PORT:-8787}/api/health" && echo ;;
-  start|stop|restart) systemctl "$1" anjam; echo "anjam: $1" ;;
-  log|logs) journalctl -u anjam -n "${2:-100}" -f ;;
-  update)   bash /opt/anjam/deploy/fetch-release.sh "${2:-latest}"; systemctl restart anjam; sleep 1; curl -fsS "http://127.0.0.1:${PORT:-8787}/api/health" && echo ;;
-  creds)    cat /etc/anjam/install-result.env 2>/dev/null || echo "no install-result.env (use: anjam admin reset <email>)" ;;
-  env)      "${EDITOR:-nano}" "$ENV" && systemctl restart anjam ;;
-  uninstall)
-    read -rp "Remove Anjam (a backup is kept in /root)? [y/N] " a; [[ $a == y ]] || exit 0
-    "$BIN" backup /root/anjam-last-backup.sqlite || true
-    systemctl disable --now anjam
-    rm -f /etc/systemd/system/anjam.service /etc/nginx/sites-enabled/anjam /etc/nginx/sites-available/anjam /etc/nginx/conf.d/anjam-zones.conf /usr/local/bin/anjam
-    systemctl daemon-reload; nginx -t -q && systemctl reload nginx   # graceful; other sites keep serving
-    rm -rf /opt/anjam /etc/anjam
-    echo "removed; data left in /var/lib/anjam and /root/anjam-last-backup.sqlite" ;;
-  menu)
-    cat <<M
-  Anjam $("$BIN" version)  ${PUBLIC_URL:-}   panel: /${ADMIN_PATH:-admin}
-  ┌──────────────────────────────────────────────────────────────────┐
-  │ anjam status                anjam admin reset <email> [password]   │
-  │ anjam start|stop|restart    anjam registration open|invite|closed  │
-  │ anjam log                   anjam invite create [note]             │
-  │ anjam update [vX.Y.Z]       anjam users · user disable|enable|delete <email> │
-  │ anjam backup                anjam user reset-link <email>          │
-  │ anjam env · anjam creds     anjam stats · anjam uninstall          │
-  └──────────────────────────────────────────────────────────────────┘
-M
-  ;;
-  *) exec "$BIN" "$@" ;;
-esac
+# ============================================================
+#  Anjam — Interactive Management CLI & Control Script
+#  Usage:
+#    anjam              (opens interactive management menu)
+#    anjam <command>    (direct CLI execution)
+# ============================================================
+
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+BLUE='\033[0;34m'
+MAGENTA='\033[0;35m'
+BOLD='\033[1m'
+DIM='\033[2m'
+NC='\033[0m'
+CRIMSON='\033[38;5;197m'
+CORAL='\033[38;5;203m'
+
+BIN="/opt/anjam/bin/anjam"
+ENV_FILE="/etc/anjam/anjam.env"
+INSTALL_RESULT="/etc/anjam/install-result.env"
+SERVICE="anjam"
+SERVICE_FILE="/etc/systemd/system/anjam.service"
+DATA_DIR="/var/lib/anjam"
+BACKUP_DIR="${DATA_DIR}/backups"
+NGINX_SITE="/etc/nginx/sites-available/anjam"
+NGINX_LINK="/etc/nginx/sites-enabled/anjam"
+REPO="AbolfazlTafakori/anjam"
+REPO_RAW="https://raw.githubusercontent.com/${REPO}/main"
+
+if [[ "${ANJAM_ALLOW_NON_ROOT:-0}" != "1" && $EUID -ne 0 ]]; then
+    if command -v sudo >/dev/null 2>&1; then
+        exec sudo bash "$0" "$@"
+    else
+        echo -e "${RED}Error: This script must be run as root (or with sudo).${NC}"
+        exit 1
+    fi
+fi
+
+# Load environment configuration if available
+if [[ -f "$ENV_FILE" ]]; then
+    set -a; . "$ENV_FILE"; set +a
+fi
+PORT="${PORT:-8787}"
+BIND="${BIND:-127.0.0.1}"
+ADMIN_PATH="${ADMIN_PATH:-admin}"
+
+# ── Helpers ──────────────────────────────────────────────────
+pause()   { echo ""; read -rp "$(echo -e "  ${DIM}Press Enter to continue...${NC}")" _ 2>/dev/null || return 0; }
+ok()      { echo -e "\n  ${GREEN}✓  $1${NC}"; }
+fail()    { echo -e "\n  ${RED}✗  $1${NC}"; }
+info()    { echo -e "  ${CYAN}·  $1${NC}"; }
+warn()    { echo -e "  ${YELLOW}!  $1${NC}"; }
+
+section() {
+    echo -e "\n  ${BOLD}${CYAN}▸ $1${NC}"
+    echo -e "  ${DIM}────────────────────────────────────────${NC}"
+}
+
+svc_status() {
+    local s
+    s=$(systemctl is-active "$SERVICE" 2>/dev/null || echo "inactive")
+    if [[ "$s" == "active" ]]; then
+        echo -e "${GREEN}● running${NC}"
+    elif [[ "$s" == "failed" ]]; then
+        echo -e "${RED}● failed${NC}"
+    else
+        echo -e "${YELLOW}● ${s}${NC}"
+    fi
+}
+
+app_version() {
+    if [[ -x "$BIN" ]]; then
+        "$BIN" version 2>/dev/null || echo "v1.0.0"
+    else
+        echo "not installed"
+    fi
+}
+
+db_info() {
+    if [[ -f "${DATA_DIR}/app.db" ]]; then
+        local sz
+        sz=$(du -sh "${DATA_DIR}/app.db" 2>/dev/null | awk '{print $1}')
+        local stats
+        stats=$("$BIN" stats 2>/dev/null || true)
+        local u t
+        u=$(echo "$stats" | grep -o '"users": [0-9]*' | grep -o '[0-9]*' || echo 0)
+        t=$(echo "$stats" | grep -o '"tasks": [0-9]*' | grep -o '[0-9]*' || echo 0)
+        echo -e "${sz:-0B} ${DIM}(users: ${u:-0}, tasks: ${t:-0})${NC}"
+    else
+        echo -e "${DIM}not initialized${NC}"
+    fi
+}
+
+header() {
+    clear
+    echo ""
+    echo -e "  ${BOLD}${CRIMSON}┌─────────────────────────────────────────────────────┐${NC}"
+    echo -e "  ${BOLD}${CRIMSON}│${NC}              ${BOLD}Anjam Workspace  ·  anjam${NC}              ${BOLD}${CRIMSON}│${NC}"
+    echo -e "  ${BOLD}${CRIMSON}└─────────────────────────────────────────────────────┘${NC}"
+    echo ""
+}
+
+show_status() {
+    local url="${PUBLIC_URL:-http://127.0.0.1:${PORT}}"
+    echo -e "  ${DIM}┌──────────────────────────────────────────────────┐${NC}"
+    echo -e "  ${DIM}│${NC}  Service   $(svc_status)"
+    echo -e "  ${DIM}│${NC}  Version   ${CYAN}$(app_version)${NC}"
+    echo -e "  ${DIM}│${NC}  App URL   ${CYAN}${url}${NC}"
+    echo -e "  ${DIM}│${NC}  Panel     ${CYAN}${url}/${ADMIN_PATH}${NC}"
+    echo -e "  ${DIM}│${NC}  Port      ${PORT} ${DIM}(bind: ${BIND})${NC}"
+    echo -e "  ${DIM}│${NC}  Reg Mode  ${YELLOW}${REGISTRATION:-invite}${NC}"
+    echo -e "  ${DIM}│${NC}  Database  $(db_info)"
+    echo -e "  ${DIM}└──────────────────────────────────────────────────┘${NC}"
+    echo ""
+}
+
+# ── Direct CLI Execution (Non-interactive mode) ─────────────
+if [[ $# -gt 0 && "$1" != "menu" ]]; then
+    case "$1" in
+        status)
+            echo -e "${BOLD}Anjam Service Status:${NC}"
+            systemctl status "$SERVICE" --no-pager | head -12
+            echo ""
+            echo -e "${BOLD}Health Check:${NC}"
+            if curl -fsS "http://127.0.0.1:${PORT}/api/health" 2>/dev/null; then
+                echo -e "\n${GREEN}✓ API is healthy${NC}"
+            else
+                echo -e "${RED}✗ API health check failed${NC}"
+            fi
+            exit 0
+            ;;
+        start|stop|restart)
+            systemctl "$1" "$SERVICE"
+            echo "anjam: $1"
+            exit 0
+            ;;
+        log|logs)
+            journalctl -u "$SERVICE" -n "${2:-100}" -f
+            exit 0
+            ;;
+        update)
+            shift
+            if [[ -f /opt/anjam/deploy/fetch-release.sh ]]; then
+                bash /opt/anjam/deploy/fetch-release.sh "${1:-latest}"
+                systemctl restart "$SERVICE"
+                sleep 1
+                curl -fsS "http://127.0.0.1:${PORT}/api/health" 2>/dev/null && echo "anjam: updated & running"
+            else
+                echo "fetch-release.sh not found in /opt/anjam/deploy"
+                exit 1
+            fi
+            exit 0
+            ;;
+        creds)
+            if [[ -f "$INSTALL_RESULT" ]]; then
+                cat "$INSTALL_RESULT"
+            else
+                echo "no install-result.env found (use: anjam admin reset <email>)"
+            fi
+            exit 0
+            ;;
+        env)
+            "${EDITOR:-nano}" "$ENV_FILE" && systemctl restart "$SERVICE"
+            exit 0
+            ;;
+        stats)
+            exec "$BIN" stats
+            ;;
+        users)
+            exec "$BIN" users
+            ;;
+        user)
+            shift
+            exec "$BIN" user "$@"
+            ;;
+        invite)
+            shift
+            exec "$BIN" invite "$@"
+            ;;
+        registration)
+            shift
+            exec "$BIN" registration "$@"
+            ;;
+        admin)
+            shift
+            exec "$BIN" admin "$@"
+            ;;
+        backup)
+            shift
+            exec "$BIN" backup "$@"
+            ;;
+        version|-v|--version)
+            exec "$BIN" version
+            ;;
+        help|-h|--help)
+            echo "Usage: anjam [command]"
+            echo ""
+            echo "Commands:"
+            echo "  anjam                      Launch interactive management menu"
+            echo "  anjam status               View system status & API health"
+            echo "  anjam start|stop|restart   Control systemd service"
+            echo "  anjam log [lines]          Follow service journal logs"
+            echo "  anjam update [tag]         Update to release (default: latest)"
+            echo "  anjam creds                View initial admin credentials"
+            echo "  anjam env                  Edit environment configuration"
+            echo "  anjam admin reset ...      Reset or create administrator"
+            echo "  anjam admin list|remove    Manage administrator accounts"
+            echo "  anjam registration [mode]  View or change sign-up mode (open|invite|closed)"
+            echo "  anjam invite create|list   Manage invite codes"
+            echo "  anjam users                List all registered accounts"
+            echo "  anjam user disable|enable  Toggle user active status"
+            echo "  anjam user delete <email>  Remove user"
+            echo "  anjam user reset-link      Generate password reset link"
+            echo "  anjam backup [file]        Create database backup"
+            echo "  anjam stats                Print user/task/db statistics"
+            echo "  anjam uninstall            Remove Anjam installation"
+            exit 0
+            ;;
+        uninstall)
+            ;;
+        *)
+            exec "$BIN" "$@"
+            ;;
+    esac
+fi
+
+# ══════════════════════════════════════════════
+#  MENU: Service Management
+# ══════════════════════════════════════════════
+menu_service() {
+    while true; do
+        header
+        section "Service Management"
+        show_status
+        echo "    [1]  Restart Anjam"
+        echo "    [2]  Stop Anjam"
+        echo "    [3]  Start Anjam"
+        echo "    [4]  Full Service Status (systemctl)"
+        echo "    [5]  Check API Health Endpoint"
+        echo "    [6]  Live Logs (Ctrl+C to exit)"
+        echo "    [7]  Last 50 Log Lines"
+        echo "    [8]  Clear / Vacuum Logs"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                info "Restarting ${SERVICE}..."
+                systemctl restart "$SERVICE"
+                sleep 1
+                if systemctl is-active --quiet "$SERVICE"; then
+                    ok "Anjam restarted successfully"
+                else
+                    fail "Anjam failed to restart"
+                fi
+                pause ;;
+            2)
+                info "Stopping ${SERVICE}..."
+                systemctl stop "$SERVICE"
+                warn "Anjam service stopped"
+                pause ;;
+            3)
+                info "Starting ${SERVICE}..."
+                systemctl start "$SERVICE"
+                sleep 1
+                if systemctl is-active --quiet "$SERVICE"; then
+                    ok "Anjam started successfully"
+                else
+                    fail "Anjam failed to start"
+                fi
+                pause ;;
+            4)
+                echo ""
+                systemctl status "$SERVICE" -l --no-pager
+                pause ;;
+            5)
+                echo ""
+                info "Testing http://127.0.0.1:${PORT}/api/health ..."
+                if curl -fsS "http://127.0.0.1:${PORT}/api/health" 2>/dev/null; then
+                    ok "API is healthy and responding"
+                else
+                    fail "API health check failed (service might be down)"
+                fi
+                pause ;;
+            6)
+                journalctl -u "$SERVICE" -f ;;
+            7)
+                journalctl -u "$SERVICE" -n 50 --no-pager
+                pause ;;
+            8)
+                info "Cleaning journal logs..."
+                journalctl --rotate 2>/dev/null
+                journalctl --vacuum-time=1s 2>/dev/null
+                ok "Logs cleaned successfully"
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Update
+# ══════════════════════════════════════════════
+menu_update() {
+    header
+    section "Update Anjam"
+    show_status
+    echo -e "  This will:"
+    echo -e "    ${DIM}·${NC} Check and download the latest release from GitHub"
+    echo -e "    ${DIM}·${NC} Safely back up existing binary and web bundle before applying"
+    echo -e "    ${DIM}·${NC} Restart the systemd service and perform a health check"
+    echo -e "    ${DIM}·${NC} ${GREEN}Preserve your database, users, tasks, and domain settings${NC}"
+    echo ""
+    read -rp "$(echo -e "  ${YELLOW}Proceed with update? [y/N]:${NC} ")" CONFIRM
+    [[ ! "$CONFIRM" =~ ^[Yy]$ ]] && return
+
+    info "Creating safety backup of current binary and assets..."
+    mkdir -p /opt/anjam/backup_prev
+    [[ -f "$BIN" ]] && cp -f "$BIN" /opt/anjam/backup_prev/anjam.bin
+    [[ -d /opt/anjam/web ]] && cp -rf /opt/anjam/web /opt/anjam/backup_prev/web
+
+    info "Fetching latest release..."
+    if bash /opt/anjam/deploy/fetch-release.sh "latest"; then
+        ok "Release downloaded successfully"
+    else
+        fail "Release download failed"
+        pause
+        return
+    fi
+
+    info "Refreshing management CLI script..."
+    curl -fsSL "${REPO_RAW}/deploy/anjam" -o /usr/local/bin/anjam 2>/dev/null && chmod +x /usr/local/bin/anjam
+
+    info "Restarting service..."
+    systemctl daemon-reload
+    systemctl restart "$SERVICE"
+    sleep 2
+
+    if curl -fsS "http://127.0.0.1:${PORT}/api/health" >/dev/null 2>&1; then
+        ok "Update complete! Anjam $(app_version) is running smoothly."
+        rm -rf /opt/anjam/backup_prev
+    else
+        warn "Health check failed after update! Rolling back to previous binary..."
+        [[ -f /opt/anjam/backup_prev/anjam.bin ]] && cp -f /opt/anjam/backup_prev/anjam.bin "$BIN"
+        [[ -d /opt/anjam/backup_prev/web ]] && cp -rf /opt/anjam/backup_prev/web /opt/anjam/web
+        systemctl restart "$SERVICE"
+        fail "Rolled back to previous version due to health check failure."
+    fi
+    pause
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Domain & SSL Management
+# ══════════════════════════════════════════════
+menu_domain() {
+    while true; do
+        header
+        section "Domain & SSL (HTTPS)"
+        show_status
+        echo "    [1]  View current Nginx configuration"
+        echo "    [2]  Change Domain & re-issue SSL certificate"
+        echo "    [3]  Test SSL certificate renewal (Dry Run)"
+        echo "    [4]  Force SSL certificate renewal"
+        echo "    [5]  Test Nginx syntax & Reload"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                echo ""
+                if [[ -f "$NGINX_SITE" ]]; then
+                    head -n 35 "$NGINX_SITE"
+                else
+                    warn "Nginx site config not found at $NGINX_SITE"
+                fi
+                pause ;;
+            2)
+                local cur_dom="${PUBLIC_URL#https://}"
+                cur_dom="${cur_dom#http://}"
+                cur_dom="${cur_dom%%/*}"
+                read -rp "  New domain name (e.g. anjam.example.com): " new_dom
+                [[ -z "$new_dom" ]] && continue
+                new_dom="${new_dom#https://}"; new_dom="${new_dom#http://}"; new_dom="${new_dom%%/*}"
+
+                info "Updating domain from ${cur_dom} to ${new_dom}..."
+                # Update anjam.env
+                sed -i "s|PUBLIC_URL=.*|PUBLIC_URL=https://${new_dom}|" "$ENV_FILE"
+                set -a; . "$ENV_FILE"; set +a
+
+                # Configure Nginx & Certbot
+                mkdir -p /var/lib/anjam/acme
+                chown -R anjam:anjam /var/lib/anjam/acme
+                sed -i "s|${cur_dom}|${new_dom}|g" "$NGINX_SITE"
+                nginx -t && systemctl reload nginx
+
+                info "Requesting SSL certificate for ${new_dom}..."
+                if certbot certonly --webroot -w /var/lib/anjam/acme -d "$new_dom" --non-interactive --agree-tos --register-unsafely-without-email --deploy-hook "systemctl reload nginx"; then
+                    ok "SSL certificate obtained successfully for ${new_dom}"
+                else
+                    warn "Certbot failed. Ensure DNS for ${new_dom} points to this server IP."
+                fi
+                systemctl restart "$SERVICE"
+                pause ;;
+            3)
+                info "Testing SSL renewal..."
+                certbot renew --dry-run
+                pause ;;
+            4)
+                info "Renewing SSL certificates..."
+                certbot renew --force-renewal --deploy-hook "systemctl reload nginx"
+                ok "Certificates renewed"
+                pause ;;
+            5)
+                echo ""
+                if nginx -t; then
+                    systemctl reload nginx
+                    ok "Nginx reloaded successfully"
+                else
+                    fail "Nginx syntax error"
+                fi
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Admin Credentials & Security
+# ══════════════════════════════════════════════
+menu_admin() {
+    while true; do
+        header
+        section "Admin Credentials & Security"
+        show_status
+        echo "    [1]  Show initial credentials file (/etc/anjam/install-result.env)"
+        echo "    [2]  Reset / Change Administrator Password"
+        echo "    [3]  List all Administrators"
+        echo "    [4]  Remove Administrator Role"
+        echo "    [5]  Generate new random Admin Panel Path"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                echo ""
+                if [[ -f "$INSTALL_RESULT" ]]; then
+                    echo -e "${CYAN}--- Saved Install Credentials ---${NC}"
+                    cat "$INSTALL_RESULT"
+                else
+                    warn "No install-result.env found."
+                fi
+                pause ;;
+            2)
+                echo ""
+                read -rp "  Admin e-mail: " adm_email
+                [[ -z "$adm_email" ]] && continue
+                read -rsp "  New password (leave empty to generate random): " adm_pass; echo
+                read -rp "  Display name [Admin]: " adm_name
+                adm_name="${adm_name:-Admin}"
+
+                info "Updating admin account..."
+                "$BIN" admin reset "$adm_email" "$adm_pass" "$adm_name"
+                pause ;;
+            3)
+                echo ""
+                info "Administrator accounts:"
+                "$BIN" admin list
+                pause ;;
+            4)
+                echo ""
+                read -rp "  E-mail of admin to demote to regular user: " demote_email
+                [[ -z "$demote_email" ]] && continue
+                "$BIN" admin remove "$demote_email"
+                ok "Admin privileges removed from ${demote_email}"
+                pause ;;
+            5)
+                local new_path="panel-$(head -c 6 /dev/urandom | od -An -tx1 | tr -d ' \n')"
+                info "Changing ADMIN_PATH to: /${new_path}"
+                sed -i "s|^ADMIN_PATH=.*|ADMIN_PATH=${new_path}|" "$ENV_FILE"
+                set -a; . "$ENV_FILE"; set +a
+                systemctl restart "$SERVICE"
+                ok "Admin panel path updated to: /${new_path}"
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Users & Registration
+# ══════════════════════════════════════════════
+menu_users() {
+    while true; do
+        header
+        section "User Management & Registration"
+        show_status
+        echo "    [1]  List all registered users"
+        echo "    [2]  Change Registration Mode (open / invite / closed)"
+        echo "    [3]  Disable a user"
+        echo "    [4]  Enable a user"
+        echo "    [5]  Generate password reset link for user"
+        echo "    [6]  Delete a user"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                echo ""
+                info "Registered accounts:"
+                "$BIN" users
+                pause ;;
+            2)
+                echo ""
+                echo "  Choose registration mode:"
+                echo "    [1] open    — Anyone can register"
+                echo "    [2] invite  — Registration requires an invite code (default)"
+                echo "    [3] closed  — New registrations disabled"
+                read -rp "  Mode [1-3]: " mch
+                case $mch in
+                    1) "$BIN" registration open; sed -i "s|^REGISTRATION=.*|REGISTRATION=open|" "$ENV_FILE" ;;
+                    2) "$BIN" registration invite; sed -i "s|^REGISTRATION=.*|REGISTRATION=invite|" "$ENV_FILE" ;;
+                    3) "$BIN" registration closed; sed -i "s|^REGISTRATION=.*|REGISTRATION=closed|" "$ENV_FILE" ;;
+                    *) warn "Invalid choice" ;;
+                esac
+                set -a; . "$ENV_FILE"; set +a
+                ok "Registration mode updated"
+                pause ;;
+            3)
+                read -rp "  E-mail of user to disable: " u_email
+                [[ -z "$u_email" ]] && continue
+                "$BIN" user disable "$u_email"
+                ok "User disabled"
+                pause ;;
+            4)
+                read -rp "  E-mail of user to enable: " u_email
+                [[ -z "$u_email" ]] && continue
+                "$BIN" user enable "$u_email"
+                ok "User enabled"
+                pause ;;
+            5)
+                read -rp "  E-mail of user: " u_email
+                [[ -z "$u_email" ]] && continue
+                info "Generating password reset link..."
+                "$BIN" user reset-link "$u_email"
+                pause ;;
+            6)
+                read -rp "  E-mail of user to delete: " u_email
+                [[ -z "$u_email" ]] && continue
+                read -rp "  Are you sure you want to permanently delete $u_email? [y/N]: " confirm_del
+                if [[ "$confirm_del" =~ ^[Yy]$ ]]; then
+                    "$BIN" user delete "$u_email"
+                    ok "User deleted"
+                else
+                    warn "Cancelled"
+                fi
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Invite Codes
+# ══════════════════════════════════════════════
+menu_invites() {
+    while true; do
+        header
+        section "Invite Codes"
+        show_status
+        echo "    [1]  List invite codes (used & available)"
+        echo "    [2]  Create new invite code"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                echo ""
+                info "Invite codes list:"
+                "$BIN" invite list
+                pause ;;
+            2)
+                echo ""
+                read -rp "  Note for this invite code (optional): " note
+                info "Generating invite code..."
+                local code
+                code=$("$BIN" invite create "$note")
+                ok "Invite code created: ${BOLD}${CYAN}${code}${NC}"
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Backup & Restore
+# ══════════════════════════════════════════════
+menu_backup() {
+    while true; do
+        header
+        section "Backup & Restore"
+        show_status
+        echo "    [1]  Create immediate backup (Database + Config)"
+        echo "    [2]  List existing backups"
+        echo "    [3]  Restore database from backup file"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                mkdir -p "$BACKUP_DIR"
+                local stamp; stamp=$(date +%Y%m%d-%H%M%S)
+                local db_bak="/tmp/anjam-db-${stamp}.sqlite"
+                local out_tar="${BACKUP_DIR}/anjam-backup-${stamp}.tar.gz"
+
+                info "Dumping SQLite database..."
+                "$BIN" backup "$db_bak"
+                info "Packaging backup archive..."
+                tar -czf "$out_tar" -C /tmp "anjam-db-${stamp}.sqlite" -C /etc/anjam anjam.env 2>/dev/null
+                rm -f "$db_bak"
+                chmod 600 "$out_tar"
+                ok "Backup archive created: ${BOLD}${out_tar}${NC}"
+                pause ;;
+            2)
+                echo ""
+                info "Existing backups in ${BACKUP_DIR}:"
+                mkdir -p "$BACKUP_DIR"
+                ls -lh "$BACKUP_DIR" 2>/dev/null || echo "(none)"
+                pause ;;
+            3)
+                echo ""
+                read -rp "  Enter full path to backup file (.sqlite or .tar.gz): " bak_file
+                if [[ ! -f "$bak_file" ]]; then
+                    fail "File does not exist: $bak_file"
+                    pause
+                    continue
+                fi
+                read -rp "  Are you sure you want to restore? This overwrites the current database! [y/N]: " conf_res
+                if [[ ! "$conf_res" =~ ^[Yy]$ ]]; then
+                    warn "Cancelled"
+                    pause
+                    continue
+                fi
+
+                info "Stopping ${SERVICE}..."
+                systemctl stop "$SERVICE"
+                if [[ "$bak_file" == *.tar.gz ]]; then
+                    tar -xzf "$bak_file" -C /tmp/
+                    local extracted; extracted=$(ls -t /tmp/anjam-db-*.sqlite 2>/dev/null | head -1)
+                    if [[ -n "$extracted" && -f "$extracted" ]]; then
+                        cp -f "$extracted" "${DATA_DIR}/app.db"
+                        rm -f "$extracted"
+                    fi
+                else
+                    cp -f "$bak_file" "${DATA_DIR}/app.db"
+                fi
+                chown -R anjam:anjam "${DATA_DIR}/app.db"
+                info "Starting ${SERVICE}..."
+                systemctl start "$SERVICE"
+                ok "Database restored successfully!"
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Environment & Settings
+# ══════════════════════════════════════════════
+menu_settings() {
+    while true; do
+        header
+        section "Environment & Configuration"
+        show_status
+        echo "    [1]  View current /etc/anjam/anjam.env"
+        echo "    [2]  Edit /etc/anjam/anjam.env (nano)"
+        echo "    [3]  Change internal port (PORT)"
+        echo "    [4]  Configure SMTP Email Settings"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                echo ""
+                if [[ -f "$ENV_FILE" ]]; then
+                    cat "$ENV_FILE"
+                else
+                    warn "Configuration file not found."
+                fi
+                pause ;;
+            2)
+                "${EDITOR:-nano}" "$ENV_FILE"
+                info "Restarting service to apply changes..."
+                set -a; . "$ENV_FILE"; set +a
+                systemctl restart "$SERVICE"
+                ok "Configuration saved and service restarted"
+                pause ;;
+            3)
+                read -rp "  Enter new internal port [1024-65535]: " new_port
+                [[ -z "$new_port" ]] && continue
+                sed -i "s|^PORT=.*|PORT=${new_port}|" "$ENV_FILE"
+                if [[ -f "$NGINX_SITE" ]]; then
+                    sed -i "s|127.0.0.1:[0-9]*|127.0.0.1:${new_port}|g" "$NGINX_SITE"
+                    nginx -t && systemctl reload nginx
+                fi
+                set -a; . "$ENV_FILE"; set +a
+                systemctl restart "$SERVICE"
+                ok "Port changed to ${new_port} and service reloaded"
+                pause ;;
+            4)
+                echo ""
+                echo -e "  ${DIM}SMTP Format: smtp://user:pass@smtp.example.com:587${NC}"
+                read -rp "  SMTP URL (leave empty to disable): " smtp_url
+                read -rp "  Mail From address (e.g. no-reply@example.com): " mail_from
+                sed -i '/^SMTP_URL=/d; /^MAIL_FROM=/d' "$ENV_FILE"
+                [[ -n "$smtp_url" ]] && echo "SMTP_URL=${smtp_url}" >> "$ENV_FILE"
+                [[ -n "$mail_from" ]] && echo "MAIL_FROM=${mail_from}" >> "$ENV_FILE"
+                set -a; . "$ENV_FILE"; set +a
+                systemctl restart "$SERVICE"
+                ok "SMTP settings updated"
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: System & Network Optimization (BBR)
+# ══════════════════════════════════════════════
+menu_optimization() {
+    while true; do
+        header
+        section "Performance & Network (TCP BBR)"
+        show_status
+        local cc; cc=$(sysctl -n net.ipv4.tcp_congestion_control 2>/dev/null || echo "unknown")
+        local qd; qd=$(sysctl -n net.core.default_qdisc 2>/dev/null || echo "unknown")
+        echo -e "  Current Congestion Control: ${CYAN}${cc}${NC}"
+        echo -e "  Current Default Qdisc:      ${CYAN}${qd}${NC}"
+        echo ""
+        echo "    [1]  Enable TCP BBR Congestion Control"
+        echo "    [2]  Disable TCP BBR (Revert to CUBIC)"
+        echo "    [3]  Show Active Sockets & Port Listeners"
+        echo ""
+        echo "    [0]  ← Back"
+        echo ""
+        read -rp "  Choice: " ch || break
+        case $ch in
+            1)
+                if [[ "$cc" == "bbr" ]]; then
+                    ok "TCP BBR is already active"
+                else
+                    info "Enabling TCP BBR..."
+                    mkdir -p /etc/sysctl.d
+                    cat > /etc/sysctl.d/99-bbr-anjam.conf <<EOF
+net.core.default_qdisc = fq
+net.ipv4.tcp_congestion_control = bbr
+EOF
+                    sysctl -w net.core.default_qdisc=fq >/dev/null 2>&1
+                    sysctl -w net.ipv4.tcp_congestion_control=bbr >/dev/null 2>&1
+                    ok "TCP BBR enabled successfully"
+                fi
+                pause ;;
+            2)
+                info "Reverting to CUBIC..."
+                rm -f /etc/sysctl.d/99-bbr-anjam.conf
+                sysctl -w net.core.default_qdisc=pfifo_fast >/dev/null 2>&1
+                sysctl -w net.ipv4.tcp_congestion_control=cubic >/dev/null 2>&1
+                ok "Reverted to CUBIC"
+                pause ;;
+            3)
+                echo ""
+                ss -ltnp | grep -E "anjam|nginx|:${PORT}" || netstat -ltnp 2>/dev/null
+                pause ;;
+            0) break ;;
+        esac
+    done
+}
+
+# ══════════════════════════════════════════════
+#  MENU: Uninstall Anjam
+# ══════════════════════════════════════════════
+menu_uninstall() {
+    header
+    section "Uninstall Anjam"
+    echo ""
+    echo -e "  ${RED}${BOLD}⚠  WARNING: This will remove Anjam from your system:${NC}"
+    echo ""
+    echo -e "    ${DIM}·${NC} Stop & disable systemd service (${SERVICE})"
+    echo -e "    ${DIM}·${NC} Remove Nginx configuration for Anjam"
+    echo -e "    ${DIM}·${NC} Remove /opt/anjam and /usr/local/bin/anjam"
+    echo -e "    ${DIM}·${NC} ${GREEN}An automated backup will be saved in /root/ first${NC}"
+    echo ""
+    read -rp "$(echo -e "  ${YELLOW}Also remove SSL certificates for ${PUBLIC_URL}? [y/N]:${NC} ")" RM_SSL
+    echo ""
+    echo -e "  ${RED}${BOLD}Type 'yes' to proceed with uninstall:${NC}"
+    read -rp "  Confirm: " CONF
+    [[ "$CONF" != "yes" ]] && warn "Uninstall cancelled" && pause && return
+
+    info "Creating safety backup before removal..."
+    local keep="/root/anjam-safety-backup-$(date +%Y%m%d-%H%M%S).tar.gz"
+    tar -czf "$keep" --exclude='*.sock' -C / "${DATA_DIR#/}" "${ENV_FILE#/}" 2>/dev/null || true
+    chmod 600 "$keep" 2>/dev/null || true
+    ok "Safety copy preserved at: ${keep}"
+
+    info "Stopping and disabling service..."
+    systemctl stop "$SERVICE" 2>/dev/null || true
+    systemctl disable "$SERVICE" 2>/dev/null || true
+    rm -f "$SERVICE_FILE"
+    systemctl daemon-reload
+
+    info "Removing Nginx configuration..."
+    rm -f "$NGINX_LINK" "$NGINX_SITE" /etc/nginx/conf.d/anjam-zones.conf
+    nginx -t 2>/dev/null && systemctl reload nginx
+
+    if [[ "$RM_SSL" =~ ^[Yy]$ ]]; then
+        local dom="${PUBLIC_URL#https://}"; dom="${dom#http://}"; dom="${dom%%/*}"
+        if [[ -n "$dom" ]]; then
+            info "Removing SSL certificates for ${dom}..."
+            certbot delete --cert-name "$dom" --non-interactive 2>/dev/null || true
+        fi
+    fi
+
+    info "Cleaning files..."
+    rm -rf /opt/anjam /etc/anjam /usr/local/bin/anjam
+
+    echo ""
+    ok "Anjam has been successfully uninstalled."
+    echo -e "  ${DIM}Data directory kept at ${DATA_DIR} and safety archive in /root/${NC}"
+    echo ""
+    exit 0
+}
+
+# ══════════════════════════════════════════════
+#  MAIN INTERACTIVE MENU LOOP
+# ══════════════════════════════════════════════
+while true; do
+    header
+    show_status
+    echo -e "  ${BOLD}Main Menu${NC}"
+    echo ""
+    echo "    [1]   Service Management        (start, stop, restart, logs, health)"
+    echo "    [2]   Update to Latest Release  (fetch release, safe rollback)"
+    echo "    [3]   Domain & SSL (HTTPS)      (change domain, certbot SSL, nginx)"
+    echo "    [4]   Admin & Security          (reset admin, panel URL, admin list)"
+    echo "    [5]   User Management           (list users, registration mode, disable)"
+    echo "    [6]   Invite Codes              (list & generate invite codes)"
+    echo "    [7]   Backup & Restore          (create backup, list, restore db)"
+    echo "    [8]   Environment & Config      (edit anjam.env, change port, SMTP)"
+    echo "    [9]   Performance & BBR         (TCP BBR congestion control)"
+    echo ""
+    echo -e "    ${RED}[10]  Uninstall Anjam${NC}           (safe uninstall with auto-backup)"
+    echo ""
+    echo "    [0]   Exit"
+    echo ""
+    read -rp "  Choice: " choice || { echo ""; exit 0; }
+    case $choice in
+        1)  menu_service ;;
+        2)  menu_update ;;
+        3)  menu_domain ;;
+        4)  menu_admin ;;
+        5)  menu_users ;;
+        6)  menu_invites ;;
+        7)  menu_backup ;;
+        8)  menu_settings ;;
+        9)  menu_optimization ;;
+        10) menu_uninstall ;;
+        0)  echo ""; exit 0 ;;
+        *)  warn "Invalid option. Select a number [0-10]." ; sleep 1 ;;
+    esac
+done

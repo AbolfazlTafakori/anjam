@@ -57,11 +57,20 @@ Ubuntu / Debian, one command:
 ```bash
 bash <(curl -fsSL https://raw.githubusercontent.com/AbolfazlTafakori/anjam/main/install.sh)
 ```
-It asks for the domain, the administrator e-mail and password and the registration mode (`-y` takes the defaults with a generated password; every question is also a flag, e.g. `--domain --admin-email --admin-pass --registration`). It downloads the release binary and web bundle into `/opt/anjam` (no runtime or packages on the host), a hardened systemd service bound to `127.0.0.1`, an nginx vhost for that domain only, and a Let's Encrypt certificate. Re-running upgrades in place; `anjam update [vX.Y.Z]` fetches a release.
 
-The installer is built to coexist with whatever else runs on the host: it never upgrades or restarts packages that are already there (an existing nginx keeps serving its other sites; it is only ever *reloaded*), refuses a port or domain something else already uses, writes only files named `anjam*` (`/etc/nginx/sites-available/anjam`, `/etc/nginx/conf.d/anjam-zones.conf`, `/etc/systemd/system/anjam.service`, `/etc/anjam`, `/opt/anjam`, `/var/lib/anjam`), obtains the certificate with `certbot certonly --webroot` so no other vhost is ever edited, and withdraws its own vhost if `nginx -t` would fail. `anjam uninstall` removes exactly those files.
+Interactive management console:
+```bash
+# On server:
+anjam
 
-The installer prints the **administrator e-mail, password and the panel address** once (kept in `/etc/anjam/install-result.env`, root only; `anjam creds` shows them again). The administrator is chosen at install time and is the only account that can open the panel; the same e-mail/password also works as an ordinary app account. Nobody who signs up in the app can reach the panel. The panel lives at a random path (`/panel-…`; `/admin` is a 404) and covers overview, users (disable / delete / reset link), invites, downloads per platform, registration mode (*open / invite only / closed*), backup and the audit log. On the server, `anjam` opens a management menu (`anjam admin reset`, `anjam registration invite`, `anjam invite create`, `anjam users`, `anjam backup`, `anjam update`, `anjam log` …). Password-reset e-mails are sent only if `SMTP_URL` is set; otherwise the admin hands out reset links.
+# Or remotely:
+bash <(curl -fsSL https://raw.githubusercontent.com/AbolfazlTafakori/anjam/main/anjam.sh)
+```
+It asks for the domain, the administrator e-mail and password and the registration mode (`-y` takes the defaults with a generated password; every question is also a flag, e.g. `--domain --admin-email --admin-pass --registration`). It downloads the release binary and web bundle into `/opt/anjam` (no runtime or packages on the host), a hardened systemd service bound to `127.0.0.1`, an nginx vhost for that domain only, and a Let's Encrypt certificate. Re-running upgrades in place; `anjam update` fetches the latest release.
+
+The installer is built to coexist with whatever else runs on the host: it never upgrades or restarts packages that are already there (an existing nginx keeps serving its other sites; it is only ever *reloaded*), refuses a port or domain something else already uses, writes only files named `anjam*` (`/etc/nginx/sites-available/anjam`, `/etc/nginx/conf.d/anjam-zones.conf`, `/etc/systemd/system/anjam.service`, `/etc/anjam`, `/opt/anjam`, `/var/lib/anjam`), obtains the certificate with `certbot certonly --webroot` so no other vhost is ever edited, and withdraws its own vhost if `nginx -t` would fail. `anjam uninstall` removes exactly those files with an automatic safety backup in `/root/`.
+
+The installer prints the **administrator e-mail, password and the panel address** once (kept in `/etc/anjam/install-result.env`, root only; `anjam creds` shows them again). The administrator is chosen at install time and is the only account that can open the panel; the same e-mail/password also works as an ordinary app account. Nobody who signs up in the app can reach the panel. The panel lives at a random path (`/panel-…`; `/admin` is a 404) and covers overview, users (disable / delete / reset link), invites, downloads per platform, registration mode (*open / invite only / closed*), backup and the audit log. On the server, running `anjam` opens a full interactive terminal menu (service management, live logs, safe updates, domain/SSL configuration, invite codes, users, backups, TCP BBR optimization, and uninstall). Password-reset e-mails are sent only if `SMTP_URL` is set; otherwise the admin hands out reset links.
 
 Downloads served by a server are stamped with its address: the Windows/Linux installers by file name (`Anjam-Setup-1.6.0.srv-<host>.exe`), the APK inside the APK Signing Block. The apps read it on first run and skip the server field.
 
@@ -75,6 +84,7 @@ android/    Capacitor shell (universal APK, server stamp reader)
 backend/    Go server: cmd/anjam, internal/{config,domain,store/sqlite,app,httpapi,releases,system,mail,cli}
 deploy/     systemd unit, nginx vhost, management CLI, release fetcher
 install.sh  one-line installer
+anjam.sh    terminal management launcher
 scripts/    build-web.js
 docs/       ARCHITECTURE.md
 ```
