@@ -216,6 +216,82 @@ func (m *Mirror) Status() Status {
 	return s
 }
 
+// yamlAsset finds a non-installer asset (electron-builder's update feed file, e.g. latest.yml)
+// among the current release's GitHub assets by exact name.
+func (m *Mirror) yamlAsset(ctx context.Context, name string) (string, error) {
+	req, _ := http.NewRequestWithContext(ctx, "GET", "https://api.github.com/repos/"+m.cfg.ReleasesRepo+"/releases/latest", nil)
+	req.Header.Set("User-Agent", "anjam-server")
+	req.Header.Set("Accept", "application/vnd.github+json")
+	res, err := m.client.Do(req)
+	if err != nil {
+		return "", err
+	}
+	defer res.Body.Close()
+	if res.StatusCode != 200 {
+		return "", &httpErr{res.StatusCode}
+	}
+	var gh struct {
+		Assets []struct {
+			Name string `json:"name"`
+			URL  string `json:"browser_download_url"`
+		} `json:"assets"`
+	}
+	if err := json.NewDecoder(res.Body).Decode(&gh); err != nil {
+		return "", err
+	}
+	for _, a := range gh.Assets {
+		if a.Name == name {
+			return a.URL, nil
+		}
+	}
+	return "", &httpErr{404}
+}
+
+// ServeUpdateFeed handles GET /update/latest.yml (and the linux/mac variants): electron-updater's
+// "generic" provider reads this file, then fetches the installer named inside it from the same
+// base URL — so this app auto-updates from anjam's own server instead of GitHub.
+func (m *Mirror) ServeUpdateFeed(w http.ResponseWriter, r *http.Request) {
+	name := strings.TrimPrefix(r.URL.Path, "/update/")
+	url, err := m.yamlAsset(r.Context(), name)
+	if err != nil {
+		http.Error(w, "No update feed yet", 404)
+		return
+	}
+	req, _ := http.NewRequestWithContext(r.Context(), "GET", url, nil)
+	req.Header.Set("User-Agent", "anjam-server")
+	res, err := m.client.Do(req)
+	if err != nil || res.StatusCode != 200 {
+		http.Error(w, "Update feed fetch failed", 502)
+		return
+	}
+	defer res.Body.Close()
+	w.Header().Set("Content-Type", "text/yaml; charset=utf-8")
+	w.Header().Set("Cache-Control", "no-cache")
+	io.Copy(w, res.Body)
+}
+
+// ServeUpdateFile handles GET /update/{name}: the raw installer bytes electron-updater downloads
+// after reading the feed, served from this server's mirror (same bytes, same sha512 as GitHub).
+func (m *Mirror) ServeUpdateFile(w http.ResponseWriter, r *http.Request) {
+	name := r.PathValue("name")
+	rel := m.Latest(r.Context())
+	if rel != nil {
+		for _, f := range rel.Files {
+			if f.Name != name {
+				continue
+			}
+			if p, ok := m.local(f); ok {
+				http.ServeFile(w, r, p)
+				return
+			}
+			go m.download(f)
+			http.Redirect(w, r, f.GitHub, http.StatusFound)
+			return
+		}
+	}
+	http.Error(w, "Not found", 404)
+}
+
 // ServeHTTP handles GET /dl/{platform}: direct download from the mirror, redirect to GitHub while filling.
 func (m *Mirror) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	rel := m.Latest(r.Context())

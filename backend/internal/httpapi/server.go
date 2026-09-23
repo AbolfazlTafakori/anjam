@@ -142,6 +142,10 @@ func (s *Server) routes() {
 		writeJSON(w, 200, map[string]any{"release": s.rel.Latest(r.Context()), "server": cfg.PublicURL})
 	})
 	m.HandleFunc("GET /dl/{platform}", s.rel.ServeHTTP)
+	m.HandleFunc("GET /update/latest.yml", s.rel.ServeUpdateFeed)
+	m.HandleFunc("GET /update/latest-linux.yml", s.rel.ServeUpdateFeed)
+	m.HandleFunc("GET /update/latest-mac.yml", s.rel.ServeUpdateFeed)
+	m.HandleFunc("GET /update/{name}", s.rel.ServeUpdateFile)
 
 	// auth
 	m.HandleFunc("POST /api/auth/register", func(w http.ResponseWriter, r *http.Request) {
