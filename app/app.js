@@ -623,7 +623,7 @@
     $('#page-icon').innerHTML = ico;
     const c = $('#crumb'); c.innerHTML = '';
     crumbs.forEach((cr, i) => {
-      if (i) { const s = document.createElement('span'); s.className = 'sep'; s.textContent = '/'; c.appendChild(s); }
+      if (i) { const s = document.createElement('span'); s.className = 'sep'; s.textContent = '›'; c.appendChild(s); }
       const b = document.createElement('button'); b.innerHTML = `${cr.icon || ''}<span dir="auto">${esc(cr.label)}</span>`; if (cr.run) b.onclick = cr.run; c.appendChild(b);
     });
     // Page chrome: hover actions (icon / cover / description), cover strip, editable description, star + link in the topbar
@@ -1787,7 +1787,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#view-desc').onblur = () => { const l = getList(state.listId); if (!l) return; const v = $('#view-desc').textContent.trim(); if (v !== (l.desc || '')) { l.desc = v; save(); } state.descOpen = null; render(); };
     $('#view-desc').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('#view-desc').blur(); } if (e.key === 'Escape') { $('#view-desc').blur(); } };
     window.addEventListener('hashchange', routeFromHash);
-    $('#side-compose').onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {});
+    if ($('#side-compose')) $('#side-compose').onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {});
     $('#shared-add').onclick = startCollab;
     $('#backdrop').onclick = () => { $('#app').classList.remove('sidebar-open'); if (state.selectedId) state.selectedId = null; render(); };
     window.addEventListener('resize', updateScrim);
@@ -1828,7 +1828,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     qa.onblur = () => { setTimeout(() => { if (!qa.value.trim() && document.activeElement !== qa && !document.activeElement.closest('#capture')) closeCapture(); }, 150); };
     $('#qa-add').onclick = () => submitCapture();
     $('#qa-cancel').onclick = closeCapture;
-    ['#qa-open', '#new-task-btn', '#fab', '#empty-new'].forEach((s) => { $(s).onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); });
+    ['#qa-open', '#new-task-btn', '#fab', '#empty-new'].forEach((s) => { const el = $(s); if (el) el.onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); });
     $('#qa-menu').onclick = (e) => openMenu(e.currentTarget, [
       { label: t('today'), icon: 'sun', run: () => openCapture({ due: todayIso() }) },
       { label: t('tomorrow'), icon: 'calendar', run: () => openCapture({ due: addDays(todayIso(), 1) }) },
@@ -1850,6 +1850,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       const inField = /^(input|textarea|select)$/i.test(document.activeElement.tagName);
       if (mod && k === 'k') { e.preventDefault(); $('#palette').hidden ? openPalette() : closePalette(); return; }
       if (mod && k === 'n') { e.preventDefault(); openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); return; }
+      if (!mod && !inField && (e.key === 'c' || e.key === 'C')) { e.preventDefault(); openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); return; }
       if (mod && k === 'f') { e.preventDefault(); $('#search').focus(); $('#search').select(); return; }
       if (mod && e.shiftKey && k === 'l') { e.preventDefault(); toggleLang(); return; }
       if (mod && k === 'e') { e.preventDefault(); setView('report'); return; }

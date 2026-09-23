@@ -4,15 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#191415" media="(prefers-color-scheme: dark)" />
-  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http: https:; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data:;" />
+  <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
+  <meta name="theme-color" content="#161415" media="(prefers-color-scheme: dark)" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:;" />
   <title>Anjam · انجام</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <defs>
+    <symbol id="i-mark" viewBox="0 0 48 48"><rect width="48" height="48" rx="12" fill="#9E1B32"/><path d="M14 24.5L21.5 32L34 16.5" stroke="#FFFFFF" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="34" cy="16.5" r="2" fill="#FFFFFF"/></symbol>
     <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v6"/><path d="M4 13h4l1.5 3h5L16 13h4v4a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2z"/></symbol>
     <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11 12 4l8 7v9H4z"/><path d="M10 20v-6h4v6"/></symbol>
     <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M3 12h2M19 12h2M5.6 5.6l1.4 1.4M17 17l1.4 1.4M5.6 18.4 7 17M17 7l1.4-1.4"/></symbol>
@@ -80,19 +84,28 @@
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar" aria-label="Navigation">
     <div class="side-top">
+      <button class="ws" id="ws-btn" data-i18n-title="accountMenu" title="حساب و فضای کاری">
+        <span class="ws-mark" id="ws-mark"><svg><use href="#i-mark"/></svg></span>
+        <span class="ws-name" id="ws-name" data-i18n="appName">انجام</span>
+        <svg class="ws-chev"><use href="#i-chevrons"/></svg>
+      </button>
       <button class="ibtn sidebar-close" id="rail-toggle" data-i18n-title="collapse" title="جمع‌کردن"><svg><use href="#i-panel"/></svg></button>
-      <span class="spacer"></span>
-      <button class="ibtn side-inbox" id="side-inbox" data-view="inbox" data-i18n-title="inbox" title="صندوق"><svg><use href="#i-inbox"/></svg><span class="badge" id="count-inbox"></span></button>
-      <button class="ibtn" id="side-compose" data-i18n-title="aNewTask" title="کار جدید"><svg><use href="#i-compose"/></svg></button>
     </div>
     <button class="side-search" id="nav-search"><svg><use href="#i-search"/></svg><span class="nav-label" data-i18n="searchAsk">جستجو</span><kbd>Ctrl K</kbd></button>
-    <div class="side-tabs" role="tablist">
-      <button class="side-tab" data-view="home" data-i18n-title="home" title="خانه"><svg><use href="#i-home"/></svg><span class="nav-label" data-i18n="home">خانه</span></button>
-      <button class="side-tab" data-view="calendar" data-i18n-title="calendarView" title="تقویم"><svg><use href="#i-calendar"/></svg><span class="nav-label" data-i18n="calendarView">تقویم</span></button>
-      <button class="side-tab" data-view="report" data-i18n-title="report" title="گزارش"><svg><use href="#i-chart"/></svg><span class="nav-label" data-i18n="report">گزارش</span></button>
-    </div>
+    <button class="btn primary new-task" id="new-task-btn"><svg><use href="#i-plus"/></svg><span class="new-task-label" data-i18n="aNewTask">کار جدید</span><kbd class="new-task-key">C</kbd></button>
 
     <div class="sidebar-scroll">
+      <div class="side-section">
+        <nav class="nav" id="nav">
+          <button class="nav-item" id="side-inbox" data-view="inbox"><svg><use href="#i-inbox"/></svg><span class="nav-label" data-i18n="inbox">صندوق</span><span class="count" id="count-inbox"></span></button>
+          <button class="nav-item" data-view="today"><svg><use href="#i-sun"/></svg><span class="nav-label" data-i18n="today">امروز</span><span class="count" id="count-today"></span></button>
+          <button class="nav-item" data-view="upcoming"><svg><use href="#i-calendar"/></svg><span class="nav-label" data-i18n="upcoming">پیش‌رو</span><span class="count" id="count-upcoming"></span></button>
+          <button class="nav-item" data-view="all"><svg><use href="#i-layers"/></svg><span class="nav-label" data-i18n="all">همه کارها</span><span class="count" id="count-all"></span></button>
+          <button class="nav-item" data-view="calendar"><svg><use href="#i-calendar"/></svg><span class="nav-label" data-i18n="calendarView">تقویم</span></button>
+          <button class="nav-item" data-view="report"><svg><use href="#i-chart"/></svg><span class="nav-label" data-i18n="report">گزارش</span></button>
+          <button class="nav-item" data-view="done"><svg><use href="#i-check-circle"/></svg><span class="nav-label" data-i18n="completed">انجام‌شده</span><span class="count" id="count-done"></span></button>
+        </nav>
+      </div>
       <div class="side-section" id="side-fav-sec" hidden>
         <div class="side-head"><span data-i18n="favorites">علاقه‌مندی‌ها</span></div>
         <div class="nav" id="fav-items"></div>
@@ -100,15 +113,6 @@
       <div class="side-section" id="side-upcoming-sec">
         <div class="side-head"><span data-i18n="upcomingSide">پیش‌رو</span></div>
         <div class="nav" id="side-upcoming"></div>
-      </div>
-      <div class="side-section">
-        <div class="side-head"><span data-i18n="views">نماها</span></div>
-        <nav class="nav" id="nav">
-          <button class="nav-item" data-view="today"><svg><use href="#i-sun"/></svg><span class="nav-label" data-i18n="today">امروز</span><span class="count" id="count-today"></span></button>
-          <button class="nav-item" data-view="upcoming"><svg><use href="#i-calendar"/></svg><span class="nav-label" data-i18n="upcoming">پیش‌رو</span><span class="count" id="count-upcoming"></span></button>
-          <button class="nav-item" data-view="all"><svg><use href="#i-layers"/></svg><span class="nav-label" data-i18n="all">همه کارها</span><span class="count" id="count-all"></span></button>
-          <button class="nav-item" data-view="done"><svg><use href="#i-check-circle"/></svg><span class="nav-label" data-i18n="completed">انجام‌شده</span><span class="count" id="count-done"></span></button>
-        </nav>
       </div>
       <div class="side-section" id="side-recents-sec" hidden>
         <div class="side-head"><span data-i18n="recents">اخیر</span></div>
@@ -133,14 +137,7 @@
       <button class="nav-item" id="trash-btn"><svg><use href="#i-trash"/></svg><span class="nav-label" data-i18n="trash">سطل زباله</span><span class="count" id="count-trash"></span></button>
       <button class="nav-item" id="customize-btn"><svg><use href="#i-sliders"/></svg><span class="nav-label" data-i18n="customizeSidebar">شخصی‌سازی نوار کناری</span></button>
       <button class="nav-item" id="settings-btn"><svg><use href="#i-settings"/></svg><span class="nav-label" data-i18n="settings">تنظیمات</span></button>
-      <button class="btn primary new-task" id="new-task-btn"><svg><use href="#i-plus"/></svg><span data-i18n="aNewTask">کار جدید</span></button>
     </div>
-    <button class="ws" id="ws-btn" data-i18n-title="accountMenu" title="حساب و فضای کاری">
-      <span class="ws-mark" id="ws-mark">ا</span>
-      <span class="ws-name" id="ws-name" data-i18n="appName">انجام</span>
-      <svg class="ws-chev"><use href="#i-chevrons"/></svg>
-      <span class="ws-spacer"></span>
-    </button>
   </aside>
 
   <!-- Main -->
