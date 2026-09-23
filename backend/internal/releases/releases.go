@@ -127,7 +127,11 @@ func (m *Mirror) fetch(ctx context.Context) (*Release, error) {
 	for _, p := range platforms {
 		for _, a := range gh.Assets {
 			if p.re.MatchString(a.Name) && !strings.Contains(a.Name, "blockmap") {
-				rel.Files = append(rel.Files, File{Platform: p.id, Label: p.label, Arch: p.arch, Kind: p.kind, Type: p.ctype, Name: a.Name, Size: a.Size, URL: m.cfg.PublicURL + "/dl/" + p.id, GitHub: a.URL, Downloads: a.DL})
+				// ?v=<version> makes the URL change every release, so a client/OS HTTP cache from an
+				// older version (which set its own freshness window from an older Cache-Control) can
+				// never mask a new one — see the 1.6.1-served-instead-of-1.6.3 report.
+				dlURL := m.cfg.PublicURL + "/dl/" + p.id + "?v=" + rel.Version
+				rel.Files = append(rel.Files, File{Platform: p.id, Label: p.label, Arch: p.arch, Kind: p.kind, Type: p.ctype, Name: a.Name, Size: a.Size, URL: dlURL, GitHub: a.URL, Downloads: a.DL})
 				break
 			}
 		}
