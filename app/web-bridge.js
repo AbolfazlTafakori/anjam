@@ -28,9 +28,10 @@
   }
   const hash = (s) => { let h = 0; for (const c of String(s)) h = (h * 31 + c.charCodeAt(0)) | 0; return h; };
 
-  // ---- updates (Android): compare the server's latest APK with this build ----
+  // ---- updates (Android): compare the server's latest APK with this build, then download and
+  // install it in-app (like Telegram) via the native Updater plugin instead of the browser ----
   let updStatus = { state: 'idle', version: '', percent: 0, message: '' };
-  let updUrl = '';
+  let updApk = null; // { url, name }
   const listeners = [];
   const emit = (s) => { updStatus = { ...updStatus, ...s }; listeners.forEach((cb) => cb(updStatus)); };
   const newer = (a, b) => { const x = a.split('.').map(Number), y = b.split('.').map(Number); for (let i = 0; i < 3; i++) { if ((x[i] || 0) > (y[i] || 0)) return true; if ((x[i] || 0) < (y[i] || 0)) return false; } return false; };
@@ -42,15 +43,32 @@
     try {
       const r = await fetch(server.replace(/\/+$/, '') + '/api/releases'); const j = await r.json();
       const apk = j.release && j.release.files.find((f) => f.platform === 'android');
-      if (apk && newer(j.release.version, version)) { updUrl = apk.url; emit({ state: 'ready', version: j.release.version, percent: 100 }); }
+      if (apk && newer(j.release.version, version)) { updApk = { url: apk.url, name: apk.name }; downloaded = false; emit({ state: 'ready', version: j.release.version, percent: 0 }); }
       else emit({ state: 'uptodate', version });
     } catch (e) { emit({ state: 'error', message: 'offline' }); }
     return updStatus;
   }
+  const updater = plugin('Updater');
+  let downloaded = false;
+  if (updater && updater.addListener) {
+    updater.addListener('update', (d) => {
+      if (d.state === 'progress') emit({ state: 'downloading', percent: d.percent });
+      else if (d.state === 'done') { downloaded = true; emit({ state: 'ready', percent: 100 }); updater.install({ name: updApk && updApk.name }); }
+      else if (d.state === 'cancelled') emit({ state: 'ready', percent: 0 });
+      else if (d.state === 'error') emit({ state: 'error', message: d.message || 'download failed' });
+    });
+  }
   const update = native ? {
     status: async () => updStatus,
     check: checkUpdate,
-    install: async () => { if (updUrl) openUrl(updUrl); },
+    // First tap downloads in-app (like Telegram); once downloaded, re-tapping just relaunches the installer.
+    install: async () => {
+      if (!updApk) return;
+      if (!updater) return openUrl(updApk.url); // fallback if the native plugin isn't available
+      if (downloaded) return updater.install({ name: updApk.name });
+      emit({ state: 'downloading', percent: 0 });
+      updater.download({ url: updApk.url, name: updApk.name });
+    },
     onStatus: (cb) => listeners.push(cb),
   } : undefined;
 
