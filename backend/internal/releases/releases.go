@@ -316,7 +316,10 @@ func (m *Mirror) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				}
 				w.Header().Set("Content-Type", f.Type)
 				w.Header().Set("Content-Disposition", `attachment; filename="`+name+`"`)
-				w.Header().Set("Cache-Control", "public, max-age=3600")
+				// The URL is the same for every version ("/dl/android" etc.), so a long max-age would
+				// keep serving a stale cached installer after a new release ships. Force revalidation
+				// on every request instead; http.ServeFile still answers with 304 when unchanged.
+				w.Header().Set("Cache-Control", "no-cache")
 				http.ServeFile(w, r, p)
 				return
 			}
