@@ -860,6 +860,17 @@ select.field-input { appearance: auto; }
   .auth-tabs button { height: 44px; font-size: 15px; font-weight: 600; border-radius: var(--r-md); }
   .auth-tabs button.active { background: var(--ruby); color: var(--on-ruby); box-shadow: none; }
   .field-input { height: 44px; border-radius: var(--r-lg); font-size: 15px; padding: 0 14px; }
+  /* Command palette: a small floating dropdown near the top left an inconsistent amount of raw
+     page visible below it — on the phone it becomes what Stitch's own Command Palette screen
+     actually shows: a full-screen takeover, not a partial-height overlay. */
+  #palette.overlay { padding: 0; align-items: stretch; }
+  .palette { width: 100%; max-width: none; height: 100dvh; border-radius: 0; padding-top: var(--safe-t); display: flex; flex-direction: column; }
+  .palette-list { flex: 1; max-height: none; }
+  /* Board: 272px desktop columns left an uninformative sliver of the next column peeking in at
+     phone widths. Snap-scrolling between near-full-width columns reads as an intentional swipe
+     gesture instead of a layout accident. */
+  .board { scroll-snap-type: x mandatory; gap: 12px; }
+  .col { width: 82vw; scroll-snap-align: start; }
   /* Generic dialogs (new/rename list, share, edit profile) become bottom sheets too, same
      reasoning as the .pop conversion: a centered floating card has no good answer for "where does
      this sit on a phone" the way a sheet sliding up from the thumb zone does. */

@@ -465,11 +465,16 @@
     $('#filter-btn').hidden = state.view === 'done' || !!state.query;
     $('#filter-btn').classList.toggle('on', state.data.settings.showDone);
     $('#sort-btn').classList.toggle('on', state.data.settings.sort !== 'due');
-    $('#task-list').hidden = mode !== 'list';
-    $('#table').hidden = mode !== 'table';
+    // A spreadsheet grid has no good answer on a 375px screen (min-width:720px forced a
+    // permanently-scrolled, mostly-hidden-columns table) — on phones "table" renders as the same
+    // card list as "list" mode, which already carries every column's info as inline chips.
+    const tableAsList = mode === 'table' && isPhone();
+    $('#task-list').hidden = !(mode === 'list' || tableAsList);
+    $('#table').hidden = mode !== 'table' || tableAsList;
     $('#board').hidden = mode !== 'board';
     $('#calendar').hidden = mode !== 'calendar';
     if (isReport) renderReport();
+    else if (tableAsList) renderRows();
     else if (mode === 'table') renderTable();
     else if (mode === 'board') renderBoard();
     else if (mode === 'calendar') renderCalendar();
