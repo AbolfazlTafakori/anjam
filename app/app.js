@@ -11,6 +11,7 @@
       searchSettings: 'جستجوی تنظیمات', spAccount: 'حساب', spAccountSub: 'پروفایل، ورود و همگام‌سازی', spPrefs: 'ترجیحات', spPrefsSub: 'ظاهر و رفتار انجام را انتخاب کنید', spGeneral: 'عمومی', spGeneralSub: 'فضاهای کاری شما و تنظیمات آن‌ها', spPeople: 'اعضا', spPeopleSub: 'اعضای فضاهای کاری مشترک و نقش‌هایشان', spData: 'داده و پشتیبان', spDataSub: 'خروجی بگیرید یا از پشتیبان بازیابی کنید', spApp: 'برنامه', spAbout: 'درباره', aboutSub: 'انجام — کارها، ساده و دقیق', spProfile: 'پروفایل', spSync: 'همگام‌سازی', spSyncState: 'وضعیت', spSession: 'نشست', signOutHint: 'از حساب روی این دستگاه خارج می‌شوید؛ داده‌های محلی می‌ماند.', serverHint: 'نشانی سروری که حساب شما روی آن است.', themeHint: 'پوستهٔ برنامه روی این دستگاه', spLangTime: 'زبان و زمان', langHint: 'زبان رابط کاربری و اعداد', showDone: 'نمایش انجام‌شده‌ها', showDoneHint: 'کارهای انجام‌شده در نماها هم دیده شوند', notifySub: 'تعیین کنید کی و چطور خبردار شوید', spInApp: 'اعلان‌های دستگاه', expPdfHint: 'گزارش چاپی از وضعیت کارها', expCsvHint: 'برای اکسل و گوگل‌شیت', expMdHint: 'فهرست متنی کارها', spBackup: 'پشتیبان', expJsonHint: 'همهٔ کارها، لیست‌ها و تنظیمات', impJsonHint: 'داده‌های فعلی با فایل پشتیبان جایگزین می‌شود', export: 'خروجی', updatesSub: 'نسخهٔ برنامه و دریافت نسخهٔ تازه', spVersion: 'نسخه', shortcutsSub: 'با صفحه‌کلید سریع‌تر کار کنید', spDownloads: 'دانلود نسخه‌ها', spWsName: 'نام فضای کاری', spWsPersonal: 'فضای شخصی شما؛ فقط خودتان می‌بینید.', spWsShared: '{n} لیست · نقش شما: {r}', spManage: 'مدیریت', spNoWs: 'هنوز فضای مشترکی ندارید.', spNoSignIn: 'برای فضاهای مشترک باید وارد حساب شوید.', spMembersOf: 'اعضای {w}',
       home: 'خانه', calendarView: 'تقویم', searchAsk: 'جستجو', upcomingSide: 'پیش‌رو', recents: 'اخیر', sharedSec: 'مشترک', privateSec: 'شخصی', startCollab: 'شروع همکاری', noShared: 'هنوز لیست مشترکی ندارید', accountMenu: 'حساب و فضای کاری',
       gMorning: 'صبح بخیر', gAfternoon: 'ظهر بخیر', gEvening: 'عصر بخیر', gNight: 'شب بخیر', subHome: '{a} کار برای امروز · {b} کار این هفته', subCalendar: '{n} کار با تاریخ', emptyHome: 'این هفته کاری نمانده', emptyCalendar: 'کاری با تاریخ ندارید', yourLists: 'لیست‌ها', tasksOpen: '{n} باز',
+      focusDone: 'همه‌چیز تکمیل شد!', focusGood: 'تمرکز امروز عالیه!', focusStart: 'امروز رو شروع کن', focusSub: '{pct}٪ وظایف با اولویت بالا تکمیل شدند', focusFrac: '{a} از {b}', inboxSub: 'ثبت سریع و ایده‌ها', todaySub: 'ضروری و دارای مهلت', noTasks: 'کاری نیست',
       mRename: 'تغییر نام', mDuplicate: 'کپی لیست', mMove: 'انتقال به فضای کاری', mDeleteList: 'حذف لیست', mInvite: 'دعوت اعضا', mLogout: 'خروج از حساب', mSignIn: 'ورود / ثبت‌نام', mNewWorkspace: 'فضای کاری جدید', mWorkspaces: 'فضاهای کاری', mCopyOk: 'کپی شد', mAccount: 'حساب',
       appName: 'انجام', inbox: 'صندوق', today: 'امروز', upcoming: 'پیش‌رو', all: 'همه', completed: 'انجام‌شده', report: 'گزارش',
       lists: 'لیست‌ها', tags: 'برچسب‌ها', settings: 'تنظیمات', more: 'بیشتر', collapse: 'جمع‌کردن', expand: 'باز کردن',
@@ -67,6 +68,7 @@
       searchSettings: 'Search settings', spAccount: 'Account', spAccountSub: 'Profile, sign-in and sync', spPrefs: 'Preferences', spPrefsSub: 'Choose how Anjam looks and behaves', spGeneral: 'General', spGeneralSub: 'Your workspaces and their settings', spPeople: 'People', spPeopleSub: 'Members of your shared workspaces and their roles', spData: 'Data & backup', spDataSub: 'Export, or restore from a backup', spApp: 'App', spAbout: 'About', aboutSub: 'Anjam — tasks, simple and precise', spProfile: 'Profile', spSync: 'Sync', spSyncState: 'Status', spSession: 'Session', signOutHint: 'Signs out on this device; local data stays.', serverHint: 'The server your account lives on.', themeHint: 'Theme for Anjam on this device', spLangTime: 'Language & time', langHint: 'Interface language and digits', showDone: 'Show completed', showDoneHint: 'Completed tasks stay visible in views', notifySub: 'Decide when and how you want to be notified', spInApp: 'Device notifications', expPdfHint: 'A printable status report', expCsvHint: 'For Excel and Google Sheets', expMdHint: 'A plain-text task list', spBackup: 'Backup', expJsonHint: 'All tasks, lists and settings', impJsonHint: 'Replaces current data with the backup file', export: 'Export', updatesSub: 'App version and getting the latest one', spVersion: 'Version', shortcutsSub: 'Work faster with the keyboard', spDownloads: 'Downloads', spWsName: 'Workspace name', spWsPersonal: 'Your personal space; only you see it.', spWsShared: '{n} lists · your role: {r}', spManage: 'Manage', spNoWs: 'No shared workspaces yet.', spNoSignIn: 'Sign in to use shared workspaces.', spMembersOf: 'Members of {w}',
       home: 'Home', calendarView: 'Calendar', searchAsk: 'Search', upcomingSide: 'Upcoming', recents: 'Recents', sharedSec: 'Shared', privateSec: 'Private', startCollab: 'Start collaborating', noShared: 'No shared lists yet', accountMenu: 'Account & workspace',
       gMorning: 'Good morning', gAfternoon: 'Good afternoon', gEvening: 'Good evening', gNight: 'Good night', subHome: '{a} tasks today · {b} this week', subCalendar: '{n} dated tasks', emptyHome: 'Nothing left this week', emptyCalendar: 'No dated tasks yet', yourLists: 'Lists', tasksOpen: '{n} open',
+      focusDone: 'All done!', focusGood: "Today's focus is great!", focusStart: 'Start your day', focusSub: '{pct}% of high-priority tasks done', focusFrac: '{a} of {b}', inboxSub: 'Quick capture & ideas', todaySub: 'Urgent & due today', noTasks: 'No tasks',
       mRename: 'Rename', mDuplicate: 'Duplicate list', mMove: 'Move to workspace', mDeleteList: 'Delete list', mInvite: 'Invite members', mLogout: 'Log out', mSignIn: 'Sign in / Sign up', mNewWorkspace: 'New workspace', mWorkspaces: 'Workspaces', mCopyOk: 'Copied', mAccount: 'Account',
       appName: 'Anjam', inbox: 'Inbox', today: 'Today', upcoming: 'Upcoming', all: 'All', completed: 'Completed', report: 'Report',
       lists: 'Lists', tags: 'Tags', settings: 'Settings', more: 'More', collapse: 'Collapse', expand: 'Expand',
@@ -586,6 +588,7 @@
     const w = $('#home-cards'); w.innerHTML = '';
     const open = liveTasks().filter((x) => !x.done);
     const lists = sortedLists();
+    if (isPhone()) return renderHomeMobile(w, open, lists);
     if (!lists.length) return;
     const groups = [{ name: t('yourLists'), items: lists.filter((l) => { const ws = getWS(workspaceOfList(l)); return !ws || ws.personal; }) }, ...state.data.workspaces.filter((x) => !x.personal).map((ws) => ({ name: ws.name, items: lists.filter((l) => workspaceOfList(l) === ws.id) }))].filter((g) => g.items.length);
     groups.forEach((g) => {
@@ -599,6 +602,27 @@
       });
       w.appendChild(col);
     });
+  }
+  // Mobile home: a "today's focus" card (real completion of today's high-priority tasks) above a
+  // 2-column bento grid (Inbox, Today, then favorite/first lists) — from the Stitch mobile design.
+  function renderHomeMobile(w, open, lists) {
+    const today = todayIso();
+    const dueToday = liveTasks().filter((x) => x.due === today);
+    const highToday = dueToday.filter((x) => x.priority >= 2);
+    const highDone = highToday.filter((x) => x.done).length;
+    if (highToday.length) {
+      const pct = Math.round(highDone / highToday.length * 100);
+      const focus = document.createElement('div'); focus.className = 'home-focus';
+      focus.innerHTML = `<span class="home-focus-ico">${icon('bolt')}</span><div class="home-focus-body"><b>${esc(t(pct >= 100 ? 'focusDone' : pct >= 50 ? 'focusGood' : 'focusStart'))}</b><span>${esc(fmt('focusSub', { pct: num(pct) }))}</span></div><span class="home-focus-badge">${esc(fmt('focusFrac', { a: num(highDone), b: num(highToday.length) }))}</span>`;
+      w.appendChild(focus);
+    }
+    const bento = document.createElement('div'); bento.className = 'home-bento';
+    const card = (label, sub, ic, n, cls, run) => { const b = document.createElement('button'); b.className = 'bento-card' + (cls ? ' ' + cls : ''); b.innerHTML = `<span class="bento-top"><span class="bento-ico">${icon(ic)}</span><span class="bento-count">${n ? num(n) : ''}</span></span><span class="bento-body"><b dir="auto">${esc(label)}</b><span dir="auto">${esc(sub)}</span></span>`; b.onclick = run; return b; };
+    bento.appendChild(card(t('inbox'), t('inboxSub'), 'inbox', open.filter((x) => !x.listId).length, '', () => setView('inbox')));
+    bento.appendChild(card(t('today'), t('todaySub'), 'sun', open.filter((x) => x.due && x.due <= today).length, 'accent', () => setView('today')));
+    const picks = lists.filter((l) => l.favorite).concat(lists.filter((l) => !l.favorite)).slice(0, 2);
+    picks.forEach((l) => bento.appendChild(card(l.name, fmt('tasksOpen', { n: num(open.filter((x) => x.listId === l.id).length) }) || t('noTasks'), l.icon ? '' : 'layers', open.filter((x) => x.listId === l.id).length, '', () => setView('list', { listId: l.id }))));
+    w.appendChild(bento);
   }
 
   const VIEW_ICON = { home: 'home', calendar: 'calendar', inbox: 'inbox', today: 'sun', upcoming: 'calendar', all: 'layers', done: 'check-circle', report: 'chart', tag: 'tag' };
