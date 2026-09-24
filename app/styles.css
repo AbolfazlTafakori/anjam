@@ -853,7 +853,12 @@ select.field-input { appearance: auto; }
   .field-input, .btn { height: 40px; font-size: 15px; }
   .btn.sm { height: 36px; }
   .seg button { height: 32px; }
-  .auth-card { padding: 20px; }
+  .auth-card { padding: 20px; border-radius: var(--r-xl); }
+  /* Stitch: a filled ruby pill for the active login/signup tab, not a subtle card highlight. */
+  .auth-tabs { background: var(--bg-surface-low); padding: 4px; border-radius: var(--r-lg); }
+  .auth-tabs button { height: 44px; font-size: 15px; font-weight: 600; border-radius: var(--r-md); }
+  .auth-tabs button.active { background: var(--ruby); color: var(--on-ruby); box-shadow: none; }
+  .field-input { height: 44px; border-radius: var(--r-lg); font-size: 15px; padding: 0 14px; }
 }
 @media (max-height: 560px) {
   .page { padding-top: 16px; }
