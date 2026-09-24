@@ -1030,7 +1030,21 @@ select.field-input { appearance: auto; }
 .rail-item.dragging { opacity: .4; }
 .rail-item.drop-before { box-shadow: 0 -2px 0 0 var(--ruby); }
 .rail-item.drop-after { box-shadow: 0 2px 0 0 var(--ruby); }
-@media (max-width: 760px) { .page-actions { opacity: 1; } .pop { width: calc(100vw - 16px); left: 8px !important; } .trash-pop { width: calc(100vw - 16px); } .trash-row .ibtn { opacity: 1; } }
+@media (max-width: 760px) {
+  .page-actions { opacity: 1; }
+  /* A box positioned next to whatever button opened it (openPop's desktop dropdown math) can land
+     anywhere on a phone — mid-drawer, half off-screen — and reads as broken, not as a menu. Below
+     this width every .pop becomes a proper bottom sheet instead, ignoring the JS-computed
+     top/left/width (the !important beats those inline styles) and sliding up over a scrim like
+     the rest of the phone's sheets (Settings, task peek). */
+  .pop { position: fixed !important; left: 0 !important; right: 0 !important; top: auto !important; bottom: 0 !important; width: 100% !important; max-width: none; max-height: min(70vh, 520px); border-radius: var(--r-xl) var(--r-xl) 0 0; padding: 20px 16px calc(16px + var(--safe-b)); overflow-y: auto; animation: sheet-in var(--t-slow) var(--ease) both; }
+  .pop::before { content: ''; position: absolute; top: 8px; left: 50%; transform: translateX(-50%); width: 36px; height: 4px; border-radius: 999px; background: var(--line-strong); }
+  .trash-pop, .customize-pop { width: 100% !important; }
+  .pop-title { font-size: 16px; padding: 10px 0 12px; }
+  .trash-row, .cz-row { height: 48px; padding: 0; font-size: 15px; }
+  .trash-row .ibtn { opacity: 1; }
+  .cz-done { height: 44px; margin-top: 12px; }
+}
 .page-icon { overflow: visible; }
 .page-icon .emoji-icon { font-size: 48px; line-height: 56px; display: block; }
 .page.has-cover .page-icon:has(.emoji-icon) { border: 0; }

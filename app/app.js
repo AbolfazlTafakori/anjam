@@ -1146,6 +1146,9 @@
   const pop = { el: null };
   function openPop(id, anchor, opts = {}) {
     closePop(); const el = $(id); el.hidden = false; pop.el = el;
+    // On phones .pop becomes a full bottom sheet (CSS), so the anchor-relative math below is
+    // moot there — but it still needs the scrim a sheet normally sits over.
+    if (window.matchMedia('(max-width: 760px)').matches) { $('#backdrop').hidden = false; return; }
     const r = anchor.getBoundingClientRect(); const w = el.offsetWidth, hgt = el.offsetHeight;
     let left = opts.align === 'end' ? r.right - w : r.left; if (document.documentElement.dir === 'rtl' && opts.align !== 'end') left = r.right - w;
     left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
@@ -1153,7 +1156,7 @@
     el.style.left = left + 'px'; el.style.top = top + 'px';
     const inp = el.querySelector('input[type=search]'); if (inp) { inp.value = ''; setTimeout(() => inp.focus(), 20); }
   }
-  function closePop() { if (pop.el) { pop.el.hidden = true; pop.el = null; } }
+  function closePop() { if (pop.el) { pop.el.hidden = true; pop.el = null; updateScrim(); } }
   document.addEventListener('mousedown', (e) => { if (pop.el && !e.target.closest('.pop') && !e.target.closest('#trash-btn,#customize-btn,#page-icon,#pa-icon,#pa-cover,#cover-change')) closePop(); });
   const EMOJI = '📋 ✅ 📝 📌 🎯 ⭐ 🔥 💡 🧠 📚 📖 ✏️ 🖊️ 📁 🗂️ 🗓️ ⏰ ⏳ 🔔 💼 🏢 🏠 🏡 🛒 🧺 🍎 🥗 🍳 ☕ 🧘 🏃 🚴 ⚽ 🏋️ 💊 🩺 🧾 💳 💰 📈 📊 🧮 🛠️ ⚙️ 🧰 💻 🖥️ 📱 🌐 🔐 🚀 ✈️ 🚗 🗺️ 🧳 🎒 🎁 🎉 🎂 🎓 🎨 🎵 🎬 📷 🌱 🌿 🌳 🌸 🌞 🌙 ❤️ 💜 💙 💚 🧡 🐱 🐶 🐟 🦋 👶 👪 🧑‍💻 🤝 🙏 ✨ 🔖 🧩 🏆 🥇 🧹 🧼 🪴 🛏️ 🍽️ 🧯 🔑 📦 🚚 🏪 🏦 🏥 🏫'.split(' ');
   function renderEmoji(q = '') {
