@@ -929,6 +929,14 @@ select.field-input { appearance: auto; }
   .side-tab { height: 36px; }
   .side-search { height: 36px; font-size: 14px; }
   .side-up-title { font-size: 15px; }
+  /* Stitch drawer rows: taller, spaced-out rounded pills instead of a dense flat menu list. */
+  .rail-item, .rail-group { height: 44px; padding: 0 12px; font-size: 14.5px; gap: 10px; }
+  .rail-item svg, .rail-group svg { width: 19px; height: 19px; }
+  .sidebar-scroll .rail-item + .rail-item, .sidebar-scroll .rail-group + .rail-item { margin-top: 2px; }
+  .rail-item.active { box-shadow: var(--shadow-sm); }
+  .ws { height: 52px; padding: 0 10px; }
+  .ws-mark { width: 40px; height: 40px; border-radius: 50%; font-size: 16px; }
+  .new-task { height: 46px; }
 
   /* Home: today's-focus card + a 2-col bento grid (Inbox/Today/pinned lists) — from Stitch. */
   .home-focus { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--r-lg); background: var(--bg-card); box-shadow: var(--shadow-sm); }
