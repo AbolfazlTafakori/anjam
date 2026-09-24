@@ -881,13 +881,29 @@ select.field-input { appearance: auto; }
 .stw-empty { color: var(--text-2); font-size: 14px; padding: 24px 0; }
 .stw .shortcuts { margin-top: 16px; }
 @media (max-width: 900px) {
-  .stw { grid-template-columns: 1fr; height: calc(100vh - 16px); width: calc(100vw - 16px); }
+  /* grid-template-rows is explicit on purpose: with only columns collapsed to 1fr, the two
+     children still land in separate auto rows, and a bare grid stretches "auto" rows to fill the
+     dialog's fixed height by default — ballooning the nav strip to fill half the screen. */
+  .stw { grid-template-columns: 1fr; grid-template-rows: auto 1fr; height: calc(100vh - 16px); width: calc(100vw - 16px); }
   .stw-nav { flex-direction: row; overflow-x: auto; gap: 4px; padding: 8px; border-inline-end: 0; border-bottom: 1px solid var(--line); }
   .stw-search, .stw-group { display: none; }
   .stw-item { width: auto; flex-shrink: 0; }
-  .stw-body { padding: 20px 16px 40px; }
+  .stw-body { padding: 20px 16px 40px; min-height: 0; }
   .stw-row { flex-direction: column; align-items: stretch; gap: 10px; }
   .stw-v .field-input { width: 100%; }
+}
+@media (max-width: 760px) {
+  /* Full-screen settings sheet, edge to edge, clear of the status bar/notch and the gesture bar —
+     the centered floating-card layout left the horizontal nav strip pressed flush under the
+     status bar and made it read as broken chrome rather than a tab bar. */
+  #settings.overlay { padding: 0; align-items: stretch; }
+  #settings .stw { width: 100vw; height: 100dvh; border-radius: 0; animation: sheet-in var(--t-slow) var(--ease) both; }
+  .stw-nav { padding: calc(8px + var(--safe-t)) 8px 8px; gap: 6px; background: var(--bg); }
+  .stw-item { height: 40px; padding: 0 10px; font-size: 14px; }
+  .stw-item[data-pane="account"] { max-width: 45vw; }
+  .stw-item[data-pane="account"] .nav-label { min-width: 0; }
+  .stw-close { top: calc(12px + var(--safe-t)); }
+  .stw-body { padding: 20px 16px calc(40px + var(--safe-b)); }
 }
 
 /* ============================================================
