@@ -1073,9 +1073,13 @@ select.field-input { appearance: auto; }
   .avatar.xs { width: 28px; height: 28px; border-radius: 8px; font-size: 13px; }
 
   .stw-body { display: none; padding: 20px 16px calc(40px + var(--safe-b)); }
-  .stw.pane-open .stw-body { display: block; padding-top: calc(20px + var(--safe-t)); }
+  .stw.pane-open .stw-body { display: block; padding-top: calc(52px + var(--safe-t)); }
   .stw-close { display: none; }
-  .stw-back { position: absolute; top: calc(12px + var(--safe-t)); inset-inline-start: 12px; display: flex; }
+  /* Icon-only and flush against the status bar read as barely-there; a clearly labeled row with
+     breathing room under the notch/status bar is what a "back" control should look like. */
+  .stw-back { position: absolute; top: calc(16px + var(--safe-t)); inset-inline-start: 12px; display: flex; align-items: center; gap: 4px; height: 32px; padding: 0 10px; border-radius: var(--r-md); color: var(--text); font-size: 14.5px; font-weight: 600; }
+  .stw-back:active { background: var(--hover); }
+  .stw-back svg { width: 20px; height: 20px; }
   .stw-pane h1 { font-size: 22px; }
   .stw-h { font-size: 13px; text-transform: none; color: var(--text-3); border-bottom: 0; margin: 28px 4px 4px; }
   .stw-row { padding: 14px 4px; }

@@ -88,7 +88,7 @@
   <aside class="sidebar" id="sidebar" aria-label="Navigation">
     <div class="side-top">
       <button class="ws" id="ws-btn" data-i18n-title="accountMenu" title="حساب و فضای کاری">
-        <span class="ws-mark" id="ws-mark"><svg><use href="#i-mark"/></svg></span>
+        <span class="ws-mark" id="ws-mark"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="26" fill="#1B1D22"/><rect x="2" y="2" width="96" height="96" rx="24" fill="none" stroke="#323640" stroke-width="2"/><path d="M28 52 L42 66 L74 34" fill="none" stroke="#E11D48" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="74" cy="34" r="5" fill="#FB7185"/></svg></span>
         <span class="ws-name" id="ws-name" data-i18n="appName">انجام</span>
         <svg class="ws-chev"><use href="#i-chevrons"/></svg>
       </button>
@@ -412,7 +412,7 @@
       <button class="stw-item" data-pane="about"><svg><use href="#i-sparkle"/></svg><span class="nav-label" data-i18n="spAbout">درباره</span></button>
     </nav>
     <div class="stw-body">
-      <button class="ibtn stw-back" id="settings-back"><svg class="flip-ltr"><use href="#i-chevron"/></svg></button>
+      <button class="stw-back" id="settings-back"><svg class="flip-ltr"><use href="#i-chevron"/></svg><span data-i18n="back">برگشت</span></button>
       <button class="ibtn stw-close" id="settings-close"><svg><use href="#i-x"/></svg></button>
 
       <section class="stw-pane" data-pane="account">
@@ -563,7 +563,7 @@
 <!-- Auth -->
 <div class="auth" id="auth" hidden>
   <div class="auth-card" role="dialog" aria-label="Account">
-    <div class="auth-brand"><span class="ws-mark lg">ا</span><span class="brand-name" data-i18n="appName">انجام</span><button class="ibtn auth-close" id="auth-close"><svg><use href="#i-x"/></svg></button></div>
+    <div class="auth-brand"><span class="ws-mark lg"><svg viewBox="0 0 100 100" aria-hidden="true"><rect width="100" height="100" rx="26" fill="#1B1D22"/><rect x="2" y="2" width="96" height="96" rx="24" fill="none" stroke="#323640" stroke-width="2"/><path d="M28 52 L42 66 L74 34" fill="none" stroke="#E11D48" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/><circle cx="74" cy="34" r="5" fill="#FB7185"/></svg></span><span class="brand-name" data-i18n="appName">انجام</span><button class="ibtn auth-close" id="auth-close"><svg><use href="#i-x"/></svg></button></div>
     <div class="auth-tabs seg" id="auth-tabs"><button data-mode="signin" data-i18n="signIn">ورود</button><button data-mode="signup" data-i18n="signUp">ثبت‌نام</button></div>
     <h2 class="auth-title" id="auth-title"></h2>
     <p class="auth-sub" id="auth-sub"></p>

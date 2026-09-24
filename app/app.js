@@ -29,7 +29,7 @@
       doneForgotMail: 'اگر این ایمیل ثبت شده باشد، لینک بازیابی برایش فرستاده شد.', doneForgotNoMail: 'این سرور ایمیل نمی‌فرستد. از مدیر سرور بخواهید از پنل مدیریت برایتان «لینک بازیابی رمز» بسازد.', doneReset: 'رمز عوض شد و وارد شدید.', doneSignup: 'حساب ساخته شد. کارهای این دستگاه هم به حساب منتقل شدند.',
       errDisabled: 'این حساب غیرفعال شده', errInvite: 'کد دعوت نامعتبر است', errName: 'نام را وارد کنید', errToken: 'لینک بازیابی نامعتبر یا منقضی است', errLastAdmin: 'تنها مدیر را نمی‌توان حذف کرد',
       editProfile: 'ویرایش حساب', currentPassword: 'رمز فعلی', newPassword: 'رمز جدید (اختیاری)', deleteAccount: 'حذف حساب', confirmDeleteAccount: 'حساب و همه‌ی داده‌های آن روی سرور حذف شود؟ (داده‌های این دستگاه می‌ماند)', profileSaved: 'حساب به‌روز شد', adminPanel: 'پنل مدیریت',
-      changePhoto: 'تغییر عکس', removePhoto: 'حذف عکس', confirmRemovePhoto: 'عکس پروفایل حذف شود؟', avatarTooLarge: 'تصویر خیلی بزرگ است', avatarBadType: 'این نوع فایل پشتیبانی نمی‌شود', avatarSignInFirst: 'برای تنظیم عکس پروفایل باید وارد حساب شوید',
+      changePhoto: 'تغییر عکس', removePhoto: 'حذف عکس', confirmRemovePhoto: 'عکس پروفایل حذف شود؟', avatarTooLarge: 'تصویر خیلی بزرگ است', avatarBadType: 'این نوع فایل پشتیبانی نمی‌شود', avatarSignInFirst: 'برای تنظیم عکس پروفایل باید وارد حساب شوید', back: 'برگشت',
       updates: 'به‌روزرسانی', checkUpdate: 'بررسی', restartUpdate: 'راه‌اندازی مجدد و نصب', upToDate: 'آخرین نسخه را دارید', upChecking: 'در حال بررسی…', upAvailable: 'نسخه {v} پیدا شد', upDownloading: 'دانلود نسخه {v}… {p}٪', upReady: 'نسخه {v} آماده است', upError: 'بررسی ناموفق', upWeb: 'نسخه‌ی وب همیشه آخرین نسخه است',
       personalWS: 'شخصی', newSharedWS: '+ فضای مشترک جدید (با نام این لیست)', workspace: 'فضای کاری', shareTitle: 'اشتراک‌گذاری', shareHint: 'با ایمیلِ حسابی که در همین سرور ثبت‌نام کرده به اشتراک بگذارید.', addMember: 'افزودن', role_owner: 'مالک', role_editor: 'ویرایشگر', role_viewer: 'بیننده', viewer: 'فقط دیدن', remove: 'حذف', leave: 'خروج از فضا', deleteWS: 'حذف فضای مشترک', errNoUser: 'حسابی با این ایمیل روی سرور نیست', readOnly: 'این لیست فقط خواندنی است', share: 'اشتراک',
       account: 'حساب و همگام‌سازی', password: 'رمز عبور', yourName: 'نام (برای ثبت‌نام)', signIn: 'ورود', signUp: 'ثبت‌نام', signOut: 'خروج', syncNow: 'همگام‌سازی',
@@ -86,7 +86,7 @@
       doneForgotMail: 'If that e-mail is registered, a reset link has been sent.', doneForgotNoMail: 'This server does not send e-mail. Ask the server admin to create a reset link from the admin panel.', doneReset: 'Password changed; you are signed in.', doneSignup: 'Account created. Tasks on this device were moved into it.',
       errDisabled: 'This account is disabled', errInvite: 'Invalid invite code', errName: 'Enter your name', errToken: 'Reset link is invalid or expired', errLastAdmin: 'The last admin cannot be deleted',
       editProfile: 'Edit account', currentPassword: 'Current password', newPassword: 'New password (optional)', deleteAccount: 'Delete account', confirmDeleteAccount: 'Delete the account and all its data on the server? (This device keeps its copy)', profileSaved: 'Account updated', adminPanel: 'Admin panel',
-      changePhoto: 'Change photo', removePhoto: 'Remove photo', confirmRemovePhoto: 'Remove your profile photo?', avatarTooLarge: 'Image is too large', avatarBadType: 'This file type is not supported', avatarSignInFirst: 'Sign in to set a profile photo',
+      changePhoto: 'Change photo', removePhoto: 'Remove photo', confirmRemovePhoto: 'Remove your profile photo?', avatarTooLarge: 'Image is too large', avatarBadType: 'This file type is not supported', avatarSignInFirst: 'Sign in to set a profile photo', back: 'Back',
       updates: 'Updates', checkUpdate: 'Check', restartUpdate: 'Restart to update', upToDate: 'You have the latest version', upChecking: 'Checking…', upAvailable: 'Version {v} found', upDownloading: 'Downloading {v}… {p}%', upReady: 'Version {v} is ready', upError: 'Check failed', upWeb: 'The web version is always current',
       personalWS: 'Personal', newSharedWS: '+ New shared space (named after this list)', workspace: 'Workspace', shareTitle: 'Sharing', shareHint: 'Share with the e-mail of an account registered on this server.', addMember: 'Add', role_owner: 'owner', role_editor: 'editor', role_viewer: 'viewer', viewer: 'view only', remove: 'Remove', leave: 'Leave space', deleteWS: 'Delete shared space', errNoUser: 'No account with this e-mail on the server', readOnly: 'This list is read-only', share: 'Share',
       account: 'Account & sync', password: 'Password', yourName: 'Name (for sign-up)', signIn: 'Sign in', signUp: 'Sign up', signOut: 'Sign out', syncNow: 'Sync now',
@@ -429,7 +429,6 @@
     $('#set-notify').checked = state.data.settings.notify;
     $('#cal-preview').textContent = fmtDate(todayIso(), { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) + '  ·  ' + fmtDateAlt(todayIso());
     $('#d-time').lang = l === 'fa' ? 'fa-IR' : 'en-GB';
-    $('#ws-mark').textContent = l === 'fa' ? 'ا' : 'A';
     applyTheme();
   }
   const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
