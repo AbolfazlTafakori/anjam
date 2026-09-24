@@ -1633,6 +1633,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $$('.stw-item').forEach((b) => b.classList.toggle('active', b.dataset.pane === name));
     $$('.stw-pane').forEach((p) => { p.hidden = p.dataset.pane !== name; });
     $('.stw-body').scrollTop = 0;
+    $('.stw').classList.add('pane-open');
     if (name === 'general') renderSpWorkspaces();
     if (name === 'people') renderSpPeople();
     if (name === 'about') { $('#sp-about-version').textContent = $('#app-version').textContent || ''; $('#sp-about-server').textContent = state.data.sync.server || DEFAULT_SERVER || '—'; const dl = $('#sp-about-dl'); const srv = state.data.sync.server || DEFAULT_SERVER; dl.hidden = !srv; if (srv) dl.href = srv.replace(/\/$/, '') + '/download'; }
@@ -1797,6 +1798,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#list-name').onkeydown = (e) => { if (e.key === 'Enter') saveList(); };
     $('#settings-btn').onclick = () => openSettings();
     $('#settings-close').onclick = () => { $('#settings').hidden = true; };
+    $('#settings-close-m').onclick = () => { $('#settings').hidden = true; };
+    $('#settings-back').onclick = () => { $('.stw').classList.remove('pane-open'); };
     $$('.stw-item').forEach((b) => b.onclick = () => showPane(b.dataset.pane));
     $('#sp-q').oninput = (e) => { const q = e.target.value.trim().toLowerCase(); $$('.stw-item').forEach((b) => { b.hidden = !!q && !b.textContent.toLowerCase().includes(q); }); };
     $('#set-showdone').onchange = (e) => { state.data.settings.showDone = e.target.checked; touchSettings(); save(); render(); };
