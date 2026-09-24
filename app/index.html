@@ -470,9 +470,11 @@
       <section class="stw-pane" data-pane="data" hidden>
         <h1 data-i18n="spData">داده و پشتیبان</h1><p class="stw-sub" data-i18n="spDataSub">خروجی بگیرید یا از پشتیبان بازیابی کنید</p>
         <h2 class="stw-h" data-i18n="exportTitle">خروجی</h2>
-        <div class="stw-row"><div class="stw-k"><b data-i18n="expPdf">گزارش PDF</b><p data-i18n="expPdfHint">گزارش چاپی از وضعیت کارها</p></div><div class="stw-v"><button class="btn" id="sp-exp-pdf" data-i18n="export">خروجی</button></div></div>
-        <div class="stw-row"><div class="stw-k"><b>CSV</b><p data-i18n="expCsvHint">برای اکسل و گوگل‌شیت</p></div><div class="stw-v"><button class="btn" id="sp-exp-csv" data-i18n="export">خروجی</button></div></div>
-        <div class="stw-row"><div class="stw-k"><b>Markdown</b><p data-i18n="expMdHint">فهرست متنی کارها</p></div><div class="stw-v"><button class="btn" id="sp-exp-md" data-i18n="export">خروجی</button></div></div>
+        <div class="exp-grid">
+          <button class="exp-card" id="sp-exp-pdf"><span class="exp-ico"><svg><use href="#i-file"/></svg></span><b data-i18n="expPdf">PDF</b><span data-i18n="expPdfHint">گزارش چاپی</span></button>
+          <button class="exp-card" id="sp-exp-csv"><span class="exp-ico"><svg><use href="#i-download"/></svg></span><b>CSV</b><span data-i18n="expCsvHint">اکسل و گوگل‌شیت</span></button>
+          <button class="exp-card" id="sp-exp-md"><span class="exp-ico"><svg><use href="#i-notes"/></svg></span><b>Markdown</b><span data-i18n="expMdHint">فهرست متنی</span></button>
+        </div>
         <h2 class="stw-h" data-i18n="spBackup">پشتیبان</h2>
         <div class="stw-row"><div class="stw-k"><b data-i18n="expJson">پشتیبان JSON</b><p data-i18n="expJsonHint">همهٔ کارها، لیست‌ها و تنظیمات</p></div><div class="stw-v"><button class="btn" id="sp-exp-json" data-i18n="aBackup">پشتیبان</button></div></div>
         <div class="stw-row"><div class="stw-k"><b data-i18n="impJson">بازیابی</b><p data-i18n="impJsonHint">داده‌های فعلی با فایل پشتیبان جایگزین می‌شود</p></div><div class="stw-v"><button class="btn" id="sp-imp-json" data-i18n="impJson">بازیابی</button></div></div>
