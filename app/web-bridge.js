@@ -72,6 +72,17 @@
     onStatus: (cb) => listeners.push(cb),
   } : undefined;
 
+  // ---- Android hardware/gesture back: let the app close its own top layer (menu, dialog, peek,
+  // drawer…) first; only minimize to the home screen once there is nothing left to back out of.
+  // The app never gets fully killed by a stray back-press — same principle as Telegram/Notion.
+  const backApp = native ? plugin('App') : null;
+  if (backApp && backApp.addListener) {
+    backApp.addListener('backButton', () => {
+      const handled = window.anjam.__onBack && window.anjam.__onBack();
+      if (!handled) { if (backApp.minimizeApp) backApp.minimizeApp(); else backApp.exitApp && backApp.exitApp(); }
+    });
+  }
+
   window.anjam = {
     defaultServer: native ? '' : location.origin,
     // Android: the download server stamps its address into the APK's signing block; ServerConfigPlugin reads it.
@@ -96,6 +107,7 @@
     onOpenTask: () => {},
     version: async () => version,
     update,
+    onBack: backApp ? (cb) => { window.anjam.__onBack = cb; } : undefined,
   };
   if (native) setTimeout(checkUpdate, 6000);
   if (!native && 'serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});

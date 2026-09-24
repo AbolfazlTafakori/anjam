@@ -703,6 +703,11 @@ select.field-input { appearance: auto; }
   .app.sidebar-open .topbar-expand { display: none; }
   .topbar .ibtn { width: 40px; height: 40px; }
   #share-btn { display: none !important; }
+  /* Every item in the desktop "…" menu already lives somewhere purpose-built on phones: favorite
+     and copy-link have their own topbar icons, list management is on the sidebar row's own "…",
+     language/calendar are in Settings → Preferences, exports/backup are in Settings → Data,
+     Report is its own view. Keeping the catch-all button here just duplicates all of that. */
+  #more-btn { display: none !important; }
   .page { padding: 12px 20px calc(120px + var(--safe-b)); }
   .page-icon { width: 44px; height: 44px; border-radius: 10px; }
   .page-icon svg { width: 26px; height: 26px; }

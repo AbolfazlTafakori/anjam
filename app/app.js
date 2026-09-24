@@ -1750,6 +1750,8 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
         { label: t('mDuplicate'), icon: 'file', run: () => duplicateList(l.id) },
         { label: t('mRename'), icon: 'edit', run: () => openListDialog(l.id) },
         { label: t('mMove'), icon: 'arrow', run: () => openListDialog(l.id) },
+        { label: t('fullWidth'), icon: 'expand', on: !!wideCfg()[l.id], run: () => { const c = wideCfg(); c[l.id] = !c[l.id]; try { localStorage.setItem('anjam.wide', JSON.stringify(c)); } catch {} render(); } },
+        { label: t(l.locked ? 'unlockDb' : 'lockDb'), icon: l.locked ? 'unlock' : 'lock', on: l.locked, run: () => { l.locked = !l.locked; save(); render(); } },
         '-',
         { label: t('moveToTrash'), icon: 'trash', danger: true, run: () => trashList(l.id) },
       ] : []),
@@ -1907,6 +1909,35 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     document.addEventListener('mousedown', (e) => { if (menu.open && !e.target.closest('#menu')) closeMenu(); });
     window.addEventListener('resize', () => { if (menu.open) closeMenu(); });
 
+    // The desktop Esc key and the Android back gesture/button both mean "leave the thing that's on
+    // top" — same priority stack, two different triggers. closeTopLayer() is that shared stack;
+    // it reports whether it closed something so the Android caller knows whether to fall through
+    // to minimizing the app instead (see web-bridge.js's backButton listener).
+    function closeTopLayer() {
+      const inField = /^(input|textarea|select)$/i.test(document.activeElement.tagName);
+      if (menu.open) closeMenu();
+      else if (!$('#auth').hidden && !$('#auth-close').hidden) closeAuth();
+      else if (!$('#profile').hidden) $('#profile').hidden = true;
+      else if (!$('#palette').hidden) closePalette();
+      else if (!$('#datepicker').hidden) closePicker();
+      else if (!$('#settings').hidden) {
+        // On the phone drill-down, back steps up one level (pane → root list) before closing.
+        // Desktop always shows both the nav and the pane at once, so there's no "level" to leave.
+        if (window.matchMedia('(max-width: 760px)').matches && $('.stw').classList.contains('pane-open')) $('.stw').classList.remove('pane-open');
+        else $('#settings').hidden = true;
+      }
+      else if (!$('#list-dialog').hidden) $('#list-dialog').hidden = true;
+      else if (!$('#share-dialog').hidden) $('#share-dialog').hidden = true;
+      else if ($('#app').classList.contains('sidebar-open')) { $('#app').classList.remove('sidebar-open'); updateScrim(); }
+      else if (capture.open) closeCapture();
+      else if (state.query) { $('#search').value = ''; setQuery(''); }
+      else if (state.selectedId) closeDetail();
+      else if (inField) document.activeElement.blur();
+      else return false;
+      return true;
+    }
+    if (window.anjam.onBack) window.anjam.onBack(closeTopLayer);
+
     document.addEventListener('keydown', (e) => {
       const mod = e.ctrlKey || e.metaKey; const k = e.key.toLowerCase();
       const inField = /^(input|textarea|select)$/i.test(document.activeElement.tagName);
@@ -1917,22 +1948,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       if (mod && e.shiftKey && k === 'l') { e.preventDefault(); toggleLang(); return; }
       if (mod && k === 'e') { e.preventDefault(); setView('report'); return; }
       if (mod && k === '\\') { e.preventDefault(); toggleRail(); return; }
-      if (e.key === 'Escape') {
-        if (menu.open) closeMenu();
-        else if (!$('#auth').hidden && !$('#auth-close').hidden) closeAuth();
-        else if (!$('#profile').hidden) $('#profile').hidden = true;
-        else if (!$('#palette').hidden) closePalette();
-        else if (!$('#datepicker').hidden) closePicker();
-        else if (!$('#settings').hidden) $('#settings').hidden = true;
-        else if (!$('#list-dialog').hidden) $('#list-dialog').hidden = true;
-        else if (!$('#share-dialog').hidden) $('#share-dialog').hidden = true;
-        else if ($('#app').classList.contains('sidebar-open')) { $('#app').classList.remove('sidebar-open'); updateScrim(); }
-        else if (capture.open) closeCapture();
-        else if (state.query) { $('#search').value = ''; setQuery(''); }
-        else if (state.selectedId) closeDetail();
-        else if (inField) document.activeElement.blur();
-        return;
-      }
+      if (e.key === 'Escape') { closeTopLayer(); return; }
       if (inField) return;
       const row = document.activeElement.closest && document.activeElement.closest('.row');
       if (e.key === 'ArrowDown') { e.preventDefault(); focusRow(1); }
