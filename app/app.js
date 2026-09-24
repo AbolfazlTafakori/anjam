@@ -1972,6 +1972,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     $('#qa-add').onclick = () => submitCapture();
     $('#qa-cancel').onclick = closeCapture;
     ['#qa-open', '#new-task-btn', '#fab', '#empty-new'].forEach((s) => { const el = $(s); if (el) el.onclick = () => openCapture(state.view === 'today' || state.view === 'home' ? { due: todayIso() } : {}); });
+    $('#fab').addEventListener('click', () => { $('#fab').classList.add('spin'); setTimeout(() => $('#fab').classList.remove('spin'), 220); });
     $('#qa-menu').onclick = (e) => openMenu(e.currentTarget, [
       { label: t('today'), icon: 'sun', run: () => openCapture({ due: todayIso() }) },
       { label: t('tomorrow'), icon: 'calendar', run: () => openCapture({ due: addDays(todayIso(), 1) }) },

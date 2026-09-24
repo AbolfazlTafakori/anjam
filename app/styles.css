@@ -814,15 +814,16 @@ select.field-input { appearance: auto; }
   .cal-ev { font-size: 11px; padding: 1px 4px; }
   .cal-ev span { display: none; }
   .cal-ev { width: 100%; justify-content: center; }
-  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; height: calc(60px + var(--safe-b)); padding: 4px 8px var(--safe-b); border-top: 1px solid var(--line); background: rgba(250, 250, 249, 0.90); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04); z-index: 35; }
-  :root[data-theme="dark"] .tabbar, :root:not([data-theme="light"]).sys-dark .tabbar { background: rgba(22, 20, 21, 0.90); }
-  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: var(--text-2); height: 100%; }
+  .tabbar { display: flex; position: fixed; left: 0; right: 0; bottom: 0; height: calc(60px + var(--safe-b)); padding: 4px 8px var(--safe-b); border-top: 1px solid var(--line); background: color-mix(in srgb, var(--bg-side) 90%, transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.04); z-index: 35; }
+  .tabbar button { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; font-size: 11px; font-weight: 500; color: var(--text-2); height: 100%; position: relative; }
   .tabbar button svg { width: 24px; height: 24px; }
   .tabbar button.active { color: var(--ruby); font-weight: 600; }
+  .tabbar button.active::after { content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px; border-radius: 50%; background: var(--ruby); }
   .fab { display: inline-flex; position: fixed; bottom: calc(78px + var(--safe-b)); inset-inline-end: 20px; width: 56px; height: 56px; border-radius: 9999px; background: var(--ruby); color: var(--on-ruby); align-items: center; justify-content: center; z-index: 36; box-shadow: 0 8px 24px var(--ruby-shadow-lg); transition: transform var(--t-fast), background var(--t-fast); }
   .fab svg { width: 26px; height: 26px; stroke-width: 2; }
   .fab:hover { background: var(--ruby-hover); }
   .fab:active { transform: scale(.95); background: var(--ruby-active); }
+  .fab.spin { transform: rotate(45deg); }
   .peek { width: 100vw; border: 0; animation: sheet-in var(--t-slow) var(--ease) both; padding-top: var(--safe-t); }
   @keyframes sheet-in { from { opacity: 0; transform: translateY(24px); } }
   .peek-bar .ibtn { width: 40px; height: 40px; }
