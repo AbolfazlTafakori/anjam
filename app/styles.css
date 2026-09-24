@@ -374,6 +374,11 @@ button.chip:hover { background: var(--active); color: var(--text); }
 .group .g-add { opacity: 0; width: 22px; height: 22px; }
 .group:hover .g-add { opacity: .7; }
 .row { display: flex; align-items: center; gap: 10px; min-height: 46px; padding: 0 10px; border-radius: var(--r-md); border-bottom: 1px solid var(--line); position: relative; outline: none; cursor: default; transition: background var(--t-fast), opacity var(--t-slow), transform var(--t-slow) var(--ease); }
+/* display:contents on desktop makes .row-content invisible to layout — its children act as
+   direct flex items of .row, unchanged from before swipe-to-act was added; mobile turns it into
+   a real translatable box instead (see the phone media query). */
+.row-content { display: contents; }
+.row-swipe-bg { display: none; }
 .row:hover, .row:focus-visible { background: var(--hover); }
 .row.selected { background: var(--ruby-soft); }
 .row:focus-visible { box-shadow: inset 0 0 0 2px var(--ruby-ring); }
@@ -778,12 +783,20 @@ select.field-input { appearance: auto; }
   .db-tools .tbtn span { display: none; }
   .db-tools .tbtn svg { width: 18px; height: 18px; }
   .db-tools .tbtn.on { background: var(--ruby-soft); border-color: transparent; }
-  .row { min-height: 52px; padding: 0 2px; gap: 12px; border-radius: 0; border-bottom: 1px solid var(--line); }
-  .row:hover, .row:focus-visible { background: transparent; }
-  .row .cbx .cb { width: 20px; height: 20px; border-radius: 5px; }
-  .row .cbx .cb svg { width: 14px; height: 14px; }
-  .row-main { flex-direction: column; align-items: flex-start; gap: 3px; padding: 8px 0; }
+  /* Stitch mobile row: a rounded card (not a flat hairline row), with swipe-to-act underneath. */
+  #task-list { display: flex; flex-direction: column; gap: 8px; }
+  .row { min-height: 60px; padding: 0; gap: 0; border-radius: var(--r-lg); border-bottom: 0; background: var(--bg-card); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .row:hover, .row:focus-visible { background: var(--bg-card); }
+  .row-content { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 0 12px; background: var(--bg-card); position: relative; z-index: 1; }
+  .row .cbx .cb { width: 22px; height: 22px; border-radius: 7px; }
+  .row .cbx .cb svg { width: 15px; height: 15px; }
+  .row-main { flex-direction: column; align-items: flex-start; gap: 3px; padding: 10px 0; }
   .row-title { font-size: 15px; white-space: normal; }
+  .row-swipe-bg { display: flex; position: absolute; inset: 0; z-index: 0; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-weight: 700; color: #fff; opacity: 0; transition: opacity var(--t-fast); }
+  .row-swipe-bg svg { width: 22px; height: 22px; }
+  .row-swipe-bg.complete { background: #059669; }
+  .row-swipe-bg.del { background: var(--danger); }
+  .row.swipe-complete .row-swipe-bg.complete, .row.swipe-del .row-swipe-bg.del { opacity: 1; }
   .row { flex-wrap: wrap; row-gap: 0; }
   .row-meta { flex-wrap: wrap; white-space: normal; flex-basis: 100%; padding: 0 32px 10px 0; margin-top: -4px; }
   [dir="ltr"] .row-meta { padding: 0 0 10px 32px; }

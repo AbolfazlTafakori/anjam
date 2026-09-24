@@ -19,7 +19,7 @@
       emptyInbox: 'صندوق خالی است', emptyToday: 'امروز کاری نمانده', emptyUpcoming: 'کاری برای روزهای آینده ثبت نشده', emptyAll: 'هنوز کاری ثبت نشده',
       emptyDone: 'هنوز کاری انجام نشده', emptySearch: 'چیزی پیدا نشد', emptyList: 'این لیست خالی است', emptyTag: 'کاری با این برچسب نیست',
       emptyHint: 'با Ctrl+N یک کار بنویس؛ «فردا»، «!3» و «#برچسب» را همان‌جا می‌فهمد.',
-      clearCompleted: 'پاک‌کردن انجام‌شده‌ها', delete: 'حذف', titlePh: 'عنوان کار', notesPh: 'یادداشت…',
+      clearCompleted: 'پاک‌کردن انجام‌شده‌ها', delete: 'حذف', complete: 'تکمیل', titlePh: 'عنوان کار', notesPh: 'یادداشت…',
       signInUp: 'ورود / ثبت‌نام', server: 'سرور', yourNameL: 'نام', passwordAgain: 'تکرار رمز', inviteCode: 'کد دعوت', forgot: 'رمز را فراموش کرده‌ام', skipAccount: 'فعلاً بدون حساب', ok: 'باشه',
       terms: 'داده‌های شما فقط روی سرور خودتان ذخیره می‌شود و با کسی به اشتراک گذاشته نمی‌شود.',
       tSignin: 'خوش برگشتی', sSignin: 'با حساب خود وارد شوید تا کارها روی همه‌ی دستگاه‌ها همگام شوند.', tSignup: 'ساخت حساب', sSignup: 'یک بار بسازید، همه‌جا استفاده کنید.',
@@ -76,7 +76,7 @@
       emptyInbox: 'Inbox is empty', emptyToday: 'Nothing left for today', emptyUpcoming: 'Nothing scheduled ahead', emptyAll: 'No tasks yet',
       emptyDone: 'Nothing completed yet', emptySearch: 'No matches', emptyList: 'This list is empty', emptyTag: 'No tasks with this tag',
       emptyHint: 'Press Ctrl+N and type; "tomorrow", "!3" and "#tag" are understood inline.',
-      clearCompleted: 'Clear completed', delete: 'Delete', titlePh: 'Task title', notesPh: 'Notes…',
+      clearCompleted: 'Clear completed', delete: 'Delete', complete: 'Complete', titlePh: 'Task title', notesPh: 'Notes…',
       signInUp: 'Sign in / Sign up', server: 'Server', yourNameL: 'Name', passwordAgain: 'Repeat password', inviteCode: 'Invite code', forgot: 'Forgot password', skipAccount: 'Continue without account', ok: 'OK',
       terms: 'Your data is stored only on your own server and is never shared.',
       tSignin: 'Welcome back', sSignin: 'Sign in to keep tasks in sync on every device.', tSignup: 'Create account', sSignup: 'Create once, use everywhere.',
@@ -739,14 +739,19 @@
     if (task.notes.trim()) meta.push(`<span>${icon('notes')}</span>`);
     if (task.done && task.completedAt) meta.push(`<span>${icon('check')}${esc(fmtDateTime(task.completedAt))}</span>`);
     el.innerHTML = `
-      <span class="row-grip">${icon('grip')}</span>
-      <label class="cbx"><input type="checkbox" ${task.done ? 'checked' : ''} tabindex="-1"><span class="cb">${icon('check')}</span></label>
-      <div class="row-main"><div class="row-title">${esc(task.title)}</div><span class="row-open">${icon('expand')}${esc(t('open'))}</span></div>
-      <div class="row-meta">${meta.join('')}</div>
-      <button class="ibtn xs danger row-del" tabindex="-1" title="${esc(t('delete'))}">${icon('trash')}</button>`;
+      <div class="row-swipe-bg complete">${icon('check-circle')}<span>${esc(t('complete'))}</span></div>
+      <div class="row-swipe-bg del">${icon('trash')}<span>${esc(t('delete'))}</span></div>
+      <div class="row-content">
+        <span class="row-grip">${icon('grip')}</span>
+        <label class="cbx"><input type="checkbox" ${task.done ? 'checked' : ''} tabindex="-1"><span class="cb">${icon('check')}</span></label>
+        <div class="row-main"><div class="row-title">${esc(task.title)}</div><span class="row-open">${icon('expand')}${esc(t('open'))}</span></div>
+        <div class="row-meta">${meta.join('')}</div>
+        <button class="ibtn xs danger row-del" tabindex="-1" title="${esc(t('delete'))}">${icon('trash')}</button>
+      </div>`;
     el.querySelector('input').addEventListener('change', (e) => toggleDone(task.id, e.target.checked, el));
     el.querySelector('.row-main').addEventListener('click', () => openDetail(task.id));
     el.querySelector('.row-del').addEventListener('click', (e) => { e.stopPropagation(); deleteTask(task.id); });
+    if (isPhone()) bindRowSwipe(el, task);
     el.addEventListener('focus', () => { state.focusId = task.id; });
     el.addEventListener('contextmenu', (e) => { e.preventDefault(); taskMenu(task, e); });
     el.addEventListener('dragstart', (e) => { drag.id = task.id; el.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; });
@@ -773,6 +778,46 @@
     return el;
   }
   const drag = { id: null, listId: null };
+
+  // Swipe-to-act on phone rows (Stitch mobile design): swipe start-ward reveals complete (green),
+  // swipe end-ward reveals delete (red). Only the inner .row-content translates; the two colored
+  // panels sit underneath at inset:0 and are shown/hidden by direction, not physically moved.
+  const SWIPE_COMMIT = 88;
+  function bindRowSwipe(el, task) {
+    const content = el.querySelector('.row-content');
+    let sx = 0, sy = 0, dx = 0, dragging = false, decided = false;
+    el.addEventListener('touchstart', (e) => {
+      if (e.touches.length !== 1) return;
+      sx = e.touches[0].clientX; sy = e.touches[0].clientY; dx = 0; dragging = true; decided = false;
+      content.style.transition = 'none';
+    }, { passive: true });
+    el.addEventListener('touchmove', (e) => {
+      if (!dragging) return;
+      const x = e.touches[0].clientX, y = e.touches[0].clientY;
+      const ddx = x - sx, ddy = y - sy;
+      if (!decided) { if (Math.abs(ddx) < 6 && Math.abs(ddy) < 6) return; decided = Math.abs(ddx) > Math.abs(ddy) ? 'x' : 'y'; if (decided === 'y') { dragging = false; return; } }
+      if (decided !== 'x') return;
+      e.preventDefault();
+      dx = ddx / (Math.abs(ddx) > 120 ? 1 + (Math.abs(ddx) - 120) / 120 : 1); // resistance past 120px
+      content.style.transform = `translateX(${dx}px)`;
+      const rtl = document.documentElement.dir === 'rtl';
+      const forward = rtl ? dx < 0 : dx > 0; // toward reading direction = complete
+      el.classList.toggle('swipe-complete', forward && Math.abs(dx) > 24);
+      el.classList.toggle('swipe-del', !forward && Math.abs(dx) > 24);
+    }, { passive: false });
+    const end = () => {
+      if (!dragging) return;
+      dragging = false;
+      content.style.transition = '';
+      content.style.transform = '';
+      const rtl = document.documentElement.dir === 'rtl';
+      const forward = rtl ? dx < 0 : dx > 0;
+      if (Math.abs(dx) >= SWIPE_COMMIT) { if (forward) toggleDone(task.id, !task.done, el); else deleteTask(task.id); }
+      el.classList.remove('swipe-complete', 'swipe-del');
+    };
+    el.addEventListener('touchend', end);
+    el.addEventListener('touchcancel', end);
+  }
 
   // ---- table view ----
   function renderTable() {
