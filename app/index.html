@@ -420,7 +420,18 @@
         </div>
         <div id="account-in" hidden>
           <h2 class="stw-h" data-i18n="spProfile">پروفایل</h2>
-          <div class="stw-profile"><span class="avatar lg" id="acc-avatar"></span><div class="stw-profile-body"><span class="stw-lbl" data-i18n="yourNameL">نام</span><div id="acc-who" class="stw-who"></div></div><button class="btn" id="acc-profile" data-i18n="editProfile">ویرایش حساب</button></div>
+          <div class="stw-profile">
+            <span class="avatar-wrap">
+              <span class="avatar lg" id="acc-avatar"></span>
+              <button class="avatar-edit" id="acc-avatar-btn" type="button" data-i18n-title="changePhoto" title="تغییر عکس"><svg><use href="#i-image"/></svg></button>
+              <input type="file" id="acc-avatar-file" accept="image/png,image/jpeg,image/webp" hidden />
+            </span>
+            <div class="stw-profile-body">
+              <span class="stw-lbl" data-i18n="yourNameL">نام</span><div id="acc-who" class="stw-who"></div>
+              <button class="link-btn" id="acc-avatar-remove" hidden data-i18n="removePhoto">حذف عکس</button>
+            </div>
+            <button class="btn" id="acc-profile" data-i18n="editProfile">ویرایش حساب</button>
+          </div>
           <h2 class="stw-h" data-i18n="spSync">همگام‌سازی</h2>
           <div class="stw-row"><div class="stw-k"><b data-i18n="spSyncState">وضعیت</b><p id="acc-last"></p></div><div class="stw-v"><span class="d-progress" id="sync-status"></span><button class="btn" id="acc-sync" data-i18n="syncNow">همگام‌سازی</button></div></div>
           <h2 class="stw-h" data-i18n="spSession">نشست</h2>

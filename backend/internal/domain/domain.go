@@ -41,6 +41,7 @@ type User struct {
 	CreatedAt    time.Time
 	LastSyncAt   time.Time
 	LastIP       string
+	AvatarVer    int
 }
 
 // ---------- workspaces ----------
@@ -175,6 +176,9 @@ type UserRepo interface {
 	CountAdmins(ctx context.Context) (int, error)
 	Stats(ctx context.Context, since time.Time) (signups, active int, err error)
 	SignupsPerDay(ctx context.Context, since time.Time) (map[string]int, error)
+	SetAvatar(ctx context.Context, userID, contentType string, data []byte) (ver int, err error)
+	DeleteAvatar(ctx context.Context, userID string) (ver int, err error)
+	GetAvatar(ctx context.Context, userID string) (contentType string, data []byte, err error)
 }
 
 type UserSummary struct {

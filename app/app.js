@@ -28,6 +28,7 @@
       doneForgotMail: 'اگر این ایمیل ثبت شده باشد، لینک بازیابی برایش فرستاده شد.', doneForgotNoMail: 'این سرور ایمیل نمی‌فرستد. از مدیر سرور بخواهید از پنل مدیریت برایتان «لینک بازیابی رمز» بسازد.', doneReset: 'رمز عوض شد و وارد شدید.', doneSignup: 'حساب ساخته شد. کارهای این دستگاه هم به حساب منتقل شدند.',
       errDisabled: 'این حساب غیرفعال شده', errInvite: 'کد دعوت نامعتبر است', errName: 'نام را وارد کنید', errToken: 'لینک بازیابی نامعتبر یا منقضی است', errLastAdmin: 'تنها مدیر را نمی‌توان حذف کرد',
       editProfile: 'ویرایش حساب', currentPassword: 'رمز فعلی', newPassword: 'رمز جدید (اختیاری)', deleteAccount: 'حذف حساب', confirmDeleteAccount: 'حساب و همه‌ی داده‌های آن روی سرور حذف شود؟ (داده‌های این دستگاه می‌ماند)', profileSaved: 'حساب به‌روز شد', adminPanel: 'پنل مدیریت',
+      changePhoto: 'تغییر عکس', removePhoto: 'حذف عکس', confirmRemovePhoto: 'عکس پروفایل حذف شود؟', avatarTooLarge: 'تصویر خیلی بزرگ است', avatarBadType: 'این نوع فایل پشتیبانی نمی‌شود', avatarSignInFirst: 'برای تنظیم عکس پروفایل باید وارد حساب شوید',
       updates: 'به‌روزرسانی', checkUpdate: 'بررسی', restartUpdate: 'راه‌اندازی مجدد و نصب', upToDate: 'آخرین نسخه را دارید', upChecking: 'در حال بررسی…', upAvailable: 'نسخه {v} پیدا شد', upDownloading: 'دانلود نسخه {v}… {p}٪', upReady: 'نسخه {v} آماده است', upError: 'بررسی ناموفق', upWeb: 'نسخه‌ی وب همیشه آخرین نسخه است',
       personalWS: 'شخصی', newSharedWS: '+ فضای مشترک جدید (با نام این لیست)', workspace: 'فضای کاری', shareTitle: 'اشتراک‌گذاری', shareHint: 'با ایمیلِ حسابی که در همین سرور ثبت‌نام کرده به اشتراک بگذارید.', addMember: 'افزودن', role_owner: 'مالک', role_editor: 'ویرایشگر', role_viewer: 'بیننده', viewer: 'فقط دیدن', remove: 'حذف', leave: 'خروج از فضا', deleteWS: 'حذف فضای مشترک', errNoUser: 'حسابی با این ایمیل روی سرور نیست', readOnly: 'این لیست فقط خواندنی است', share: 'اشتراک',
       account: 'حساب و همگام‌سازی', password: 'رمز عبور', yourName: 'نام (برای ثبت‌نام)', signIn: 'ورود', signUp: 'ثبت‌نام', signOut: 'خروج', syncNow: 'همگام‌سازی',
@@ -83,6 +84,7 @@
       doneForgotMail: 'If that e-mail is registered, a reset link has been sent.', doneForgotNoMail: 'This server does not send e-mail. Ask the server admin to create a reset link from the admin panel.', doneReset: 'Password changed; you are signed in.', doneSignup: 'Account created. Tasks on this device were moved into it.',
       errDisabled: 'This account is disabled', errInvite: 'Invalid invite code', errName: 'Enter your name', errToken: 'Reset link is invalid or expired', errLastAdmin: 'The last admin cannot be deleted',
       editProfile: 'Edit account', currentPassword: 'Current password', newPassword: 'New password (optional)', deleteAccount: 'Delete account', confirmDeleteAccount: 'Delete the account and all its data on the server? (This device keeps its copy)', profileSaved: 'Account updated', adminPanel: 'Admin panel',
+      changePhoto: 'Change photo', removePhoto: 'Remove photo', confirmRemovePhoto: 'Remove your profile photo?', avatarTooLarge: 'Image is too large', avatarBadType: 'This file type is not supported', avatarSignInFirst: 'Sign in to set a profile photo',
       updates: 'Updates', checkUpdate: 'Check', restartUpdate: 'Restart to update', upToDate: 'You have the latest version', upChecking: 'Checking…', upAvailable: 'Version {v} found', upDownloading: 'Downloading {v}… {p}%', upReady: 'Version {v} is ready', upError: 'Check failed', upWeb: 'The web version is always current',
       personalWS: 'Personal', newSharedWS: '+ New shared space (named after this list)', workspace: 'Workspace', shareTitle: 'Sharing', shareHint: 'Share with the e-mail of an account registered on this server.', addMember: 'Add', role_owner: 'owner', role_editor: 'editor', role_viewer: 'viewer', viewer: 'view only', remove: 'Remove', leave: 'Leave space', deleteWS: 'Delete shared space', errNoUser: 'No account with this e-mail on the server', readOnly: 'This list is read-only', share: 'Share',
       account: 'Account & sync', password: 'Password', yourName: 'Name (for sign-up)', signIn: 'Sign in', signUp: 'Sign up', signOut: 'Sign out', syncNow: 'Sync now',
@@ -980,7 +982,7 @@
     const done = task.subtasks.filter((s) => s.done).length;
     $('#d-sub-progress').textContent = task.subtasks.length ? `${num(done)} / ${num(task.subtasks.length)}` : '';
     $('#d-sub-bar').hidden = !task.subtasks.length;
-    $('#d-sub-bar i').style.width = task.subtasks.length ? (done / task.subtasks.length * 100) + '%' : '0';
+    $('#d-sub-bar i').style.transform = 'scaleX(' + (task.subtasks.length ? done / task.subtasks.length : 0) + ')';
     const sw = $('#d-subtasks'); sw.innerHTML = '';
     task.subtasks.forEach((s) => {
       const row = document.createElement('div'); row.className = 'subtask' + (s.done ? ' done' : '');
@@ -1404,7 +1406,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       else setSyncStatus('err', e.code && !e.code.startsWith('http') && !/fetch/i.test(e.message) ? e.code : t('errNet'));
     } finally { syncing = false; }
   }
-  const ERR = { bad_credentials: 'errCreds', invalid_email: 'errEmail', weak_password: 'errWeak', email_taken: 'errTaken', registration_closed: 'errClosed', too_many_requests: 'errMany', account_disabled: 'errDisabled', invite_required: 'errInvite', name_required: 'errName', bad_token: 'errToken', last_admin: 'errLastAdmin' };
+  const ERR = { bad_credentials: 'errCreds', invalid_email: 'errEmail', weak_password: 'errWeak', email_taken: 'errTaken', registration_closed: 'errClosed', too_many_requests: 'errMany', account_disabled: 'errDisabled', invite_required: 'errInvite', name_required: 'errName', bad_token: 'errToken', last_admin: 'errLastAdmin', avatar_too_large: 'avatarTooLarge', bad_content_type: 'avatarBadType' };
   const errText = (e) => t(ERR[e.code] || 'errNet');
 
   // ---------- Auth screen ----------
@@ -1475,7 +1477,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
       else res = await api(v.server, '/api/auth/reset', { token: au.resetToken, password: v.pass });
       // Switching to a different account on this device: its local copy belongs to the previous account.
       if (state.data.sync.email && state.data.sync.email !== res.user.email) { state.data.lists = []; state.data.tasks = []; state.data.tombstones = {}; dirty.clear(); state.selectedId = null; }
-      state.data.sync = { server: v.server, token: res.token, email: res.user.email, name: res.user.name, cursors: {}, lastSync: 0 };
+      state.data.sync = { server: v.server, token: res.token, id: res.user.id, email: res.user.email, name: res.user.name, avatarVer: res.user.avatar_ver || 0, cursors: {}, lastSync: 0 };
       state.data.workspaces = []; for (const l of state.data.lists) l.workspaceId = '';
       for (const x of state.data.tasks) dirty.add(x.id); for (const x of state.data.lists) dirty.add(x.id);
       try { const w = await api(v.server, '/api/workspaces', null, res.token); state.data.workspaces = w.workspaces; } catch {}
@@ -1503,15 +1505,31 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
 
   // ---------- Account (settings) ----------
   function signOut() { state.data.sync = { ...state.data.sync, token: '', cursors: {}, lastSync: 0 }; dirty.clear(); window.anjam.save(state.data); setSyncStatus('idle'); }
+  function avatarUrl() {
+    const s = state.data.sync;
+    return s.id && s.avatarVer && s.server ? s.server.replace(/\/+$/, '') + '/api/avatar/' + s.id + '?v=' + s.avatarVer : '';
+  }
+  function paintAvatar(el, letter) {
+    if (!el) return;
+    const url = avatarUrl();
+    if (url) { el.style.backgroundImage = `url("${url}")`; el.classList.add('has-img'); el.textContent = ''; }
+    else { el.style.backgroundImage = ''; el.classList.remove('has-img'); el.textContent = letter; }
+  }
+  function refreshAvatars() {
+    const letter = (signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName')).trim().charAt(0).toUpperCase();
+    paintAvatar($('#acc-avatar'), letter);
+    paintAvatar($('#sp-avatar'), letter);
+  }
   function renderAccount() {
     const on = signedIn();
     $('#account-out').hidden = on; $('#account-in').hidden = !on;
     if (!on) { if (!$('#acc-server').value) $('#acc-server').value = state.data.sync.server || DEFAULT_SERVER || ''; }
     else {
       $('#acc-who').textContent = `${state.data.sync.name ? state.data.sync.name + ' · ' : ''}${state.data.sync.email}`;
-      $('#acc-avatar').textContent = (state.data.sync.name || state.data.sync.email || '?').trim().charAt(0).toUpperCase();
+      $('#acc-avatar-remove').hidden = !state.data.sync.avatarVer;
       $('#acc-last').textContent = `${t('lastSync')}: ${state.data.sync.lastSync ? fmtDateTime(state.data.sync.lastSync) : t('never')}` + (syncUI.error ? ` · ${syncUI.error}` : '');
     }
+    refreshAvatars();
     $('#sync-status').textContent = !on ? '' : syncUI.status === 'busy' ? t('syncing') : syncUI.status === 'err' ? t('syncErr') : syncUI.status === 'ok' ? t('synced') : '';
     let dot = $('#settings-btn .sync-dot');
     if (!on) { if (dot) dot.remove(); return; }
@@ -1525,7 +1543,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     if (nw && !cur) { $('#pr-err').textContent = t('vRequired'); return; }
     try {
       const r = await api(state.data.sync.server, '/api/me', nw ? { name, currentPassword: cur, newPassword: nw } : { name }, state.data.sync.token);
-      state.data.sync.name = r.user.name; if (r.token) state.data.sync.token = r.token;
+      state.data.sync.name = r.user.name; state.data.sync.avatarVer = r.user.avatar_ver || 0; if (r.token) state.data.sync.token = r.token;
       window.anjam.save(state.data); renderAccount(); $('#profile').hidden = true; showToast(t('profileSaved'));
     } catch (e) { $('#pr-err').textContent = errText(e); }
   }
@@ -1535,11 +1553,48 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     try { await api(state.data.sync.server, '/api/me/delete', { password: cur }, state.data.sync.token); $('#profile').hidden = true; signOut(); state.data.sync.email = ''; state.data.sync.name = ''; window.anjam.save(state.data); renderAccount(); }
     catch (e) { $('#pr-err').textContent = errText(e); }
   }
+  // A square, center-cropped JPEG keeps every device's upload small and uniform without a server-side image lib.
+  function resizeImageToJpeg(file, size) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+        const side = Math.min(img.width, img.height);
+        const canvas = document.createElement('canvas');
+        canvas.width = size; canvas.height = size;
+        canvas.getContext('2d').drawImage(img, (img.width - side) / 2, (img.height - side) / 2, side, side, 0, 0, size, size);
+        canvas.toBlob((blob) => blob ? resolve(blob) : reject(new Error('encode_failed')), 'image/jpeg', 0.85);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('decode_failed')); };
+      img.src = url;
+    });
+  }
+  async function uploadAvatarFile(file) {
+    if (!signedIn()) { showToast(t('avatarSignInFirst')); return; }
+    if (!/^image\/(png|jpe?g|webp)$/.test(file.type)) { showToast(t('avatarBadType')); return; }
+    if (file.size > 12 * 1024 * 1024) { showToast(t('avatarTooLarge')); return; }
+    try {
+      const blob = await resizeImageToJpeg(file, 256);
+      const r = await fetch(state.data.sync.server.replace(/\/+$/, '') + '/api/me/avatar', { method: 'POST', headers: { 'Content-Type': blob.type, Authorization: 'Bearer ' + state.data.sync.token }, body: blob });
+      const j = await r.json().catch(() => null);
+      if (!r.ok) { const e = new Error((j && j.error) || 'http_' + r.status); e.code = (j && j.error) || 'http_' + r.status; throw e; }
+      state.data.sync.avatarVer = j.avatar_ver; window.anjam.save(state.data); renderAccount();
+    } catch (e) { showToast(errText(e)); }
+  }
+  async function removeAvatar() {
+    if (!confirm(t('confirmRemovePhoto'))) return;
+    try { const r = await api(state.data.sync.server, '/api/me/avatar/delete', {}, state.data.sync.token); state.data.sync.avatarVer = r.avatar_ver; window.anjam.save(state.data); renderAccount(); }
+    catch (e) { showToast(errText(e)); }
+  }
   function bindAccount() {
     $('#acc-open').onclick = () => openAuth('signin');
     $('#acc-server').onchange = () => { state.data.sync.server = $('#acc-server').value.trim().replace(/\/+$/, ''); window.anjam.save(state.data); };
     $('#acc-sync').onclick = () => syncNow();
     $('#acc-logout').onclick = signOut;
+    $('#acc-avatar-btn').onclick = () => $('#acc-avatar-file').click();
+    $('#acc-avatar-file').onchange = (e) => { const f = e.target.files[0]; e.target.value = ''; if (f) uploadAvatarFile(f); };
+    $('#acc-avatar-remove').onclick = removeAvatar;
     $('#acc-profile').onclick = () => { $('#pr-name').value = state.data.sync.name || ''; $('#pr-cur').value = ''; $('#pr-new').value = ''; $('#pr-err').textContent = ''; $('#profile').hidden = false; };
     $('#profile-close').onclick = () => { $('#profile').hidden = true; };
     $('#pr-save').onclick = saveProfile; $('#pr-delete').onclick = deleteAccount;
@@ -1628,23 +1683,27 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     const opts = [['due', 'calendar', 'sortDue'], ['priority', 'flag', 'sortPriority'], ['title', 'notes', 'sortTitle'], ['created', 'clock', 'sortCreated']];
     openMenu(a, opts.map(([k, ic, lb]) => ({ label: t(lb), icon: ic, on: s.sort === k, run: () => { s.sort = k; save(); render(); } })), { title: t('sort') });
   }
-  // Settings window: nav on the start side, one pane at a time
-  function showPane(name) {
+  // Settings window: nav on the start side, one pane at a time.
+  // selectPane() only swaps which pane's content is shown (used for the always-visible desktop
+  // split view); showPane() additionally marks the phone drill-down as "into a pane" — kept apart
+  // so opening Settings with no explicit target lands on the root list on phones, not mid-drill.
+  function selectPane(name) {
     $$('.stw-item').forEach((b) => b.classList.toggle('active', b.dataset.pane === name));
     $$('.stw-pane').forEach((p) => { p.hidden = p.dataset.pane !== name; });
     $('.stw-body').scrollTop = 0;
-    $('.stw').classList.add('pane-open');
     if (name === 'general') renderSpWorkspaces();
     if (name === 'people') renderSpPeople();
     if (name === 'about') { $('#sp-about-version').textContent = $('#app-version').textContent || ''; $('#sp-about-server').textContent = state.data.sync.server || DEFAULT_SERVER || '—'; const dl = $('#sp-about-dl'); const srv = state.data.sync.server || DEFAULT_SERVER; dl.hidden = !srv; if (srv) dl.href = srv.replace(/\/$/, '') + '/download'; }
   }
-  function openSettings(pane = 'account') {
+  function showPane(name) { selectPane(name); $('.stw').classList.add('pane-open'); }
+  function openSettings(pane) {
     $('#settings').hidden = false;
     $('#sp-name').textContent = signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName');
-    $('#sp-avatar').textContent = (signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName')).trim().charAt(0).toUpperCase();
+    refreshAvatars();
     $('#set-showdone').checked = !!state.data.settings.showDone;
     $('#sp-q').value = ''; $$('.stw-item').forEach((b) => { b.hidden = false; });
-    showPane(pane);
+    selectPane(pane || 'account');
+    $('.stw').classList.toggle('pane-open', !!pane);
   }
   function renderSpWorkspaces() {
     const w = $('#sp-workspaces'); w.innerHTML = '';

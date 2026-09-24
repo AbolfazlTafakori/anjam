@@ -55,10 +55,11 @@ type PublicUser struct {
 	Email     string `json:"email"`
 	Name      string `json:"name"`
 	CreatedAt int64  `json:"created_at"`
+	AvatarVer int    `json:"avatar_ver"`
 }
 
 func public(u *domain.User) *PublicUser {
-	return &PublicUser{ID: u.ID, Email: u.Email, Name: u.Name, CreatedAt: u.CreatedAt.UnixMilli()}
+	return &PublicUser{ID: u.ID, Email: u.Email, Name: u.Name, CreatedAt: u.CreatedAt.UnixMilli(), AvatarVer: u.AvatarVer}
 }
 
 func (a *App) RegistrationMode(ctx context.Context) domain.Registration {
@@ -273,6 +274,36 @@ func (a *App) UpdateProfile(ctx context.Context, u *domain.User, name, currentPa
 		return nil, err
 	}
 	return &Session{Token: a.userToken(u), User: public(u)}, nil
+}
+
+var avatarTypes = map[string]bool{"image/jpeg": true, "image/png": true, "image/webp": true}
+
+func (a *App) SetAvatar(ctx context.Context, u *domain.User, contentType string, data []byte) (int, error) {
+	if len(data) == 0 {
+		return 0, fail(400, "bad_request")
+	}
+	if !avatarTypes[contentType] {
+		return 0, fail(400, "bad_content_type")
+	}
+	ver, err := a.store.Users().SetAvatar(ctx, u.ID, contentType, data)
+	if err != nil {
+		return 0, err
+	}
+	u.AvatarVer = ver
+	return ver, nil
+}
+
+func (a *App) DeleteAvatar(ctx context.Context, u *domain.User) (int, error) {
+	ver, err := a.store.Users().DeleteAvatar(ctx, u.ID)
+	if err != nil {
+		return 0, err
+	}
+	u.AvatarVer = ver
+	return ver, nil
+}
+
+func (a *App) Avatar(ctx context.Context, userID string) (string, []byte, error) {
+	return a.store.Users().GetAvatar(ctx, userID)
 }
 
 func (a *App) DeleteAccount(ctx context.Context, u *domain.User, password, ip string) error {

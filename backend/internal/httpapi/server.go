@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"io"
 	"log"
 	"net"
 	"net/http"
@@ -188,6 +189,31 @@ func (s *Server) routes() {
 		_ = decode(r, &b)
 		respond(w, map[string]any{"ok": true}, s.app.DeleteAccount(r.Context(), u, b.Password, clientIP(r)))
 	}))
+	m.HandleFunc("POST /api/me/avatar", s.requireUser(func(w http.ResponseWriter, r *http.Request, u *domain.User) {
+		data, err := io.ReadAll(r.Body)
+		if err != nil {
+			writeJSON(w, 413, map[string]string{"error": "avatar_too_large"})
+			return
+		}
+		ver, err := s.app.SetAvatar(r.Context(), u, r.Header.Get("Content-Type"), data)
+		respond(w, map[string]any{"avatar_ver": ver}, err)
+	}))
+	m.HandleFunc("POST /api/me/avatar/delete", s.requireUser(func(w http.ResponseWriter, r *http.Request, u *domain.User) {
+		ver, err := s.app.DeleteAvatar(r.Context(), u)
+		respond(w, map[string]any{"avatar_ver": ver}, err)
+	}))
+	// Public by design: the id is an opaque random uuid and the URL is cache-busted with ?v=<ver>,
+	// so any workspace member (or the panel) can show another member's picture without a token dance.
+	m.HandleFunc("GET /api/avatar/{id}", func(w http.ResponseWriter, r *http.Request) {
+		ct, data, err := s.app.Avatar(r.Context(), r.PathValue("id"))
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Content-Type", ct)
+		w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		w.Write(data)
+	})
 
 	// workspaces
 	m.HandleFunc("GET /api/workspaces", s.requireUser(func(w http.ResponseWriter, r *http.Request, u *domain.User) {
@@ -244,7 +270,7 @@ func (s *Server) routes() {
 }
 
 func publicOf(u *domain.User) map[string]any {
-	return map[string]any{"id": u.ID, "email": u.Email, "name": u.Name, "created_at": u.CreatedAt.UnixMilli()}
+	return map[string]any{"id": u.ID, "email": u.Email, "name": u.Name, "created_at": u.CreatedAt.UnixMilli(), "avatar_ver": u.AvatarVer}
 }
 func respond(w http.ResponseWriter, v any, err error) {
 	if err != nil {

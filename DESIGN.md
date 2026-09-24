@@ -2,49 +2,54 @@
 name: Anjam
 description: A workspace-style task app with one ruby accent — quiet warm neutrals, hairline rules, and cherry-red for the single action that matters.
 colors:
-  bg: "#ffffff"
-  bg-side: "#f7f5f4"
-  text: "#1e1a1b"
-  text-2: "rgba(30,26,27,0.62)"
-  text-3: "rgba(30,26,27,0.52)"
-  line: "rgba(30,26,27,0.10)"
-  hover: "rgba(30,26,27,0.055)"
-  ruby: "#9e1b34"
-  ruby-hover: "#861529"
-  ruby-soft: "rgba(158,27,52,0.10)"
-  danger: "#b3132f"
+  bg: "#fafaf9"
+  bg-side: "#f5f4f2"
+  text: "#1d1b1c"
+  text-2: "#594141"
+  text-3: "#7f6566"
+  line: "#ebe8e5"
+  hover: "rgba(29,27,28,0.045)"
+  ruby: "#9e1b32"
+  ruby-hover: "#b8213e"
+  ruby-soft: "#fdf2f4"
+  danger: "#ba1a1a"
   ok: "#1b7a45"
-  dark-bg: "#191415"
-  dark-bg-side: "#211b1d"
-  dark-text: "#efe8e6"
-  dark-ruby: "#e24a64"
+  dark-bg: "#161415"
+  dark-bg-side: "#1c191a"
+  dark-text: "#f5eff0"
+  dark-ruby: "#e03e43"
 typography:
   page-title:
-    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Vazirmatn, Inter, -apple-system, Segoe UI, system-ui, sans-serif"
     fontSize: "40px"
     fontWeight: 800
     lineHeight: 1.2
     letterSpacing: "-0.01em"
   task-title:
-    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Vazirmatn, Inter, -apple-system, Segoe UI, system-ui, sans-serif"
     fontSize: "30px"
     fontWeight: 800
     lineHeight: 1.3
   body:
-    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Vazirmatn, Inter, -apple-system, Segoe UI, system-ui, sans-serif"
     fontSize: "14px"
     fontWeight: 400
     lineHeight: 1.5
   meta:
-    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Vazirmatn, Inter, -apple-system, Segoe UI, system-ui, sans-serif"
     fontSize: "12px"
     fontWeight: 500
     lineHeight: 1.4
   phone-body:
-    fontFamily: "Vazirmatn, -apple-system, Segoe UI, system-ui, sans-serif"
+    fontFamily: "Vazirmatn, Inter, -apple-system, Segoe UI, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 400
     lineHeight: 1.5
+  code:
+    fontFamily: "JetBrains Mono, monospace"
+    fontSize: "11px"
+    fontWeight: 500
+    lineHeight: 1.4
 rounded:
   sm: "4px"
   md: "6px"
@@ -104,13 +109,13 @@ components:
 
 ## Overview
 
-Anjam is a **workspace-style app** for tasks: a quiet sidebar, a breadcrumb topbar, a page with an icon and a large title, and a database beneath it with four views (list · table · board · calendar) and a side-peek task page. The chrome is warm neutral in four tints; **ruby** (`#9e1b34`, cherry-red) is the one accent, used for the primary action, selection, checked ticks, "today", the FAB and the active phone tab. Light and dark are both first-class (system / light / dark, persisted). Persian RTL is the default; every layout rule is logical (`inset-inline`, `margin-inline`) and mirrors for English.
+Anjam is a **workspace-style app** for tasks: a quiet sidebar, a breadcrumb topbar, a page with an icon and a large title, and a database beneath it with four views (list · table · board · calendar) and a side-peek task page. The chrome is warm neutral in four tints; **ruby** (`#9e1b32`, cherry-red) is the one accent, used for the primary action, selection, checked ticks, "today", the FAB and the active phone tab. Light and dark are both first-class (system / light / dark, persisted). Persian RTL is the default; every layout rule is logical (`inset-inline`, `margin-inline`) and mirrors for English.
 
 ## Colors
 
 - **Surfaces**: `bg` for pages, peek and menus; `bg-side` for the sidebar and the auth screen backdrop; `hover` / `active` as translucent washes so they work on any surface.
 - **Text**: `text` primary, `text-2` secondary (nav, subtitles), `text-3` metadata and placeholders (≥ 4.5:1 on white), `text-4` disabled only. Warm-tinted, never neutral gray.
-- **Ruby**: primary button, checked checkbox, switch-on, selected date, today's calendar dot, the FAB, selection wash (`ruby-soft`) and the focus ring (`ruby-ring`). Hover → `ruby-hover`. Dark mode lifts it to `#e24a64` for contrast on `#191415`.
+- **Ruby**: primary button, checked checkbox, switch-on, selected date, today's calendar dot, the FAB, selection wash (`ruby-soft`) and the focus ring (`ruby-ring`). Hover → `ruby-hover`. Dark mode lifts it to `#e03e43` for contrast on `#161415` — a true red, not a lightened pink: kept the same lightness/saturation as the light-mode ruby but nudged the hue off the pink boundary (blue channel below green, not above it).
 - **Property chips**: six tinted pairs (red/amber/blue/green/gray/purple). Priority uses red (high), amber (medium), blue (low); tags use purple; done-count uses green text.
 - **Semantic**: `danger` for overdue and destructive; `ok` for a complete subtask count and "synced".
 
@@ -142,7 +147,7 @@ Three shadows: `shadow-sm` (buttons, cards, 1px ring + 2px drop), `shadow-md` (m
 - **Row**: checkbox · title · hover "Open" pill · property chips · hover delete. Context menu on right-click.
 - **Inline capture**: a highlighted row with the quick-add parser (date words, `!1-3`, `#tag`, `@list`, `HH:MM`) and live token pills.
 - **Peek**: close / expand / delete bar → 24px checkbox + 30px editable title → property rows (Due, Time + reminder switch, Repeat, Priority segmented, List, Tags, Created) → subtasks with a progress bar → notes.
-- **Settings window**: 1150×720 dialog, 240px nav on the start side (search, groups Account · Workspace · App), one pane at a time with a 24px title, subtitle, section rules and label/description rows with the control on the end side; on phones the nav becomes a horizontal strip.
+- **Settings window**: 1150×720 dialog, 240px nav on the start side (search, groups Account · Workspace · App), one pane at a time with a 24px title, subtitle, section rules and label/description rows with the control on the end side; on phones it becomes a Telegram-style drill-down — a full-screen grouped list of rounded rows with chevrons, tapping one opens that pane full-screen with a back button, the root list closes with an X in a centered title bar.
 - **Page chrome (lists)**: optional cover strip (12 gradient presets, hover → Change/Remove), emoji icon (picker: Emoji tab · filter · Remove), hover row above the title (Add icon · Add cover · Add description), inline editable description; star (favorites) and copy-link in the topbar; "…" menu adds Full width, Lock, Move to Trash.
 - **Sidebar extras**: Favorites section on top; right-click / "…" on a list → Favorite · Copy link · Duplicate · Rename · Move to · Move to Trash; drag to reorder; bottom: Trash popover (search · restore · delete forever · 30-day note) and Customize sidebar (toggle sections).
 - **Menus**: 8px radius, 30px items, group titles, active dot; date picker with quick chips + month grid (Jalali starts Saturday, Fridays red; Gregorian starts Sunday).

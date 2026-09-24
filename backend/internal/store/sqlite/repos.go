@@ -14,14 +14,14 @@ import (
 
 type userRepo struct{ db *sql.DB }
 
-const userCols = `id, email, name, pass_hash, salt, role, disabled, token_version, created_at, last_sync_at, last_ip`
+const userCols = `id, email, name, pass_hash, salt, role, disabled, token_version, created_at, last_sync_at, last_ip, avatar_ver`
 
 func scanUser(r interface{ Scan(...any) error }) (*domain.User, error) {
 	var u domain.User
 	var disabled int
 	var created, lastSync int64
 	var role string
-	if err := r.Scan(&u.ID, &u.Email, &u.Name, &u.PassHash, &u.Salt, &role, &disabled, &u.TokenVersion, &created, &lastSync, &u.LastIP); err != nil {
+	if err := r.Scan(&u.ID, &u.Email, &u.Name, &u.PassHash, &u.Salt, &role, &disabled, &u.TokenVersion, &created, &lastSync, &u.LastIP, &u.AvatarVer); err != nil {
 		return nil, notFound(err)
 	}
 	u.Role, u.Disabled, u.CreatedAt, u.LastSyncAt = domain.Role(role), disabled == 1, tm(created), tm(lastSync)
@@ -35,12 +35,45 @@ func (r userRepo) ByID(ctx context.Context, id string) (*domain.User, error) {
 	return scanUser(r.db.QueryRowContext(ctx, `SELECT `+userCols+` FROM users WHERE id = ?`, id))
 }
 func (r userRepo) Create(ctx context.Context, u *domain.User) error {
-	_, err := r.db.ExecContext(ctx, `INSERT INTO users (`+userCols+`) VALUES (?,?,?,?,?,?,?,?,?,?,?)`,
-		u.ID, strings.ToLower(u.Email), u.Name, u.PassHash, u.Salt, string(u.Role), b2i(u.Disabled), u.TokenVersion, ms(u.CreatedAt), ms(u.LastSyncAt), u.LastIP)
+	_, err := r.db.ExecContext(ctx, `INSERT INTO users (`+userCols+`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)`,
+		u.ID, strings.ToLower(u.Email), u.Name, u.PassHash, u.Salt, string(u.Role), b2i(u.Disabled), u.TokenVersion, ms(u.CreatedAt), ms(u.LastSyncAt), u.LastIP, u.AvatarVer)
 	if err != nil && strings.Contains(err.Error(), "UNIQUE") {
 		return domain.ErrConflict
 	}
 	return err
+}
+func (r userRepo) SetAvatar(ctx context.Context, userID, contentType string, data []byte) (int, error) {
+	if _, err := r.db.ExecContext(ctx, `UPDATE users SET avatar_ver = avatar_ver + 1 WHERE id = ?`, userID); err != nil {
+		return 0, err
+	}
+	if _, err := r.db.ExecContext(ctx, `INSERT INTO avatars (user_id, content_type, data, updated_at) VALUES (?,?,?,?)
+		ON CONFLICT(user_id) DO UPDATE SET content_type = excluded.content_type, data = excluded.data, updated_at = excluded.updated_at`,
+		userID, contentType, data, ms(time.Now())); err != nil {
+		return 0, err
+	}
+	var ver int
+	err := r.db.QueryRowContext(ctx, `SELECT avatar_ver FROM users WHERE id = ?`, userID).Scan(&ver)
+	return ver, err
+}
+func (r userRepo) DeleteAvatar(ctx context.Context, userID string) (int, error) {
+	if _, err := r.db.ExecContext(ctx, `UPDATE users SET avatar_ver = avatar_ver + 1 WHERE id = ?`, userID); err != nil {
+		return 0, err
+	}
+	if _, err := r.db.ExecContext(ctx, `DELETE FROM avatars WHERE user_id = ?`, userID); err != nil {
+		return 0, err
+	}
+	var ver int
+	err := r.db.QueryRowContext(ctx, `SELECT avatar_ver FROM users WHERE id = ?`, userID).Scan(&ver)
+	return ver, err
+}
+func (r userRepo) GetAvatar(ctx context.Context, userID string) (string, []byte, error) {
+	var ct string
+	var data []byte
+	err := r.db.QueryRowContext(ctx, `SELECT content_type, data FROM avatars WHERE user_id = ?`, userID).Scan(&ct, &data)
+	if err != nil {
+		return "", nil, notFound(err)
+	}
+	return ct, data, nil
 }
 func (r userRepo) Update(ctx context.Context, u *domain.User) error {
 	_, err := r.db.ExecContext(ctx, `UPDATE users SET email=?, name=?, pass_hash=?, salt=?, role=?, disabled=?, token_version=?, last_sync_at=?, last_ip=? WHERE id=?`,
