@@ -437,7 +437,13 @@
     const th = state.data.settings.theme;
     const root = document.documentElement;
     if (th === 'light' || th === 'dark') root.dataset.theme = th; else delete root.dataset.theme;
+    const dark = th === 'dark' || (th === 'system' && sysDark.matches);
     root.classList.toggle('sys-dark', th === 'system' && sysDark.matches);
+    // Android/iOS paint the status bar (and its icon color) from this meta tag; a media-query-only
+    // tag tracks the OS setting, which can disagree with an in-app light/dark override and leave
+    // the status bar the wrong color behind the phone's own light/dark bg.
+    const meta = $('#theme-color-meta'); if (meta) meta.content = dark ? '#121316' : '#FAF9F6';
+    if (window.anjam.setStatusBarTheme) window.anjam.setStatusBarTheme(dark);
   }
   sysDark.addEventListener('change', () => { if (state.data) applyTheme(); });
 

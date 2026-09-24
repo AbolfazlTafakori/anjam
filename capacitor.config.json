@@ -2,7 +2,10 @@
   "appId": "ir.abolfazl.anjam",
   "appName": "Anjam",
   "webDir": "web",
-  "android": { "allowMixedContent": false, "backgroundColor": "#160a0d" },
+  "android": { "allowMixedContent": false, "backgroundColor": "#121316" },
   "server": { "androidScheme": "https" },
-  "plugins": { "LocalNotifications": { "smallIcon": "ic_stat_anjam", "iconColor": "#e2b45a" } }
+  "plugins": {
+    "LocalNotifications": { "smallIcon": "ic_stat_anjam", "iconColor": "#e2b45a" },
+    "StatusBar": { "overlaysWebView": true, "style": "DARK", "backgroundColor": "#121316" }
+  }
 }

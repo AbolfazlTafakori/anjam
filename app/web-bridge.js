@@ -83,8 +83,22 @@
     });
   }
 
+  // ---- status bar (Android): the web theme-color meta tag only paints browser/PWA chrome, not
+  // the native app's status bar — that needs its own native call, or it stays whatever the last
+  // theme left it at (e.g. dark bg + light icons even after switching the in-app theme to light,
+  // making the clock/battery icons unreadable against the now-light app background). ----
+  const statusBar = native ? plugin('StatusBar') : null;
+  async function setStatusBarTheme(dark) {
+    if (!statusBar) return;
+    try {
+      await statusBar.setBackgroundColor({ color: dark ? '#121316' : '#FAF9F6' });
+      await statusBar.setStyle({ style: dark ? 'DARK' : 'LIGHT' });
+    } catch {}
+  }
+
   window.anjam = {
     defaultServer: native ? '' : location.origin,
+    setStatusBarTheme,
     // Android: the download server stamps its address into the APK's signing block; ServerConfigPlugin reads it.
     getDefaultServer: async () => { if (!native) return location.origin; const p = plugin('ServerConfig'); if (!p) return ''; try { const r = await p.get(); return (r && r.server) || ''; } catch { return ''; } },
     isNative: native,

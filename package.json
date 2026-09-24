@@ -1,6 +1,6 @@
 {
   "name": "anjam",
-  "version": "1.8.9",
+  "version": "1.9.0",
   "description": "Anjam - a simple, bilingual (فارسی/English) to-do list for Windows",
   "main": "desktop/main.js",
   "scripts": {
@@ -16,6 +16,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@capacitor/cli": "^8.5.2",
+    "@capacitor/status-bar": "^8.0.3",
     "electron": "^44.4.3",
     "electron-builder": "^26.15.3"
   },

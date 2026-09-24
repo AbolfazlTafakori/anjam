@@ -4,8 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="color-scheme" content="light dark" />
-  <meta name="theme-color" content="#FAFAF9" media="(prefers-color-scheme: light)" />
-  <meta name="theme-color" content="#161415" media="(prefers-color-scheme: dark)" />
+  <!-- Kept in sync with the app's OWN theme choice by applyTheme() in app.js — media-query-only
+       tags here would track the OS setting, which can disagree with an in-app light/dark override
+       and leave the phone status bar painted for the wrong background. -->
+  <meta name="theme-color" id="theme-color-meta" content="#FAFAF9" />
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; connect-src 'self' http: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https:;" />
   <title>Anjam · انجام</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
