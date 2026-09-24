@@ -829,11 +829,17 @@ select.field-input { appearance: auto; }
   #detail-expand { display: none; }
   .peek-scroll { padding: 8px 20px calc(60px + var(--safe-b)); }
   .d-title { font-size: 22px; }
-  .prop { min-height: 44px; border-bottom: 1px solid var(--line); }
-  .props { border-bottom: 0; }
+  /* Stitch groups all properties into one rounded card with each value as a pill button,
+     instead of a flat hairline-separated list. */
+  .props { border-bottom: 0; background: var(--bg-surface-low); border-radius: var(--r-lg); padding: 4px 14px; }
+  .prop { min-height: 48px; border-bottom: 1px solid var(--line); }
+  .prop:last-child { border-bottom: 0; }
   .prop-k { width: 110px; }
   .pv-alt { display: none; }
   .prop-v, .pv, .pv-input, .subtask input[type="text"], .subtask-add input, .d-notes { font-size: 15px; }
+  .pv, .pv-input { height: 34px; padding: 0 14px; border-radius: var(--r-full); background: var(--bg-surface-high); }
+  .pv:hover, .pv-input:hover { background: var(--bg-surface-high); }
+  .pv-input:focus { background: var(--bg-surface-high); }
   .subtask, .subtask-add { min-height: 44px; }
   .subtask .cbx .cb { width: 20px; height: 20px; }
   .dialog { padding: 16px; border-radius: 14px; }
