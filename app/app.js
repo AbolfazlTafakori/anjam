@@ -1531,10 +1531,15 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     }
     refreshAvatars();
     $('#sync-status').textContent = !on ? '' : syncUI.status === 'busy' ? t('syncing') : syncUI.status === 'err' ? t('syncErr') : syncUI.status === 'ok' ? t('synced') : '';
-    let dot = $('#settings-btn .sync-dot');
-    if (!on) { if (dot) dot.remove(); return; }
-    if (!dot) { dot = document.createElement('span'); dot.className = 'sync-dot'; $('#settings-btn').appendChild(dot); }
-    dot.className = 'sync-dot' + (syncUI.status === 'err' ? ' err' : syncUI.status === 'busy' ? ' busy' : '');
+    // Desktop shows sync state as a full pill in the topbar; the phone header has no room for
+    // that, so a small dot on the drawer trigger (bottom-tab "More") carries the same signal there.
+    for (const sel of ['#settings-btn', '#tab-lists']) {
+      const host = $(sel); if (!host) continue;
+      let dot = host.querySelector('.sync-dot');
+      if (!on) { if (dot) dot.remove(); continue; }
+      if (!dot) { dot = document.createElement('span'); dot.className = 'sync-dot'; host.appendChild(dot); }
+      dot.className = 'sync-dot' + (syncUI.status === 'err' ? ' err' : syncUI.status === 'busy' ? ' busy' : '');
+    }
   }
   async function saveProfile() {
     $('#pr-err').textContent = '';

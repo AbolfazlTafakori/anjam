@@ -1,0 +1,26 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "clipped-overflow-container",
+        "value": "*",
+        "files": [
+          "app/index.html"
+        ],
+        "createdAt": "2026-09-24T09:43:29.539Z",
+        "reason": "Verified false positive: the only positioned children involved (.stw-close/.stw-back, .cbx/.switch inputs, .row-grip) each have their own nearby position:relative ancestor and never need to escape body's or .stw's overflow:hidden; no popover/menu is actually clipped (menus/datepicker/pop are position:fixed and escape ancestor overflow regardless)."
+      },
+      {
+        "rule": "cramped-padding",
+        "value": "*",
+        "files": [
+          "app/index.html"
+        ],
+        "createdAt": "2026-09-24T09:43:35.319Z",
+        "reason": "Verified false positive: .page-cover's only children (.cover-change/.cover-remove) are position:absolute with an explicit bottom:12px inset, not flush against the edge; the cover strip itself is an intentional edge-to-edge banner (Notion-style page cover) that must not get inner padding, which would shrink/break the full-bleed design."
+      }
+    ]
+  }
+}
