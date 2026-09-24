@@ -1,6 +1,6 @@
 {
   "name": "anjam",
-  "version": "1.8.5",
+  "version": "1.8.6",
   "description": "Anjam - a simple, bilingual (فارسی/English) to-do list for Windows",
   "main": "desktop/main.js",
   "scripts": {

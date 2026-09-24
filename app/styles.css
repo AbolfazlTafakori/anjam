@@ -937,6 +937,10 @@ select.field-input { appearance: auto; }
   .ws { height: 52px; padding: 0 10px; }
   .ws-mark { width: 40px; height: 40px; border-radius: 50%; font-size: 16px; }
   .new-task { height: 46px; }
+  /* Report stat "ledger": rounded gapped cards instead of a bordered spreadsheet-style grid. */
+  .ledger { border-top: 0; border-bottom: 0; gap: 10px; }
+  .ledger-row { border-inline-end: 0 !important; border-bottom: 0 !important; background: var(--bg-card); border-radius: var(--r-lg); box-shadow: var(--shadow-sm); padding: 14px; }
+  .ledger-v { font-size: 22px; }
 
   /* Home: today's-focus card + a 2-col bento grid (Inbox/Today/pinned lists) — from Stitch. */
   .home-focus { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: var(--r-lg); background: var(--bg-card); box-shadow: var(--shadow-sm); }
