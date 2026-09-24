@@ -124,6 +124,41 @@
   --shadow-lg: 0 8px 32px -4px rgba(0, 0, 0, .55), 0 0 0 1px var(--line);
 }
 
+/* ============================================================
+   Mobile design system — from the Stitch project "Anjam Mobile Task
+   Manager" (projects/12871347997904680480). Scoped to <=760px only:
+   desktop keeps the Editorial Crimson palette above untouched. This
+   redefines the same custom properties so every component downstream
+   picks up the new tokens automatically; --r-* also gets a rounder,
+   more tactile scale (16px cards, pill chips) per that design system.
+   ============================================================ */
+@media (max-width: 760px) {
+  :root {
+    --bg: #FAF9F6; --bg-side: #FFFFFF; --bg-2: #F4F3EF; --bg-card: #FFFFFF;
+    --bg-surface-low: #F4F3EF; --bg-surface-high: #E5E5E0;
+    --text: #18191E; --text-2: #3F3F46; --text-3: #71717A; --text-4: #D4D4D8;
+    --line: #E5E5E0; --line-strong: #D4D4D8;
+    --hover: rgba(24, 25, 30, .045); --active: rgba(24, 25, 30, .08);
+    --ruby: #E11D48; --ruby-hover: #BE123C; --ruby-active: #9F1039; --ruby-soft: #FCE7EB;
+    --ruby-ring: rgba(225, 29, 72, .28); --ruby-text: #E11D48; --on-ruby: #ffffff;
+    --ruby-shadow-sm: rgba(24, 25, 30, .16); --ruby-shadow-lg: rgba(24, 25, 30, .24);
+    --r-sm: 6px; --r-md: 10px; --r-lg: 16px; --r-xl: 20px; --r-full: 9999px;
+  }
+  :root[data-theme="dark"], :root:not([data-theme="light"]).sys-dark {
+    --bg: #121316; --bg-side: #1B1D22; --bg-2: #1B1D22; --bg-card: #24272E;
+    --bg-surface-low: #1B1D22; --bg-surface-high: #343538;
+    --text: #F3F4F6; --text-2: #C7C9CE; --text-3: #9CA3AF; --text-4: #5B5F6B;
+    --line: #323640; --line-strong: #3F4450;
+    --hover: rgba(243, 244, 246, .05); --active: rgba(243, 244, 246, .09);
+    --ruby: #E11D48; --ruby-hover: #F43F5E; --ruby-active: #BE123C; --ruby-soft: #3A1620;
+    --ruby-ring: rgba(225, 29, 72, .35); --ruby-text: #FF6B85; --on-ruby: #ffffff;
+    --ruby-shadow-sm: rgba(0, 0, 0, .35); --ruby-shadow-lg: rgba(225, 29, 72, .35);
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, .3), 0 0 0 1px var(--line);
+    --shadow-md: 0 12px 32px -4px rgba(0, 0, 0, .45), 0 0 0 1px var(--line);
+    --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, .45), 0 0 0 1px var(--line);
+  }
+}
+
 /* ---------- reset ---------- */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -700,21 +735,26 @@ select.field-input { appearance: auto; }
   .sidebar { position: fixed; top: 0; bottom: 0; inset-inline-start: 0; width: min(300px, 86vw); transform: translateX(var(--side-hide)); box-shadow: none; z-index: 50; padding-top: calc(8px + var(--safe-t)); }
   .app.sidebar-open .sidebar { transform: none; box-shadow: var(--shadow-lg); pointer-events: auto; }
   .app.rail-collapsed .sidebar { transform: translateX(var(--side-hide)); }
-  /* The phone header carries almost nothing: the bottom tab bar already covers navigation
-     (including opening the drawer via "More"), and the page's own title below repeats the
-     breadcrumb — so crumb text, command palette, copy-link, the sync pill and the hamburger
-     (redundant with "More") all drop out, leaving just the one contextual action (favorite)
-     when a page actually has one. Sync state moves to a small dot on the "More" tab instead. */
-  /* Sized for what's actually in it now (at most one icon), not the old icon-crammed bar. */
-  .topbar { padding: 0 8px; padding-top: var(--safe-t); height: calc(40px + var(--safe-t)); justify-content: flex-end; }
-  .topbar-menu, .topbar-expand, .crumb, #palette-btn, #link-btn, #sync-pill { display: none !important; }
-  .topbar .ibtn { width: 36px; height: 36px; }
+  /* Stitch's phone header: hamburger (opens the drawer) + wordmark at the start, a small muted
+     page label centered, sync status + account avatar at the end. Command palette, copy-link,
+     share and the desktop "…" catch-all still drop out — those live in the drawer/Settings. */
+  .topbar { padding: 0 4px; padding-top: var(--safe-t); height: calc(56px + var(--safe-t)); justify-content: space-between; background: color-mix(in srgb, var(--bg) 85%, transparent); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); }
+  .topbar-menu, #palette-btn, #link-btn { display: none !important; }
+  .topbar-expand { display: inline-flex; order: -1; }
+  .topbar .ibtn { width: 40px; height: 40px; }
+  .crumb { font-size: 12px; font-weight: 500; color: var(--text-2); max-width: 130px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   #share-btn { display: none !important; }
   /* Every item in the desktop "…" menu already lives somewhere purpose-built on phones: favorite
      and copy-link have their own topbar icons, list management is on the sidebar row's own "…",
      language/calendar are in Settings → Preferences, exports/backup are in Settings → Data,
      Report is its own view. Keeping the catch-all button here just duplicates all of that. */
   #more-btn { display: none !important; }
+  #sync-pill { width: 40px; height: 40px; padding: 0; border-radius: 50%; justify-content: center; background: var(--bg-surface-high); box-shadow: none; position: relative; }
+  #sync-pill svg { width: 20px; height: 20px; }
+  #sync-pill-text { display: none; }
+  #sync-pill::after { content: ''; position: absolute; top: 9px; inset-inline-end: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--ruby); border: 2px solid var(--bg); opacity: 0; }
+  #sync-pill.err::after { opacity: 1; }
+  #topbar-avatar { display: inline-flex; width: 32px; height: 32px; flex-shrink: 0; }
   .page { padding: 12px 20px calc(120px + var(--safe-b)); }
   .page-icon { width: 44px; height: 44px; border-radius: 10px; }
   .page-icon svg { width: 26px; height: 26px; }
@@ -890,7 +930,7 @@ select.field-input { appearance: auto; }
 .avatar.lg { width: 64px; height: 64px; border-radius: 50%; font-size: 26px; }
 .stw-body { position: relative; overflow-y: auto; padding: 44px 64px 64px; }
 .stw-close { position: absolute; top: 12px; inset-inline-end: 12px; }
-.stw-mhead, .stw-back { display: none; }
+.stw-mhead, .stw-back, #topbar-avatar { display: none; }
 .stw-pane { max-width: 680px; margin: 0 auto; }
 .stw-pane h1 { margin: 0; font-size: 24px; font-weight: 700; }
 .stw-sub { margin: 4px 0 0; color: var(--text-2); font-size: 14px; }

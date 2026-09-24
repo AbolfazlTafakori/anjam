@@ -1522,6 +1522,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     const letter = (signedIn() ? (state.data.sync.name || state.data.sync.email) : t('appName')).trim().charAt(0).toUpperCase();
     paintAvatar($('#acc-avatar'), letter);
     paintAvatar($('#sp-avatar'), letter);
+    paintAvatar($('#topbar-avatar'), letter);
   }
   function renderAccount() {
     const on = signedIn();
@@ -1882,6 +1883,7 @@ ${sec(t('overdue'), s.overdueList, 'ov')}${sec(t('open'), sorted.filter((x) => !
     bindAccount(); bindUpdates(); bindShare();
     $('#palette-btn').onclick = openPalette;
     $('#more-btn').onclick = (e) => moreMenu(e.currentTarget);
+    $('#topbar-avatar').onclick = () => openSettings('account');
     $('#filter-btn').onclick = (e) => filterMenu(e.currentTarget);
     $('#sort-btn').onclick = (e) => sortMenu(e.currentTarget);
     $$('#view-tabs button').forEach((b) => b.onclick = () => setMode(b.dataset.mode));
