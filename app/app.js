@@ -904,11 +904,12 @@
   }
 
   // ---- calendar view (month grid, drag to reschedule) ----
-  const calState = { y: 0, m: 0 };
+  const calState = { y: 0, m: 0, sel: '' };
   function renderCalendar() {
     const wrap = $('#calendar');
     const all = visibleTasks(); showEmpty(all.length ? all : []); $('#empty').hidden = true;
     if (!calState.y) { const p = isoToParts(todayIso()); calState.y = p.y; calState.m = p.m; }
+    if (!calState.sel) calState.sel = todayIso();
     const jal = cal() === 'jalali'; const months = jal ? t('jMonths') : t('gMonths');
     const firstDow = jal ? 6 : 0; const wd = jal ? t('wdSat') : t('wdSun');
     const len = monthLen(calState.y, calState.m);
@@ -917,30 +918,50 @@
     const byDay = {}; all.forEach((x) => { if (x.due) (byDay[x.due] = byDay[x.due] || []).push(x); });
     const firstIso = addDays(partsToIso(calState.y, calState.m, 1), -offset);
     const cells = Math.ceil((offset + len) / 7) * 7;
-    let grid = wd.map((w) => `<div class="cal-wd">${w}</div>`).join('');
-    for (let i = 0; i < cells; i++) {
-      const iso = addDays(firstIso, i); const inMonth = i >= offset && i < offset + len;
-      const dow = i % 7; const holiday = jal ? dow === 6 : dow === 0;
-      const dayNum = inMonth ? i - offset + 1 : isoToParts(iso).d;
-      const evs = (byDay[iso] || []);
-      const shown = evs.slice(0, 4);
-      grid += `<div class="cal-day${inMonth ? '' : ' other'}${iso === today ? ' today' : ''}${holiday ? ' holiday' : ''}" data-iso="${iso}"><span class="cal-d">${num(dayNum)}</span>${shown.map((x) => `<div class="cal-ev${x.done ? ' done' : ''}${x.priority === 3 ? ' p3' : ''}" data-id="${x.id}" draggable="${!x.done}" title="${esc(x.title)}"><i style="${x.listId && getList(x.listId) ? `background:${getList(x.listId).color}` : ''}"></i><span dir="auto">${esc(x.title)}</span></div>`).join('')}${evs.length > 4 ? `<span class="cal-more">+${num(evs.length - 4)}</span>` : ''}</div>`;
+    const phone = isPhone();
+
+    if (phone) {
+      let grid = wd.map((w) => `<div class="cal-wd">${w}</div>`).join('');
+      for (let i = 0; i < cells; i++) {
+        const iso = addDays(firstIso, i); const inMonth = i >= offset && i < offset + len;
+        const dow = i % 7; const holiday = jal ? dow === 6 : dow === 0;
+        const dayNum = inMonth ? i - offset + 1 : isoToParts(iso).d;
+        const evs = byDay[iso] || [];
+        const dots = evs.slice(0, 3).map((x) => `<i style="${x.listId && getList(x.listId) ? `background:${getList(x.listId).color}` : ''}"></i>`).join('');
+        grid += `<button class="cal-daybtn${inMonth ? '' : ' other'}${iso === today ? ' today' : ''}${iso === calState.sel ? ' selected' : ''}${holiday ? ' holiday' : ''}" data-iso="${iso}"><span class="cal-dnum">${num(dayNum)}</span>${dots ? `<span class="cal-dots">${dots}</span>` : ''}</button>`;
+      }
+      const selEvs = byDay[calState.sel] || [];
+      wrap.innerHTML = `<div class="cal-head"><button class="ibtn" id="cal-prev">${icon('chevron', 'flip-rtl')}</button><button class="ibtn" id="cal-next">${icon('chevron', 'flip-ltr')}</button><span class="cal-title">${esc(months[calState.m - 1])} ${num(calState.y).replace(/[,٬]/g, '')}</span><button class="tbtn today-btn" id="cal-today">${esc(t('today'))}</button></div><div class="cal-grid mobile">${grid}</div><div class="cal-agenda"><div class="cal-agenda-head"><span>${esc(fmtDate(calState.sel))}</span><span class="count">${num(selEvs.length)}</span></div><div class="cal-agenda-list" id="cal-agenda-list"></div></div>`;
+      const list = $('#cal-agenda-list');
+      if (selEvs.length) selEvs.forEach((x) => list.appendChild(rowEl(x)));
+      else list.innerHTML = `<div class="cal-agenda-empty">${esc(t('noTasks'))}</div>`;
+      wrap.querySelectorAll('.cal-daybtn').forEach((d) => { d.onclick = () => { calState.sel = d.dataset.iso; renderCalendar(); }; });
+    } else {
+      let grid = wd.map((w) => `<div class="cal-wd">${w}</div>`).join('');
+      for (let i = 0; i < cells; i++) {
+        const iso = addDays(firstIso, i); const inMonth = i >= offset && i < offset + len;
+        const dow = i % 7; const holiday = jal ? dow === 6 : dow === 0;
+        const dayNum = inMonth ? i - offset + 1 : isoToParts(iso).d;
+        const evs = (byDay[iso] || []);
+        const shown = evs.slice(0, 4);
+        grid += `<div class="cal-day${inMonth ? '' : ' other'}${iso === today ? ' today' : ''}${holiday ? ' holiday' : ''}" data-iso="${iso}"><span class="cal-d">${num(dayNum)}</span>${shown.map((x) => `<div class="cal-ev${x.done ? ' done' : ''}${x.priority === 3 ? ' p3' : ''}" data-id="${x.id}" draggable="${!x.done}" title="${esc(x.title)}"><i style="${x.listId && getList(x.listId) ? `background:${getList(x.listId).color}` : ''}"></i><span dir="auto">${esc(x.title)}</span></div>`).join('')}${evs.length > 4 ? `<span class="cal-more">+${num(evs.length - 4)}</span>` : ''}</div>`;
+      }
+      wrap.innerHTML = `<div class="cal-head"><button class="ibtn" id="cal-prev">${icon('chevron', 'flip-rtl')}</button><button class="ibtn" id="cal-next">${icon('chevron', 'flip-ltr')}</button><span class="cal-title">${esc(months[calState.m - 1])} ${num(calState.y).replace(/[,٬]/g, '')}</span><button class="tbtn today-btn" id="cal-today">${esc(t('today'))}</button></div><div class="cal-grid">${grid}</div>`;
+      wrap.querySelectorAll('.cal-day').forEach((d) => {
+        d.onclick = (e) => { const ev = e.target.closest('.cal-ev'); if (ev) return openDetail(ev.dataset.id); openCapture({ due: d.dataset.iso }); };
+        d.addEventListener('dragover', (e) => { if (!drag.id) return; e.preventDefault(); d.classList.add('drop'); });
+        d.addEventListener('dragleave', () => d.classList.remove('drop'));
+        d.addEventListener('drop', (e) => { e.preventDefault(); d.classList.remove('drop'); const x = getTask(drag.id); if (x && x.due !== d.dataset.iso) { x.due = d.dataset.iso; save(); render(); } });
+      });
+      wrap.querySelectorAll('.cal-ev').forEach((ev) => {
+        ev.addEventListener('dragstart', (e) => { drag.id = ev.dataset.id; e.dataTransfer.effectAllowed = 'move'; });
+        ev.addEventListener('dragend', () => { drag.id = null; $$('.cal-day').forEach((k) => k.classList.remove('drop')); });
+        ev.oncontextmenu = (e) => { e.preventDefault(); const x = getTask(ev.dataset.id); if (x) taskMenu(x, e); };
+      });
     }
-    wrap.innerHTML = `<div class="cal-head"><button class="ibtn" id="cal-prev">${icon('chevron', 'flip-rtl')}</button><button class="ibtn" id="cal-next">${icon('chevron', 'flip-ltr')}</button><span class="cal-title">${esc(months[calState.m - 1])} ${num(calState.y).replace(/[,٬]/g, '')}</span><button class="tbtn today-btn" id="cal-today">${esc(t('today'))}</button></div><div class="cal-grid">${grid}</div>`;
     $('#cal-prev').onclick = () => { calState.m -= 1; if (calState.m < 1) { calState.m = 12; calState.y -= 1; } renderCalendar(); };
     $('#cal-next').onclick = () => { calState.m += 1; if (calState.m > 12) { calState.m = 1; calState.y += 1; } renderCalendar(); };
-    $('#cal-today').onclick = () => { const p = isoToParts(todayIso()); calState.y = p.y; calState.m = p.m; renderCalendar(); };
-    wrap.querySelectorAll('.cal-day').forEach((d) => {
-      d.onclick = (e) => { const ev = e.target.closest('.cal-ev'); if (ev) return openDetail(ev.dataset.id); openCapture({ due: d.dataset.iso }); };
-      d.addEventListener('dragover', (e) => { if (!drag.id) return; e.preventDefault(); d.classList.add('drop'); });
-      d.addEventListener('dragleave', () => d.classList.remove('drop'));
-      d.addEventListener('drop', (e) => { e.preventDefault(); d.classList.remove('drop'); const x = getTask(drag.id); if (x && x.due !== d.dataset.iso) { x.due = d.dataset.iso; save(); render(); } });
-    });
-    wrap.querySelectorAll('.cal-ev').forEach((ev) => {
-      ev.addEventListener('dragstart', (e) => { drag.id = ev.dataset.id; e.dataTransfer.effectAllowed = 'move'; });
-      ev.addEventListener('dragend', () => { drag.id = null; $$('.cal-day').forEach((k) => k.classList.remove('drop')); });
-      ev.oncontextmenu = (e) => { e.preventDefault(); const x = getTask(ev.dataset.id); if (x) taskMenu(x, e); };
-    });
+    $('#cal-today').onclick = () => { const p = isoToParts(todayIso()); calState.y = p.y; calState.m = p.m; calState.sel = todayIso(); renderCalendar(); };
   }
 
   // ---- popover menu (single instance) ----
