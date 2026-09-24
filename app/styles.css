@@ -705,9 +705,10 @@ select.field-input { appearance: auto; }
      breadcrumb — so crumb text, command palette, copy-link, the sync pill and the hamburger
      (redundant with "More") all drop out, leaving just the one contextual action (favorite)
      when a page actually has one. Sync state moves to a small dot on the "More" tab instead. */
-  .topbar { padding: 0 8px; padding-top: var(--safe-t); height: calc(var(--topbar-h) + 4px + var(--safe-t)); justify-content: flex-end; }
+  /* Sized for what's actually in it now (at most one icon), not the old icon-crammed bar. */
+  .topbar { padding: 0 8px; padding-top: var(--safe-t); height: calc(40px + var(--safe-t)); justify-content: flex-end; }
   .topbar-menu, .topbar-expand, .crumb, #palette-btn, #link-btn, #sync-pill { display: none !important; }
-  .topbar .ibtn { width: 40px; height: 40px; }
+  .topbar .ibtn { width: 36px; height: 36px; }
   #share-btn { display: none !important; }
   /* Every item in the desktop "…" menu already lives somewhere purpose-built on phones: favorite
      and copy-link have their own topbar icons, list management is on the sidebar row's own "…",
@@ -719,16 +720,24 @@ select.field-input { appearance: auto; }
   .page-icon svg { width: 26px; height: 26px; }
   .page-title { font-size: 30px; margin-top: 10px; }
   .page-sub { font-size: 13px; }
-  .db-bar { margin-top: 16px; top: 0; }
+  /* Two rows instead of one cramped strip: the view tabs (when a list has them) on top, then a
+     search field that's the dominant element — a real full-height card, not a squashed icon —
+     with filter/sort as plain square icon buttons after it. Search is first in the markup, which
+     in RTL puts it at the visual right/start edge, exactly where it reads as "the" control. */
+  .db-bar { margin-top: 16px; top: 0; flex-wrap: wrap; row-gap: 10px; }
+  .db-tabs { flex-basis: 100%; }
   .db-tabs button { height: 40px; font-size: 14px; }
   .db-tabs button span { display: none; }
   .db-tabs button[aria-selected="true"] span { display: inline; }
-  .db-tools .tbtn span { display: none; }
-  .db-tools .tbtn { width: 36px; height: 40px; justify-content: center; }
-  .db-tools .tbtn svg { width: 18px; height: 18px; }
+  .db-tools { flex-basis: 100%; margin-inline-start: 0; gap: 8px; }
   .split { display: none; }
-  .search { width: 36px; height: 40px; justify-content: center; padding: 0; }
-  .search:focus-within, .search.has-q { width: 160px; padding: 0 8px; justify-content: flex-start; }
+  .search { flex: 1; width: auto; min-width: 0; height: 44px; padding: 0 14px; border-radius: var(--r-lg); }
+  .search svg { width: 18px; height: 18px; }
+  .search input { font-size: 14.5px; }
+  .db-tools .tbtn { width: 44px; height: 44px; border-radius: var(--r-lg); justify-content: center; background: var(--bg-card); border: 1px solid var(--line); flex-shrink: 0; }
+  .db-tools .tbtn span { display: none; }
+  .db-tools .tbtn svg { width: 18px; height: 18px; }
+  .db-tools .tbtn.on { background: var(--ruby-soft); border-color: transparent; }
   .row { min-height: 52px; padding: 0 2px; gap: 12px; border-radius: 0; border-bottom: 1px solid var(--line); }
   .row:hover, .row:focus-visible { background: transparent; }
   .row .cbx .cb { width: 20px; height: 20px; border-radius: 5px; }
